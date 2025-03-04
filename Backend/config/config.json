@@ -1,0 +1,3 @@
+{
+    "connectionString": "mongodb+srv://jahanrazh:<db_password>@wanderlust.tu41d.mongodb.net/?retryWrites=true&w=majority&appName=Wanderlust"
+}
