@@ -1,0 +1,117 @@
+.container {
+    width: 100%;
+    position: relative;
+    text-align: center;
+    color: white;
+    height: 450px;
+}
+
+.img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.layer {
+    background-color: rgba(0, 0, 0, 0.5);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.headerTxt {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.sloganTxt {
+    font-size: 16px;
+    color: white;
+    margin-top: 10px;
+    opacity: 0.8;
+    font-weight: 400;
+}
+
+.exploreBtn {
+    margin-top: 40px;
+    text-align: center;
+    background-color: #4468E2;
+    color: white;
+    padding: 12px 35px 12px 35px;
+    border: none;
+    opacity: 0.9;
+    font-weight: 500;
+    font-family: Arial, Helvetica, sans-serif;
+    border-radius: 10px;
+}
+
+.exploreBtn:hover {
+    transform: scale(1.07);
+}
+
+.cardImg {
+    position: relative;
+    width: 35px;
+    height: auto;
+}
+
+.imgBg {
+    margin: 20px 20px 0px 20px;
+    padding: 20px;
+    width: fit-content;
+    background-color: #4468E20D;
+    border-radius: 20px;
+    height: 80px;
+}
+
+.cardContainer {
+    border: none;
+    background-color: #FFFFFF00;
+    border-radius: 15px;
+    max-width: 380px;
+    margin-bottom: 20px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
+
+.cardHeader {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000CC;
+}
+
+.cardDes {
+    font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #00000099;
+}
+
+.destinationHeading {
+    color: black;
+    font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 34px;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+.reviewSection {
+    padding: 100px 100px 0px 100px;
+}
+
+.reviewCard {
+    background-color: #FFFFFF00;
+    padding: 20px 0px 20px 0px;
+    border-radius: 10px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}
