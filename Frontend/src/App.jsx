@@ -5,7 +5,7 @@ import Homenew from './pages/Home/Homenew'
 import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
 import ProfileStats from "./components/Cards/ProfileStats"; // Import ProfileStats
-
+import AdminDashboard from './pages/Admin/AdminDashboard';
 const App = () => {
   return (
     <div>
@@ -15,6 +15,7 @@ const App = () => {
           <Route path="/home" element={<Homenew/>}/>
           <Route path="/dashboard" element={<Home />} />
           <Route path="/profile-stats" element={<ProfileStats />} /> {/* New Route */}
+          <Route path="/admindashboard" element={<AdminDashboard />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="*" element={<Navigate to="/" />} />
