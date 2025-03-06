@@ -10,10 +10,10 @@ export default function MainNavbar() {
                 </div>
                 <ul className="hidden md:flex">
                     <li className="mx-2"><a href="#" className="text-black hover:text-gray-300">Home</a></li>
-                    <li className="mx-2"><a href="#" className="text-black hover:text-gray-300">Home</a></li>
-                    <li className="mx-2"><a href="#" className="text-black hover:text-gray-300">Home</a></li>
-                    <li className="mx-2"><a href="#" className="text-black hover:text-gray-300">Home</a></li>
-                    <li className="mx-2"><a href="#" className="text-black hover:text-gray-300">Home</a></li>
+                    <li className="mx-2"><a href="#" className="text-black hover:text-gray-300">Travel Story</a></li>
+                    <li className="mx-2"><a href="#" className="text-black hover:text-gray-300">Hotel</a></li>
+                    <li className="mx-2"><a href="#" className="text-black hover:text-gray-300">Guide</a></li>
+                    <li className="mx-2"><a href="#" className="text-black hover:text-gray-300">About</a></li>
                 </ul>
                 <button className="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-200">Login</button>
             </nav>
