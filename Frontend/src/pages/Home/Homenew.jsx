@@ -1,5 +1,7 @@
 
-
+import React from "react";
+import MainNav from "../../components/MainNavbar";
+import Footer from "../../components/footer";
 //import css file from style sheets directory
 import styleHome from "../../styles/Home.module.css";
 
@@ -13,6 +15,7 @@ import priceImg from "../../assets/images/home/Prices.png"
 const Homenew = () => {
     return (
         <>
+        <MainNav />
         <div className={styleHome.container}>
             <img src={coverImg} alt="Cover Beach" className={styleHome.img} />
             <div className={styleHome.layer}>
@@ -88,14 +91,18 @@ const Homenew = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
                     {["https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(73).webp",
                       "https://mdbcdn.b-cdn.net/img/Photos/Vertical/mountain1.webp",
+                      "https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(18).webp",
                       "https://mdbcdn.b-cdn.net/img/Photos/Vertical/mountain2.webp",
                       "https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(73).webp",
-                      "https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(18).webp",
                       "https://mdbcdn.b-cdn.net/img/Photos/Vertical/mountain3.webp"].map((img, index) => (
-                        <img key={index} src={img} alt="Destination" className="w-full rounded-lg shadow-lg" />
-                    ))}
+                        <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden">
+                            <img src={img} alt={`Destination ${index + 1}`} className="w-full h-48 object-cover" />
+                        </div>
+                      ))
+                    }
                 </div>
             </div>
+            <Footer />
         </>
     );
 };
