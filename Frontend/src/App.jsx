@@ -19,7 +19,7 @@ const App = () => {
           <Route path="/dashboard" element={<Home />} />
           <Route path="/profile-stats" element={<ProfileStats />} /> 
           <Route path="/admindashboard" element={<AdminDashboard />} />
-          <Route path="/admin/packages" element={<AllPackages />} /> {/* Add this route */}
+          <Route path="/Allpackages" element={<AllPackages />} /> {/* Add this route */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/mainnav" element={<MainNavbar />} />
