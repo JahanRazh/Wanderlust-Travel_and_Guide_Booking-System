@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import React from 'react';
 import Home from './pages/Home/Home';
-import Homenew from './pages/Home/Homenew'
+import Homenew from './pages/Home/Homenew';
 import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
-import ProfileStats from "./components/Cards/ProfileStats"; // Import ProfileStats
+import ProfileStats from "./components/Cards/ProfileStats"; 
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import MainNavbar from './components/MainNavbar';
+import AllPackages from './pages/Admin/AllPackages'; // Add this import
+
 const App = () => {
   return (
     <div>
@@ -15,8 +17,9 @@ const App = () => {
           <Route path="/" element={<Root />} />
           <Route path="/home" element={<Homenew/>}/>
           <Route path="/dashboard" element={<Home />} />
-          <Route path="/profile-stats" element={<ProfileStats />} /> {/* New Route */}
+          <Route path="/profile-stats" element={<ProfileStats />} /> 
           <Route path="/admindashboard" element={<AdminDashboard />} />
+          <Route path="/admin/packages" element={<AllPackages />} /> {/* Add this route */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/mainnav" element={<MainNavbar />} />
