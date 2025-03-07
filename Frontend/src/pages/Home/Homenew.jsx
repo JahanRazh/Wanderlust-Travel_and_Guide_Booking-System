@@ -15,7 +15,7 @@ import priceImg from "../../assets/images/home/Prices.png"
 const Homenew = () => {
     return (
         <>
-        <MainNav />
+        
         <div className={styleHome.container}>
             <img src={coverImg} alt="Cover Beach" className={styleHome.img} />
             <div className={styleHome.layer}>
