@@ -55,7 +55,7 @@ const App = () => {
         
         <div>
           <Routes>
-            <Route path="/" element={<Navigate to="/home" />} />
+            <Route index element={<Homenew/>} />
             <Route path="/home" element={<Homenew />} />
             <Route path="/dashboard" element={<Home />} />
             <Route path="/profile-stats" element={<ProfileStats />} />
