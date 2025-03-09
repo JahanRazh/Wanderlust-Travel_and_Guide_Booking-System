@@ -9,6 +9,9 @@ import MainNavbar from './components/MainNavbar';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import ProfileStats from './components/Cards/ProfileStats';
 import Guideview from './pages/Guide/Guideview';
+import About from './pages/About';
+import TravelStory from './components/Cards/TravelStoryCard';
+import AllTravelpackages from './pages/Admin/Allpackages';
 import styles from './styles/App.module.css';
 
 const App = () => {
@@ -55,7 +58,7 @@ const App = () => {
         
         <div>
           <Routes>
-            <Route path="/" element={<Navigate to="/home" />} />
+            <Route index element={<Homenew/>} />
             <Route path="/home" element={<Homenew />} />
             <Route path="/dashboard" element={<Home />} />
             <Route path="/profile-stats" element={<ProfileStats />} />
@@ -63,6 +66,10 @@ const App = () => {
             <Route path="/login" element={<Login login={login} />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/view/hotel" element={<Hotelview />} />
+            <Route path="/view/guide" element={<Guideview />} />
+            <Route path="/view/about" element={<About />} />
+            <Route path="/view/travel-story" element={<TravelStory />} />
+            <Route path="/view/Travel-packeges" element={<AllTravelpackages />} />
             <Route path="*" element={<Navigate to="/home" />} />
           </Routes>
         </div>
