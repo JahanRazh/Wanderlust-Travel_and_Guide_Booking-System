@@ -9,6 +9,8 @@ import MainNavbar from './components/MainNavbar';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import ProfileStats from './components/Cards/ProfileStats';
 import Guideview from './pages/Guide/Guideview';
+import About from './pages/About';
+import TravelStory from './components/Cards/TravelStoryCard';
 import styles from './styles/App.module.css';
 
 const App = () => {
@@ -63,6 +65,9 @@ const App = () => {
             <Route path="/login" element={<Login login={login} />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/view/hotel" element={<Hotelview />} />
+            <Route path="/view/guide" element={<Guideview />} />
+            <Route path="/view/about" element={<About />} />
+            <Route path="/view/travel-story" element={<TravelStory />} />
             <Route path="*" element={<Navigate to="/home" />} />
           </Routes>
         </div>
