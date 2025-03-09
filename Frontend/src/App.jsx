@@ -11,6 +11,7 @@ import ProfileStats from './components/Cards/ProfileStats';
 import Guideview from './pages/Guide/Guideview';
 import About from './pages/About';
 import TravelStory from './components/Cards/TravelStoryCard';
+import AllTravelpackages from './pages/Admin/Allpackages';
 import styles from './styles/App.module.css';
 
 const App = () => {
@@ -68,6 +69,7 @@ const App = () => {
             <Route path="/view/guide" element={<Guideview />} />
             <Route path="/view/about" element={<About />} />
             <Route path="/view/travel-story" element={<TravelStory />} />
+            <Route path="/view/Travel-packeges" element={<AllTravelpackages />} />
             <Route path="*" element={<Navigate to="/home" />} />
           </Routes>
         </div>

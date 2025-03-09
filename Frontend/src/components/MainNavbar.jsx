@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import LOGO from '../assets/images/logo/WANDERLUST.LOGO.png';
+import ProfileInfo from './Cards/ProfileInfo'; // Import the ProfileInfo component
 
 export default function MainNavbar() {
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
@@ -31,16 +32,17 @@ export default function MainNavbar() {
         };
     }, [navigate]);
     
-    const handleAuthClick = () => {
-        if (isLoggedIn) {
-            localStorage.removeItem("token");
-            setIsLoggedIn(false);
-            navigate("/login");
-        } else {
-            navigate("/login");
-        }
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        setIsLoggedIn(false);
+        navigate("/login");
     };
-    
+
+    // Mock user info - replace this with actual user data from your app
+    const userInfo = {
+        fullName: "John Doe", // Replace with the actual user's full name
+    };
+
     return (
         <nav className="bg-white flex items-center justify-between px-6 py-2 drop-shadow sticky top-0 z-10">
             <div className="flex items-center">
@@ -48,6 +50,7 @@ export default function MainNavbar() {
             </div>
             <ul className="flex items-center hidden md:flex">
                 <li className="mx-2"><Link to="/" className="text-black hover:text-gray-300">Home</Link></li>
+                
                 {isLoggedIn && (
                     <>
                         <li className="mx-2"><Link to="/view/travel-story" className="text-black hover:text-gray-300">Travel Story</Link></li>
@@ -55,14 +58,21 @@ export default function MainNavbar() {
                         <li className="mx-2"><Link to="/view/guide" className="text-black hover:text-gray-300">Guide</Link></li>
                     </>
                 )}
+                <li className="mx-2"><Link to="/view/Travel-packeges" className="text-black hover:text-gray-300">Packeges</Link></li>
                 <li className="mx-2"><Link to="/view/about" className="text-black hover:text-gray-300">About</Link></li>
             </ul>
-            <button
-                className="text-white px-4 py-2 bg-sky-500 rounded-lg hover:bg-gray-200"
-                onClick={handleAuthClick}
-            >
-                {isLoggedIn ? 'Logout' : 'Login'}
-            </button>
+            <div className="flex items-center">
+                {isLoggedIn ? (
+                    <ProfileInfo userInfo={userInfo} onLogout={handleLogout} />
+                ) : (
+                    <button
+                        className="text-white px-4 py-2 bg-sky-500 rounded-lg hover:bg-gray-200"
+                        onClick={() => navigate("/login")}
+                    >
+                        Login
+                    </button>
+                )}
+            </div>
         </nav>
     );
 }
