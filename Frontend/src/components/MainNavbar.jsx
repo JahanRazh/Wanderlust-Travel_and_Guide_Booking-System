@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import LOGO from '../assets/images/logo/WANDERLUST.LOGO.png';
 import ProfileInfo from './Cards/ProfileInfo'; // Import the ProfileInfo component
 
-export default function MainNavbar() {
+const  MainNavbar =({}) =>{
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
     const navigate = useNavigate();
     
@@ -76,3 +76,5 @@ export default function MainNavbar() {
         </nav>
     );
 }
+
+export default MainNavbar;

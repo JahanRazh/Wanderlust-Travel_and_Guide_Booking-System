@@ -60,7 +60,7 @@ const App = () => {
           <Routes>
             <Route index element={<Homenew/>} />
             <Route path="/home" element={<Homenew />} />
-            <Route path="/dashboard" element={<Home />} />
+            <Route path="/view/travel-story" element={<Home />} />
             <Route path="/profile-stats" element={<ProfileStats />} />
             <Route path="/admindashboard" element={<AdminDashboard />} />
             <Route path="/login" element={<Login login={login} />} />
