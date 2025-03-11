@@ -1,6 +1,4 @@
-
 import React from "react";
-import MainNav from "../../components/MainNavbar";
 import Footer from "../../components/footer";
 //import css file from style sheets directory
 import styleHome from "../../styles/Home.module.css";
