@@ -64,6 +64,19 @@ const addTravelStory = async (req, res) => {
   }
 };
 
+/*
+// Get all travel stories
+const getAllTravelStories = async (req, res) => {
+  const { userId } = req.user;
+  try {
+    const travelStories = await TravelStory.find({ userId: userId }).sort({ isFavourite: -1 });
+    res.status(201).json({ travelStories, message: "Travel stories fetched successfully" });
+  } catch (error) {
+    res.status(400).json({ error: true, message: error.message });
+  }
+};
+*/
+
 // Get all travel stories (fixed to return all stories, not just user's)
 const getAllTravelStories = async (req, res) => {
   try {
