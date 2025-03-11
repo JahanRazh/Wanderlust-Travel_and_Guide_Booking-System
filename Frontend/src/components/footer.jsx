@@ -1,7 +1,7 @@
 export default function Footer() {
     return (
         <footer className="bg-white flex items-center justify-between px-6 py-2 drop-shadow sticky top-0 z-10">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-3 py-8">
                 {/* Grid Layout for Footer Sections */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* About Us Section */}
@@ -16,11 +16,11 @@ export default function Footer() {
                     <div>
                         <h3 className="text-xl font-bold mb-4">Quick Links</h3>
                         <ul className="space-y-2">
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Home</a></li>
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Travel Packages</a></li>
+                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Home</a></li><br/>
+                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Travel Packages</a></li><br/>
                             <li><a href="#" className="text-gray-600 hover:text-gray-900">Hotels</a></li>
                             <li><a href="#" className="text-gray-600 hover:text-gray-900">Guides</a></li>
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Contact Us</a></li>
+                            <li><a href="#" className="text-gray-600 hover:text-gray-900">About</a></li>
                         </ul>
                     </div>
 
@@ -28,15 +28,15 @@ export default function Footer() {
                     <div>
                         <h3 className="text-xl font-bold mb-4">Contact Us</h3>
                         <ul className="text-gray-600 space-y-2">
-                            <li>Email: support@travelsystem.com</li>
-                            <li>Phone: +1 (123) 456-7890</li>
-                            <li>Address: 123 Travel St, Wanderlust City</li>
+                            <li>Email: <a href="mailto:support@Wanderlust.com" className="text-gray-600 hover:text-gray-900">Wanderlust.com</a></li><br/>
+                            <li>Phone: <a href="tel:+11234567890" className="text-gray-600 hover:text-gray-900">+1(123)456-7890</a></li><br/>
+                            <li>Address: 123 Travel St, Malabe</li>
                         </ul>
                     </div>
 
                     {/* Newsletter Subscription Section */}
                     <div>
-                        <h3 className="text-xl font-bold mb-4">Subscribe to Our Newsletter</h3>
+                        <h3 className="text-xl font-bold mb-4">Our Newsletter</h3>
                         <p className="text-gray-600 mb-4">
                             Get the latest travel deals and updates directly in your inbox.
                         </p>
@@ -77,7 +77,7 @@ export default function Footer() {
 
                 {/* Copyright Section */}
                 <div className="mt-8 text-center text-gray-600">
-                    <p>&copy; {new Date().getFullYear()} Travel Management System. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} WANDERLUST. All rights reserved.</p>
                 </div>
             </div>
         </footer>
