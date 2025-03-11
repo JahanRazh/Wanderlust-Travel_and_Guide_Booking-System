@@ -10,10 +10,14 @@ const ProfileStats = () => {
   const [message, setMessage] = useState("");
   const [profileImage, setProfileImage] = useState(userInfo?.profileImage || null);
 
+  // Redirect to dashboard if no user data is available
   if (!userInfo) {
-    navigate("/dashboard"); // Redirect to dashboard if no user data is available
+    navigate("/dashboard");
     return null;
   }
+
+  // Check if the user is an admin
+  const isAdmin = userInfo.email === "admin@wanderlust.com";
 
   // Handle profile picture upload
   const handleProfilePictureChange = async (e) => {
@@ -105,6 +109,17 @@ const ProfileStats = () => {
         </p>
       </div>
       
+      {/* Admin Dashboard Button (Conditional Rendering) */}
+      {isAdmin && (
+        <button
+          className="mt-4 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition mr-4"
+          onClick={() => navigate("/admindashboard")} // Use absolute path
+        >
+          Admin Dashboard
+        </button>
+      )}
+      
+      {/* Back to Dashboard Button */}
       <button
         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
         onClick={() => navigate("/dashboard")}
