@@ -33,18 +33,24 @@ const Login = () => {
         email: email,
         password: password,
       });
+
       // Handle success login response
       if (response.data && response.data.accessToken) {
+        console.log("Login successful, token:", response.data.accessToken);
         localStorage.setItem("token", response.data.accessToken);
-        navigate("/home");
+
+        // Check if the user is an admin
+        if (email === "admin@wanderlust.com" && password === "Admin") {
+          console.log("Admin detected, navigating to /admindashboard");
+          navigate("/admindashboard"); // Use absolute path
+        } else {
+          console.log("Regular user, navigating to /home");
+          navigate("/home"); // Navigate to home page for regular users
+        }
       }
     } catch (error) {
-      // Handle error
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
+      console.error("Login error:", error);
+      if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
       } else {
         setError("Something went wrong. Please try again later.");
@@ -119,7 +125,7 @@ const Login = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Login;
