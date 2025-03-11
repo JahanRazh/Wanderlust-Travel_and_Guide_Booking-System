@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import LOGO from '../assets/images/logo/WANDERLUST.LOGO.png';
 import ProfileInfo from './Cards/ProfileInfo'; // Import the ProfileInfo component
+import axiosInstance from '../utils/axiosInstance'; // Import axiosInstance for API calls
 
-const  MainNavbar =({}) =>{
+const MainNavbar = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+    const [userInfo, setUserInfo] = useState(null); // State to store user info
     const navigate = useNavigate();
-    
+
     useEffect(() => {
         // Update state if token changes in localStorage from other tabs
         const handleStorageChange = (e) => {
@@ -14,33 +16,39 @@ const  MainNavbar =({}) =>{
                 setIsLoggedIn(!!localStorage.getItem("token"));
             }
         };
-        
+
         // Check auth status on component mount and route changes
         const checkAuthStatus = () => {
             setIsLoggedIn(!!localStorage.getItem("token"));
         };
-        
+
+        // Fetch user info if logged in
+        const fetchUserInfo = async () => {
+            if (isLoggedIn) {
+                try {
+                    const response = await axiosInstance.get("/get-user");
+                    if (response.data?.user) {
+                        setUserInfo(response.data.user);
+                    }
+                } catch (error) {
+                    console.error("Error fetching user info:", error);
+                }
+            }
+        };
+
         window.addEventListener("storage", handleStorageChange);
-        
-        // This ensures the navbar updates when navigating between routes
         checkAuthStatus();
-        
-        // Optional: you could add a router event listener if available in your version
-        // For example with React Router v6:
+        fetchUserInfo();
+
         return () => {
             window.removeEventListener("storage", handleStorageChange);
         };
-    }, [navigate]);
-    
+    }, [navigate, isLoggedIn]);
+
     const handleLogout = () => {
         localStorage.removeItem("token");
         setIsLoggedIn(false);
         navigate("/login");
-    };
-
-    // Mock user info - replace this with actual user data from your app
-    const userInfo = {
-        fullName: "John Doe", // Replace with the actual user's full name
     };
 
     return (
