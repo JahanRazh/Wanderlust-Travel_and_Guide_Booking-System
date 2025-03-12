@@ -1,6 +1,4 @@
-
 import React from "react";
-import MainNav from "../../components/MainNavbar";
 import Footer from "../../components/footer";
 //import css file from style sheets directory
 import styleHome from "../../styles/Home.module.css";
@@ -15,7 +13,7 @@ import priceImg from "../../assets/images/home/Prices.png"
 const Homenew = () => {
     return (
         <>
-        <MainNav />
+        
         <div className={styleHome.container}>
             <img src={coverImg} alt="Cover Beach" className={styleHome.img} />
             <div className={styleHome.layer}>
