@@ -13,7 +13,8 @@ import About from './pages/About';
 import TravelStory from './components/Cards/TravelStoryCard';
 import AllTravelpackages from './pages/Admin/Allpackages';
 import styles from './styles/App.module.css';
-
+import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ResetPassword from "./pages/Auth/ResetPassword";
 const App = () => {
   const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
  
@@ -70,6 +71,8 @@ const App = () => {
             <Route path="/view/about" element={<About />} />
             <Route path="/view/travel-story" element={<TravelStory />} />
             <Route path="/view/Travel-packeges" element={<AllTravelpackages />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="*" element={<Navigate to="/home" />} />
           </Routes>
         </div>
