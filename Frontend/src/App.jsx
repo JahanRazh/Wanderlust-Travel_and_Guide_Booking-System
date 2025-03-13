@@ -28,53 +28,22 @@ const App = () => {
   };
  
   return (
-    <Router>
-      <div className="App min-vh-100" style={{ backgroundColor: '#f7f7f7' }}>
-        {/* Use the MainNavbar component instead of inline nav */}
-        <MainNavbar userId={userId} logout={logout} />
-        
-        {/* Alternative: Keep your original nav if MainNavbar isn't ready */}
-        {/* 
-        <nav className={`navbar-fixed-top ${styles.nav}`}>
-          <div>
-            <div className={styles.topnav_center}>
-              <ul>
-                <li><Link to="/home">Home</Link></li>
-                <li><link to="/view/Travel-Story">Travel Story</link></li>
-                <li><Link to="/view/hotel">Hotel</Link></li>
-                <li><Link to="/view/Guide">Guide</Link></li>
-                <li><Link to="/view/About">About</Link></li>
-                
-              </ul>
-            </div>
-            {userId ? (
-              <Link to={'/home'} onClick={logout} className={styles.btn_login}>Logout</Link>
-            ) : (
-              <Link to={'/login'} className={styles.btn_login}>Login</Link>
-            )}
-          </div>
-        </nav>
-        */}
-        
-        <div>
-          <Routes>
-            <Route index element={<Homenew/>} />
-            <Route path="/home" element={<Homenew />} />
-            <Route path="/view/travel-story" element={<Home />} />
-            <Route path="/profile-stats" element={<ProfileStats />} />
-            <Route path="/admindashboard" element={<AdminDashboard />} />
-            <Route path="/login" element={<Login login={login} />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/view/hotel" element={<Hotelview />} />
-            <Route path="/view/guide" element={<Guideview />} />
-            <Route path="/view/about" element={<About />} />
-            <Route path="/view/travel-story" element={<TravelStory />} />
-            <Route path="/view/Travel-packeges" element={<AllTravelpackages />} />
-            <Route path="*" element={<Navigate to="/home" />} />
-          </Routes>
-        </div>
-      </div>
-    </Router>
+    <div>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Root />} />
+          <Route path="/home" element={<Homenew/>}/>
+          <Route path="/dashboard" element={<Home />} />
+          <Route path="/profile-stats" element={<ProfileStats />} /> 
+          <Route path="/admindashboard" element={<AdminDashboard />} />
+          <Route path="/admin/packages" element={<AllPackages />} /> {/* Add this route */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/mainnav" element={<MainNavbar />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </div>
   );
 };
 // Define the Root component to handle the redirect
