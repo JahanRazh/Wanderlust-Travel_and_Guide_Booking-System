@@ -21,7 +21,7 @@ const Dashboard = () => {
           <p>
             <button 
               className={Admincss.viewBtn}
-              onClick={() => navigate('/Allpackages')}
+              onClick={() => navigate('/admin/packages')}
             >
               All Packages
             </button>    
