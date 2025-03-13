@@ -1,6 +1,4 @@
-// Create a new file: ResetPassword.jsx
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import PasswordInput from "../../components/Input/PasswordInput";
 import axiosInstance from "../../utils/axiosInstance";
@@ -13,6 +11,11 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { token } = useParams();
+
+  // Debugging: Log the token from the URL
+  useEffect(() => {
+    console.log("Token from URL:", token);
+  }, [token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,17 +42,17 @@ const ResetPassword = () => {
     try {
       const response = await axiosInstance.post("/reset-password", {
         token,
-        newPassword: password
+        newPassword: password,
       });
 
       if (response.data && !response.data.error) {
         setSuccess("Password reset successful");
-        
+
         // Save the new token if returned
         if (response.data.accessToken) {
           localStorage.setItem("token", response.data.accessToken);
         }
-        
+
         // Redirect to login after 2 seconds
         setTimeout(() => {
           navigate("/login");
@@ -99,10 +102,10 @@ const ResetPassword = () => {
                 onChange={({ target }) => setConfirmPassword(target.value)}
               />
             </div>
-            
+
             {error && <p className="text-red-500 text-xs pb-1">{error}</p>}
             {success && <p className="text-green-500 text-xs pb-1">{success}</p>}
-            
+
             <button type="submit" className="btn-primary w-full mt-4" disabled={loading}>
               {loading ? "Resetting..." : "Reset Password"}
             </button>
