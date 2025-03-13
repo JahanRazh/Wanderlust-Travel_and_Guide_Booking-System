@@ -106,8 +106,19 @@ const Login = () => {
                 setPassword(target.value);
               }}
             />
+            
+            {/* Add Forgot Password Link */}
+            <div className="flex justify-end mt-1 mb-4">
+              <button
+                type="button"
+                className="text-sm text-cyan-600 hover:underline"
+                onClick={() => navigate("/forgot-password")}
+              >
+                Forgot Password?
+              </button>
+            </div>
+            
             {error && <p className="text-red-500 text-xs pb-1">{error}</p>}
-            <br />
             <button type="submit" className="btn-primary" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </button>
