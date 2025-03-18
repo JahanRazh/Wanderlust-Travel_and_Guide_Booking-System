@@ -143,7 +143,7 @@ const forgotPassword = async (req, res) => {
 
     // Email content
     const mailOptions = {
-      from: `"Your App Name" <${process.env.EMAIL_FROM}>`,
+      from: `"WANDERLUST" <${process.env.EMAIL_FROM}>`,
       to: user.email,
       subject: "Password Reset Request",
       html: `
