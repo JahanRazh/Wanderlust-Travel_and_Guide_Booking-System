@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
-const API_BASE_URL = 'http://localhost:3000'; // Replace with your backend URL
+import axiosInstance from '../../utils/axiosInstance';
+const API_BASE_URL = axiosInstance.BASE_URL; // use axios instance for API calls or Replace with your backend URL //'http://localhost:3000'
 
 const ProfileStats = () => {
   const [user, setUser] = useState(null);
