@@ -23,45 +23,30 @@ const getUser = async (req, res) => {
     return res.status(500).json({ error: true, message: "Internal Server Error" });
   }
 };
-
-// Upload profile picture
-const uploadProfilePicture = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
     const { userId } = req.user;
-    
-    // Check if file was uploaded
-    if (!req.file) {
-      return res.status(400).json({ error: true, message: "No file uploaded" });
-    }
-    
-    // Get the file path
-    const filePath = `/uploads/${req.file.filename}`;
-    
-    // Update user document with profile image path
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { profileImage: filePath },
-      { new: true }
-    );
-    
+    const updateData = req.body;
+
+    // Update the user profile
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+
     if (!updatedUser) {
       return res.status(404).json({ error: true, message: "User not found" });
     }
-    
-    // Return success response with image URL
-    return res.status(200).json({
-      error: false,
-      imageUrl: filePath,
-      message: "Profile picture updated successfully"
+
+    return res.json({
+      user: updatedUser,
+      message: "Profile updated successfully",
     });
-    
   } catch (err) {
-    console.error("Error uploading profile picture:", err.message);
+    console.error("Error updating profile:", err.message);
     return res.status(500).json({ error: true, message: "Internal Server Error" });
   }
 };
 
 module.exports = {
   getUser,
-  uploadProfilePicture
+  updateProfile,
 };
+
