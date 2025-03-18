@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import axiosInstance from '../../utils/axiosInstance';
-const API_BASE_URL = axiosInstance.BASE_URL; // use axios instance for API calls or Replace with your backend URL //'http://localhost:3000'
-
+import { BASE_URL } from "../../utils/constants"  // Import the base URL for the API requests.
+const API_BASE_URL = BASE_URL; // or Replace with your backend URL http://localhost:3000
 const ProfileStats = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
