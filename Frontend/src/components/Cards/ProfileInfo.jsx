@@ -38,7 +38,7 @@ const ProfileInfo = ({ userInfo, onLogout }) => {
             {userInfo.fullName || ""}
           </p>
           <button
-            className="text-sm text-slate-700 underline"
+            className="text-white px-1.75 py-0.15 bg-sky-500 rounded-lg hover:bg-gray-200"
             onClick={onLogout}
           >
             Logout
