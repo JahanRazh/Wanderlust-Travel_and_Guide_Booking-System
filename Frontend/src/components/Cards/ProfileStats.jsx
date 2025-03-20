@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import { BASE_URL } from "../../utils/constants"  // Import the base URL for the API requests.
-const API_BASE_URL = BASE_URL; // or Replace with your backend URL http://localhost:3000
+import { useNavigate } from 'react-router-dom';
+import { BASE_URL } from "../../utils/constants";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const API_BASE_URL = BASE_URL;
+
 const ProfileStats = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,10 +21,12 @@ const ProfileStats = () => {
     bio: '',
     travelstyle: '',
     travelbudget: '',
-    travelinterest: ''
+    travelinterest: '',
+    profileImage: null, // For file upload
   });
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [tempImagePreview, setTempImagePreview] = useState(null); // Temporary preview of the uploaded image
+  const navigate = useNavigate();
 
   // Fetch user profile on component mount
   useEffect(() => {
@@ -49,7 +55,8 @@ const ProfileStats = () => {
           bio: response.data.user.bio,
           travelstyle: response.data.user.travelstyle,
           travelbudget: response.data.user.travelbudget,
-          travelinterest: response.data.user.travelinterest
+          travelinterest: response.data.user.travelinterest,
+          profileImage: response.data.user.profileImage, // Set profileImage from response
         });
         setLoading(false);
       } catch (err) {
@@ -66,18 +73,27 @@ const ProfileStats = () => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: value,
     });
   };
 
-  // Redirect to dashboard if no user data is available
-  if (!user) {
-    navigate("/dashboard");
-    return null;
-  }
+  // Handle file input changes
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        profileImage: file, // Store the file for upload
+      });
 
-  // Check if the user is an admin (this should ideally come from the backend)
-  const isAdmin = user.email === "admin@wanderlust.com";
+      // Create a temporary preview of the image
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTempImagePreview(reader.result); // Set the temporary preview URL
+      };
+      reader.readAsDataURL(file); // Convert the file to a data URL
+    }
+  };
 
   // Handle form submission
   const handleSubmit = async (e) => {
@@ -95,19 +111,65 @@ const ProfileStats = () => {
       return;
     }
 
+    // Prepare form data for submission
+    const data = new FormData();
+    data.append('fullName', formData.fullName);
+    data.append('email', formData.email);
+    data.append('dateofBirth', formData.dateofBirth);
+    data.append('gender', formData.gender);
+    data.append('phoneNumber', formData.phoneNumber);
+    data.append('address', formData.address);
+    data.append('bio', formData.bio);
+    data.append('travelstyle', formData.travelstyle);
+    data.append('travelbudget', formData.travelbudget);
+    data.append('travelinterest', formData.travelinterest);
+    if (formData.profileImage) {
+      data.append('profileImage', formData.profileImage);
+    }
+
     try {
-      const response = await axios.put(`${API_BASE_URL}/user/update-profile`, formData, {
+      // Send the form data to the backend
+      const response = await axios.put(`${API_BASE_URL}/user/update-profile`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
         },
       });
-      setUser(response.data.user);
-      alert('Profile updated successfully!');
+      setUser(response.data.user); // Update user state with the new data
+      setTempImagePreview(null); // Clear the temporary preview after successful upload
+
+      // Show success toast notification
+      toast.success('Profile updated successfully!', {
+        position: "top-right",
+        autoClose: 3000, // Close the toast after 3 seconds
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (err) {
       setError(err.response?.data?.message || err.message || "An error occurred while updating your profile.");
-      alert('Failed to update profile.');
+
+      // Show error toast notification
+      toast.error('Failed to update profile.', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
+
+  // Redirect to dashboard if no user data is available
+  if (!user) {
+    navigate("/dashboard");
+    return null;
+  }
+
+  // Check if the user is an admin
+  const isAdmin = user.email === "admin@wanderlust.com";
 
   // Display loading state
   if (loading) return <div>Loading...</div>;
@@ -115,11 +177,42 @@ const ProfileStats = () => {
   // Display error state
   if (error) return <div>Error: {error}</div>;
 
-  // Render the form
   return (
     <div className="w-3/4 p-10 bg-white rounded-lg shadow-lg z-50 mx-auto mt-10">
       <h2 className="text-2xl font-semibold mb-4">Profile Statistics</h2>
       
+      {/* Profile Image Section */}
+      <div className="flex flex-col items-center mb-6">
+        <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-cyan-500">
+          {tempImagePreview ? ( // Show temporary preview if available
+            <img
+              src={tempImagePreview}
+              alt="Profile Preview"
+              className="w-full h-full object-cover"
+            />
+          ) : user.profileImage ? ( // Show final uploaded image if available
+            <img
+              src={`${API_BASE_URL}/${user.profileImage}`}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : ( // Show placeholder if no image is available
+            <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+              No Image
+            </div>
+          )}
+        </div>
+        <label className="mt-4 px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700 transition cursor-pointer">
+          Upload Photo
+          <input
+            type="file"
+            name="profileImage"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+        </label>
+      </div>
+
       {/* Profile Form */}
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -128,6 +221,7 @@ const ProfileStats = () => {
             <h3 className="text-xl font-medium mb-3">Basic Information</h3>
           </div>
           
+          {/* Full Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
             <input
@@ -140,6 +234,7 @@ const ProfileStats = () => {
             />
           </div>
           
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
@@ -152,6 +247,7 @@ const ProfileStats = () => {
             />
           </div>
           
+          {/* Date of Birth */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
             <input
@@ -163,6 +259,7 @@ const ProfileStats = () => {
             />
           </div>
           
+          {/* Gender */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
             <select
@@ -178,6 +275,7 @@ const ProfileStats = () => {
             </select>
           </div>
           
+          {/* Phone Number */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
             <input
@@ -189,6 +287,7 @@ const ProfileStats = () => {
             />
           </div>
           
+          {/* Address */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
             <textarea
@@ -200,6 +299,7 @@ const ProfileStats = () => {
             />
           </div>
           
+          {/* Bio */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
             <textarea
@@ -216,6 +316,7 @@ const ProfileStats = () => {
             <h3 className="text-xl font-medium mb-3">Travel Preferences</h3>
           </div>
           
+          {/* Travel Style */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Travel Style</label>
             <select
@@ -234,6 +335,7 @@ const ProfileStats = () => {
             </select>
           </div>
           
+          {/* Travel Budget */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Travel Budget</label>
             <select
@@ -249,6 +351,8 @@ const ProfileStats = () => {
               <option value="luxury">Luxury</option>
             </select>
           </div>
+          
+          {/* Travel Interest */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Travel Interest</label>
             <select
@@ -283,11 +387,11 @@ const ProfileStats = () => {
         </div>
       </form>
 
-       {/* Admin Dashboard Button (Conditional Rendering) */}
+      {/* Admin Dashboard Button (Conditional Rendering) */}
       {isAdmin && (
         <button
           className="mt-4 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition mr-4"
-          onClick={() => navigate("/admindashboard")} // Use absolute path
+          onClick={() => navigate("/admindashboard")}
         >
           Admin Dashboard
         </button>
@@ -300,6 +404,9 @@ const ProfileStats = () => {
       >
         Back to Dashboard
       </button>
+
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 };
