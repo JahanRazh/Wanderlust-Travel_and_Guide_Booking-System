@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { getInitials } from "../../utils/helper";
+import { BASE_URL } from "../../utils/constants"; // Import the base URL for the API requests
 
 const ProfileInfo = ({ userInfo, onLogout }) => {
   const navigate = useNavigate();
@@ -12,12 +13,23 @@ const ProfileInfo = ({ userInfo, onLogout }) => {
   return (
     userInfo && (
       <div className="flex items-center gap-3">
+        {/* Profile Picture or Initials */}
         <div
-          className="w-12 h-12 flex items-center justify-center rounded-full text-slate-950 font-medium bg-gray-100 cursor-pointer"
+          className="w-12 h-12 flex items-center justify-center rounded-full text-slate-950 font-medium bg-gray-100 cursor-pointer overflow-hidden"
           onClick={handleProfileClick} // Navigate when clicking the profile avatar
         >
-          {getInitials(userInfo.fullName || "")}
+          {userInfo.profileImage ? ( // If profile image exists, display it
+            <img
+              src={`${BASE_URL}/${userInfo.profileImage}`} // Use the full URL to the profile image
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : ( // If no profile image, show initials
+            <span>{getInitials(userInfo.fullName || "")}</span>
+          )}
         </div>
+
+        {/* User Name and Logout Button */}
         <div>
           <p
             className="text-sm font-medium cursor-pointer"
