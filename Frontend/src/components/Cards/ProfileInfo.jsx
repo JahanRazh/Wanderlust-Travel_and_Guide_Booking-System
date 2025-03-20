@@ -14,8 +14,8 @@ const ProfileInfo = ({ userInfo, onLogout }) => {
     userInfo && (
       <div className="flex items-center gap-3">
         {/* Profile Picture or Initials */}
-        <div
-          className="w-12 h-12 flex items-center justify-center rounded-full text-slate-950 font-medium bg-gray-100 cursor-pointer overflow-hidden"
+        <div 
+          className="w-13 h-13 flex items-center justify-center rounded-full rounded-full overflow-hidden border-2 border-cyan-500 text-slate-950 font-medium bg-gray-100 cursor-pointer overflow-hidden"
           onClick={handleProfileClick} // Navigate when clicking the profile avatar
         >
           {userInfo.profileImage ? ( // If profile image exists, display it
