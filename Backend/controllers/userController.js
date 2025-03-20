@@ -1,4 +1,7 @@
 const User = require("../models/user.model");
+const fs = require("fs");
+const path = require("path");
+
 
 // Get user details
 const getUser = async (req, res) => {
@@ -28,6 +31,11 @@ const updateProfile = async (req, res) => {
     const { userId } = req.user;
     const updateData = req.body;
 
+    if (req.file) {
+      // If a file is uploaded, update the profileImage field
+      updateData.profileImage = req.file.path;
+    }
+
     // Update the user profile
     const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
 
@@ -44,6 +52,7 @@ const updateProfile = async (req, res) => {
     return res.status(500).json({ error: true, message: "Internal Server Error" });
   }
 };
+
 
 module.exports = {
   getUser,
