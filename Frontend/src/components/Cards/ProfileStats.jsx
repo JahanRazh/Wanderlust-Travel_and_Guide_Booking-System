@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';// Import useNavigate
-import { BASE_URL } from "../../utils/constants";// Import the base URL for the API requests.
+import { useNavigate } from 'react-router-dom';
+import { BASE_URL } from "../../utils/constants";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const API_BASE_URL = BASE_URL;// or Replace with your backend URL http://localhost:3000
+const API_BASE_URL = BASE_URL;
 
 const ProfileStats = () => {
   const [user, setUser] = useState(null);
@@ -135,10 +137,28 @@ const ProfileStats = () => {
       });
       setUser(response.data.user); // Update user state with the new data
       setTempImagePreview(null); // Clear the temporary preview after successful upload
-      alert('Profile updated successfully!');
+
+      // Show success toast notification
+      toast.success('Profile updated successfully!', {
+        position: "top-right",
+        autoClose: 3000, // Close the toast after 3 seconds
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     } catch (err) {
       setError(err.response?.data?.message || err.message || "An error occurred while updating your profile.");
-      alert('Failed to update profile.');
+
+      // Show error toast notification
+      toast.error('Failed to update profile.', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
@@ -201,6 +221,7 @@ const ProfileStats = () => {
             <h3 className="text-xl font-medium mb-3">Basic Information</h3>
           </div>
           
+          {/* Full Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
             <input
@@ -213,6 +234,7 @@ const ProfileStats = () => {
             />
           </div>
           
+          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
@@ -225,6 +247,7 @@ const ProfileStats = () => {
             />
           </div>
           
+          {/* Date of Birth */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
             <input
@@ -236,6 +259,7 @@ const ProfileStats = () => {
             />
           </div>
           
+          {/* Gender */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
             <select
@@ -251,6 +275,7 @@ const ProfileStats = () => {
             </select>
           </div>
           
+          {/* Phone Number */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
             <input
@@ -262,6 +287,7 @@ const ProfileStats = () => {
             />
           </div>
           
+          {/* Address */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
             <textarea
@@ -273,6 +299,7 @@ const ProfileStats = () => {
             />
           </div>
           
+          {/* Bio */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
             <textarea
@@ -289,6 +316,7 @@ const ProfileStats = () => {
             <h3 className="text-xl font-medium mb-3">Travel Preferences</h3>
           </div>
           
+          {/* Travel Style */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Travel Style</label>
             <select
@@ -307,6 +335,7 @@ const ProfileStats = () => {
             </select>
           </div>
           
+          {/* Travel Budget */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Travel Budget</label>
             <select
@@ -323,6 +352,7 @@ const ProfileStats = () => {
             </select>
           </div>
           
+          {/* Travel Interest */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Travel Interest</label>
             <select
@@ -374,6 +404,9 @@ const ProfileStats = () => {
       >
         Back to Dashboard
       </button>
+
+      {/* Toast Container */}
+      <ToastContainer />
     </div>
   );
 };
