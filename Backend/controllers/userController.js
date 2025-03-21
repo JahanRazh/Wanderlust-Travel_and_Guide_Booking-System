@@ -2,7 +2,6 @@ const User = require("../models/user.model");
 const fs = require("fs");
 const path = require("path");
 
-
 // Get user details
 const getUser = async (req, res) => {
   try {
@@ -26,6 +25,24 @@ const getUser = async (req, res) => {
     return res.status(500).json({ error: true, message: "Internal Server Error" });
   }
 };
+
+// Get all users
+const getUsers = async (req, res) => {
+  try {
+    // Fetch all users from the database
+    const users = await User.find({});
+
+    // Return the list of users in the response
+    return res.json({
+      users,
+      message: "Users fetched successfully",
+    });
+  } catch (err) {
+    console.error("Error fetching users:", err.message);
+    return res.status(500).json({ error: true, message: "Internal Server Error" });
+  }
+};
+
 // Helper function to delete a file
 const deleteFile = (filePath) => {
   if (fs.existsSync(filePath)) {
@@ -70,8 +87,40 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = {
-  getUser,
-  updateProfile,
+// Delete a user
+const deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: true, message: "User not found" });
+    }
+
+    // Delete the user's profile image if it exists
+    if (user.profileImage) {
+      const imagePath = path.join(__dirname, "..", user.profileImage);
+      deleteFile(imagePath);
+    }
+
+    // Delete the user from the database
+    await User.findByIdAndDelete(userId);
+
+    return res.json({
+      message: "User deleted successfully",
+    });
+  } catch (err) {
+    console.error("Error deleting user:", err.message);
+    return res.status(500).json({ error: true, message: "Internal Server Error" });
+  }
 };
 
+
+
+module.exports = {
+  getUser,
+  getUsers,
+  updateProfile,
+  deleteUser,
+};
