@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import LOGO from '../assets/images/logo/WANDERLUST.LOGO.png';
-import ProfileInfo from './Cards/ProfileInfo'; // Import the ProfileInfo component
+import ProfileInfo from '../pages/User/ProfileInfo'; // Import the ProfileInfo component
 import axiosInstance from '../utils/axiosInstance'; // Import axiosInstance for API calls
 
 const MainNavbar = () => {
