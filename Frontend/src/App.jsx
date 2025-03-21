@@ -7,7 +7,7 @@ import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
 import MainNavbar from './components/MainNavbar';
 import AdminDashboard from './pages/Admin/AdminDashboard';
-import ProfileStats from './components/Cards/ProfileStats';
+import ProfileStats from './pages/User/ProfileStats';
 import Guideview from './pages/Guide/Guideview';
 import About from './pages/About';
 import TravelStory from './components/Cards/TravelStoryCard';
