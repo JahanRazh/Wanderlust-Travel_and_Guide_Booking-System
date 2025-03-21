@@ -1,74 +1,130 @@
-import React from "react";
-import { Pencil, Eye, Trash2, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";  // Import Link from react-router-dom
 
-const packages = [
-  {
-    id: 1,
-    name: "Beach Paradise",
-    price: "$200",
-    hotel: "Ocean View Resort",
-    guide: "John Doe",
-    description: "Enjoy the serene beaches with a luxury stay.",
-    climate: "Sunny",
-  },
-  {
-    id: 2,
-    name: "Mountain Adventure",
-    price: "$250",
-    hotel: "Hilltop Lodge",
-    guide: "Alice Smith",
-    description: "Trek the mountains and enjoy breathtaking views.",
-    climate: "Cold",
-  },
-];
+const AdminPackageList = () => {
+  const [packages, setPackages] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [editingPackage, setEditingPackage] = useState(null);
+  const [viewingPackage, setViewingPackage] = useState(null);
+  const [formData, setFormData] = useState({
+    packageName: "",
+    pricePerPerson: "",
+    hotel: "",
+    guide: "",
+    climate: "",
+  });
 
-const AllPackages = () => {
-  const navigate = useNavigate();
+  useEffect(() => {
+    fetchPackages();
+  }, []);
+
+  const fetchPackages = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/packages");
+      setPackages(response.data);
+    } catch (error) {
+      console.error("Error fetching packages:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:3000/packages/${id}`);
+      fetchPackages();
+    } catch (error) {
+      console.error("Error deleting package:", error);
+    }
+  };
+
+  const handleEdit = (pkg) => {
+    setEditingPackage(pkg._id);
+    setFormData({
+      packageName: pkg.packageName,
+      pricePerPerson: pkg.pricePerPerson,
+      hotel: pkg.hotel,
+      guide: pkg.guide,
+      climate: pkg.climate,
+    });
+  };
+
+  const handleUpdate = async () => {
+    try {
+      await axios.put(`http://localhost:3000/packages/${editingPackage}`, formData);
+      setEditingPackage(null);
+      fetchPackages();
+    } catch (error) {
+      console.error("Error updating package:", error);
+    }
+  };
+
+  const handleView = (pkg) => {
+    setViewingPackage(pkg); // Set the package to view
+  };
+
+  // Search filter
+  const filteredPackages = packages.filter((pkg) =>
+    pkg.packageName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="p-6">
-      <div className="flex items-center mb-4">
-        <button 
-          onClick={() => navigate('/admindashboard')}
-          className="flex items-center text-blue-500 hover:text-blue-700 mr-4"
-        >
-          <ArrowLeft size={20} className="mr-1" /> Back to Dashboard
+    <div className="container mx-auto p-6">
+      <h2 className="text-2xl font-bold mb-4">Admin - Package List</h2>
+
+      {/* Add Package Button */}
+      <Link to="/admin/packages/add">
+        <button className="bg-blue-500 text-white px-4 py-2 rounded mb-4">
+          Add New Package
         </button>
-        <h2 className="text-2xl font-bold">All Packages</h2>
-      </div>
-      
+      </Link>
+
+      {/* Search Bar */}
+      <input
+        type="text"
+        placeholder="Search by package name..."
+        className="border p-2 mb-4 w-full"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+        <table className="w-full table-auto border-collapse border border-gray-200">
           <thead>
             <tr className="bg-gray-100">
-              <th className="p-3 border">Package Name</th>
-              <th className="p-3 border">Price PP</th>
-              <th className="p-3 border">Hotel</th>
-              <th className="p-3 border">Guide</th>
-              <th className="p-3 border">Description</th>
-              <th className="p-3 border">Climate</th>
-              <th className="p-3 border">Action</th>
+              <th className="border px-4 py-2">Package Name</th>
+              <th className="border px-4 py-2">Price Per Person</th>
+              <th className="border px-4 py-2">Hotel</th>
+              <th className="border px-4 py-2">Guide</th>
+              <th className="border px-4 py-2">Climate</th>
+              <th className="border px-4 py-2">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {packages.map((pkg) => (
-              <tr key={pkg.id} className="border">
-                <td className="p-3 border">{pkg.name}</td>
-                <td className="p-3 border">{pkg.price}</td>
-                <td className="p-3 border">{pkg.hotel}</td>
-                <td className="p-3 border">{pkg.guide}</td>
-                <td className="p-3 border">{pkg.description}</td>
-                <td className="p-3 border">{pkg.climate}</td>
-                <td className="p-3 border flex gap-2 justify-center">
-                  <button className="text-blue-500 hover:text-blue-700">
-                    <Eye size={20} />
+            {filteredPackages.map((pkg) => (
+              <tr key={pkg._id} className="border">
+                <td className="border px-4 py-2">{pkg.packageName}</td>
+                <td className="border px-4 py-2">${pkg.pricePerPerson}</td>
+                <td className="border px-4 py-2">{pkg.hotel}</td>
+                <td className="border px-4 py-2">{pkg.guide}</td>
+                <td className="border px-4 py-2">{pkg.climate}</td>
+                <td className="border px-4 py-2">
+                  <button
+                    className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
+                    onClick={() => handleEdit(pkg)}
+                  >
+                    Edit
                   </button>
-                  <button className="text-green-500 hover:text-green-700">
-                    <Pencil size={20} />
+                  <button
+                    className="bg-red-500 text-white px-3 py-1 rounded mr-2"
+                    onClick={() => handleDelete(pkg._id)}
+                  >
+                    Delete
                   </button>
-                  <button className="text-red-500 hover:text-red-700">
-                    <Trash2 size={20} />
+                  <button
+                    className="bg-green-500 text-white px-3 py-1 rounded"
+                    onClick={() => handleView(pkg)} // View button
+                  >
+                    View
                   </button>
                 </td>
               </tr>
@@ -76,8 +132,74 @@ const AllPackages = () => {
           </tbody>
         </table>
       </div>
+
+      {/* View package details */}
+      {viewingPackage && (
+        <div className="mt-6 p-4 border rounded bg-gray-100">
+          <h3 className="text-lg font-bold mb-2">Package Details</h3>
+          <p><strong>Package Name:</strong> {viewingPackage.packageName}</p>
+          <p><strong>Price Per Person:</strong> ${viewingPackage.pricePerPerson}</p>
+          <p><strong>Hotel:</strong> {viewingPackage.hotel}</p>
+          <p><strong>Guide:</strong> {viewingPackage.guide}</p>
+          <p><strong>Climate:</strong> {viewingPackage.climate}</p>
+          <button
+            className="bg-gray-500 text-white px-3 py-1 rounded mt-2"
+            onClick={() => setViewingPackage(null)} // Close the view
+          >
+            Close View
+          </button>
+        </div>
+      )}
+
+      {/* Edit Package Form */}
+      {editingPackage && (
+        <div className="mt-6 p-4 border rounded bg-gray-100">
+          <h3 className="text-lg font-bold mb-2">Edit Package</h3>
+          <input
+            type="text"
+            className="border p-2 w-full mb-2"
+            placeholder="Package Name"
+            value={formData.packageName}
+            onChange={(e) => setFormData({ ...formData, packageName: e.target.value })}
+          />
+          <input
+            type="number"
+            className="border p-2 w-full mb-2"
+            placeholder="Price Per Person"
+            value={formData.pricePerPerson}
+            onChange={(e) => setFormData({ ...formData, pricePerPerson: e.target.value })}
+          />
+          <input
+            type="text"
+            className="border p-2 w-full mb-2"
+            placeholder="Hotel"
+            value={formData.hotel}
+            onChange={(e) => setFormData({ ...formData, hotel: e.target.value })}
+          />
+          <input
+            type="text"
+            className="border p-2 w-full mb-2"
+            placeholder="Guide"
+            value={formData.guide}
+            onChange={(e) => setFormData({ ...formData, guide: e.target.value })}
+          />
+          <input
+            type="text"
+            className="border p-2 w-full mb-2"
+            placeholder="Climate"
+            value={formData.climate}
+            onChange={(e) => setFormData({ ...formData, climate: e.target.value })}
+          />
+          <button
+            className="bg-green-500 text-white px-3 py-1 rounded mt-2"
+            onClick={handleUpdate}
+          >
+            Update Package
+          </button>
+        </div>
+      )}
     </div>
   );
 };
 
-export default AllPackages;
+export default AdminPackageList;
