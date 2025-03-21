@@ -11,6 +11,7 @@ const userSchema = new Schema({
     dateofBirth: { type: Date, default: null },
     gender: { type: String, default: null },
     phoneNumber: { type: String, default: null },
+    nic: { type: String, default: null },
     address: { type: String, default: null },
     bio: { type: String, default: null },
     // Additional fields for user preferences related to travel`
