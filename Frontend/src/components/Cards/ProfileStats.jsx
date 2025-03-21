@@ -17,6 +17,7 @@ const ProfileStats = () => {
     dateofBirth: '',
     gender: '',
     phoneNumber: '',
+    nic: '',
     address: '',
     bio: '',
     travelstyle: '',
@@ -51,6 +52,7 @@ const ProfileStats = () => {
           dateofBirth: response.data.user.dateofBirth ? new Date(response.data.user.dateofBirth).toISOString().split('T')[0] : '',
           gender: response.data.user.gender,
           phoneNumber: response.data.user.phoneNumber,
+          nic: response.data.user.nic,
           address: response.data.user.address,
           bio: response.data.user.bio,
           travelstyle: response.data.user.travelstyle,
@@ -118,6 +120,7 @@ const ProfileStats = () => {
     data.append('dateofBirth', formData.dateofBirth);
     data.append('gender', formData.gender);
     data.append('phoneNumber', formData.phoneNumber);
+    data.append('nic', formData.nic);
     data.append('address', formData.address);
     data.append('bio', formData.bio);
     data.append('travelstyle', formData.travelstyle);
@@ -286,8 +289,19 @@ const ProfileStats = () => {
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
           </div>
+          {/* NIC */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">NIC</label>
+            <input
+              type="text"
+              name="nic"
+              value={formData.nic}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            />
+          </div>
           
-          {/* Address */}
+          {/* address */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
             <textarea
