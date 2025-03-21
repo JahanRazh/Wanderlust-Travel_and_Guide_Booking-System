@@ -1,0 +1,73 @@
+.packageCard {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    padding: 16px;
+  }
+  
+  .packageCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .viewBtn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #FF5722;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .viewBtn:hover {
+    background-color: #FF3D00;
+  }
+  
+  .container {
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  h1 {
+    text-align: center;
+  }
+  
+  /* Grid Layout */
+  .grid {
+    display: grid;
+    gap: 20px;
+    justify-items: center;  /* Center the grid items horizontally */
+    grid-template-columns: repeat(4, 1fr); /* 4 items per row by default */
+    grid-auto-rows: auto;
+    justify-content: center;  /* Center the grid content horizontally */
+  }
+  
+  @media (min-width: 640px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr); /* 2 items per row on small screens */
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr); /* 4 items per row on large screens */
+    }
+  }
+  
+  /* Ensuring the cards are centered if there are fewer than 4 items */
+  .grid > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
