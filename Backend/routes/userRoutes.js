@@ -7,6 +7,9 @@ const upload = require("../middleware/upload");
 // Route to get user details (requires authentication)
 router.get("/get-user", authenticateToken, userController.getUser);
 
+// Route to get user details (requires authentication)
+router.get("/get-user/:userId", authenticateToken, userController.getUserById);
+
 // Get all users
 router.get("/get-users", authenticateToken, userController.getUsers);
 
@@ -17,4 +20,3 @@ router.put("/user/update-profile", authenticateToken, upload.single('profileImag
 router.delete("/user/:userId", authenticateToken, userController.deleteUser);
 
 module.exports = router;
-

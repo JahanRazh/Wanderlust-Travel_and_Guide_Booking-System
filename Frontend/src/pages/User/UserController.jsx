@@ -80,9 +80,8 @@ const UserController = () => {
   };
 
   const handleEdit = (userId) => {
-    navigate(`${API_BASE_URL}/user/update-profile/${userId}`);
-
-};
+    navigate(`/profile-stats/${userId}`); // Navigate to the user's profile page
+  };
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -99,36 +98,12 @@ const UserController = () => {
         <table className="w-full text-left table-auto min-w-max">
           <thead>
             <tr>
-              <th className="p-4 border-b border-border bg-card">
-                <p className="block text-sm font-normal leading-none text-primary-foreground">
-                  Profile Image
-                </p>
-              </th>
-              <th className="p-4 border-b border-border bg-card">
-                <p className="block text-sm font-normal leading-none text-primary-foreground">
-                  Full Name
-                </p>
-              </th>
-              <th className="p-4 border-b border-border bg-card">
-                <p className="block text-sm font-normal leading-none text-primary-foreground">
-                  Email
-                </p>
-              </th>
-              <th className="p-4 border-b border-border bg-card">
-                <p className="block text-sm font-normal leading-none text-primary-foreground">
-                  Gender
-                </p>
-              </th>
-              <th className="p-4 border-b border-border bg-card">
-                <p className="block text-sm font-normal leading-none text-primary-foreground">
-                  Phone Number
-                </p>
-              </th>
-              <th className="p-4 border-b border-border bg-card">
-                <p className="block text-sm font-normal leading-none text-primary-foreground">
-                  Actions
-                </p>
-              </th>
+              <th className="p-4 border-b border-border bg-card">Profile Image</th>
+              <th className="p-4 border-b border-border bg-card">Full Name</th>
+              <th className="p-4 border-b border-border bg-card">Email</th>
+              <th className="p-4 border-b border-border bg-card">Gender</th>
+              <th className="p-4 border-b border-border bg-card">Phone Number</th>
+              <th className="p-4 border-b border-border bg-card">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -143,39 +118,21 @@ const UserController = () => {
                     />
                   )}
                 </td>
-                <td className="p-4 border-b border-border">
-                  <p className="block text-sm text-primary-foreground">
-                    {user.fullName}
-                  </p>
-                </td>
-                <td className="p-4 border-b border-border">
-                  <p className="block text-sm text-primary-foreground">
-                    {user.email}
-                  </p>
-                </td>
-                <td className="p-4 border-b border-border">
-                  <p className="block text-sm text-primary-foreground">
-                    {user.gender}
-                  </p>
-                </td>
-                <td className="p-4 border-b border-border">
-                  <p className="block text-sm text-primary-foreground">
-                    {user.phoneNumber}
-                  </p>
-                </td>
+                <td className="p-4 border-b border-border">{user.fullName}</td>
+                <td className="p-4 border-b border-border">{user.email}</td>
+                <td className="p-4 border-b border-border">{user.gender}</td>
+                <td className="p-4 border-b border-border">{user.phoneNumber}</td>
                 <td className="p-4 border-b border-border">
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleEdit(user._id)}
                       className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                      aria-label="Edit user"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => handleDelete(user._id)}
                       className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                      aria-label="Delete user"
                     >
                       Delete
                     </button>

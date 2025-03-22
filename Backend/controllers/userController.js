@@ -5,14 +5,38 @@ const path = require("path");
 // Get user details
 const getUser = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const { userId } = req.user; // Get userId from URL params
 
     // Find the user by userId in the database
     const isUser = await User.findOne({ _id: userId });
 
-    // If the user is not found, return a 401 Unauthorized status
+    // If the user is not found, return a 404 Not Found status
     if (!isUser) {
-      return res.sendStatus(401);
+      return res.status(404).json({ error: true, message: "User not found" });
+    }
+
+    // Return the user details in the response
+    return res.json({
+      user: isUser,
+      message: "",
+    });
+  } catch (err) {
+    console.error("Error fetching user:", err.message);
+    return res.status(500).json({ error: true, message: "Internal Server Error" });
+  }
+};
+
+// Get user details by id (admin only)
+const getUserById = async (req, res) => {
+  try {
+    const { userId } = req.params; // Get userId from req.user
+
+    // Find the user by userId in the database
+    const isUser = await User.findOne({ _id: userId });
+
+    // If the user is not found, return a 404 Not Found status
+    if (!isUser) {
+      return res.status(404).json({ error: true, message: "User not found" });
     }
 
     // Return the user details in the response
@@ -53,11 +77,24 @@ const deleteFile = (filePath) => {
 // Update user profile
 const updateProfile = async (req, res) => {
   try {
-    const { userId } = req.user;
+    const { userId } = req.user; // The ID of the user making the request
+    const { targetUserId } = req.body; // The ID of the user whose profile is being updated
     const updateData = req.body;
 
+    // Determine if the requesting user is an admin
+    const requestingUser = await User.findById(userId);
+    const isAdmin = requestingUser.role === 'admin'; // Check if the user has an 'admin' role
+
+    // If the user is not an admin, they can only update their own profile
+    if (!isAdmin && targetUserId && targetUserId !== userId) {
+      return res.status(403).json({ error: true, message: "Forbidden: You can only update your own profile" });
+    }
+
+    // Determine which user ID to use for the update
+    const userIdToUpdate = isAdmin && targetUserId ? targetUserId : userId;
+
     // Find the user
-    const user = await User.findById(userId);
+    const user = await User.findById(userIdToUpdate);
     if (!user) {
       return res.status(404).json({ error: true, message: "User not found" });
     }
@@ -75,7 +112,7 @@ const updateProfile = async (req, res) => {
     }
 
     // Update the user profile
-    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(userIdToUpdate, updateData, { new: true });
 
     return res.json({
       user: updatedUser,
@@ -86,7 +123,6 @@ const updateProfile = async (req, res) => {
     return res.status(500).json({ error: true, message: "Internal Server Error" });
   }
 };
-
 // Delete a user
 const deleteUser = async (req, res) => {
   try {
@@ -116,10 +152,9 @@ const deleteUser = async (req, res) => {
   }
 };
 
-
-
 module.exports = {
   getUser,
+  getUserById,
   getUsers,
   updateProfile,
   deleteUser,

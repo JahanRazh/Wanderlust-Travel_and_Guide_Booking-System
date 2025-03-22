@@ -22,7 +22,8 @@ const userSchema = new Schema({
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },
     // Field to store the date the user account was created
-    createdOn: { type: Date, default: Date.now }
+    createdOn: { type: Date, default: Date.now },
+    role: { type: String, default: "user" }
 });
 
 module.exports = mongoose.model("User", userSchema);
