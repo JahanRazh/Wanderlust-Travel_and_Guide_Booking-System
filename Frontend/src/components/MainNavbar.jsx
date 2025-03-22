@@ -58,6 +58,8 @@ const MainNavbar = () => {
             </div>
             <ul className="flex items-center hidden md:flex">
                 <li className="mx-2"><Link to="/" className="text-black hover:text-gray-300">Home</Link></li>
+                <li className="mx-2"><Link to="/view/Travel-packeges" className="text-black hover:text-gray-300">Packeges</Link></li>
+
                 
                 {isLoggedIn && (
                     <>
@@ -66,7 +68,6 @@ const MainNavbar = () => {
                         <li className="mx-2"><Link to="/view/guide" className="text-black hover:text-gray-300">Guide</Link></li>
                     </>
                 )}
-                <li className="mx-2"><Link to="/view/Travel-packeges" className="text-black hover:text-gray-300">Packeges</Link></li>
                 <li className="mx-2"><Link to="/view/about" className="text-black hover:text-gray-300">About</Link></li>
             </ul>
             <div className="flex items-center">
