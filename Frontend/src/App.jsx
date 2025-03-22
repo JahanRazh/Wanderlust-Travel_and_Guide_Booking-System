@@ -8,7 +8,7 @@ import SignUp from './pages/Auth/SignUp';
 import MainNavbar from './components/MainNavbar';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import ProfileStats from './pages/User/ProfileStats';
-import UserController from './pages/User/Usercontroller';
+import UserController from './pages/User/UserController';
 import Guideview from './pages/Guide/Guideview';
 import About from './pages/About';
 import TravelStory from './components/Cards/TravelStoryCard';
@@ -20,6 +20,7 @@ import AddPackage from './pages/Admin/AddPackages'; // Add the AddPackage compon
 import AllPackages from './pages/Admin/AllPackages'; // Add the AllPackages component
 import PackageDetails from './pages/Packages/packageDetails';
 
+import NotFound from './components/NotFound';
 
 
 
@@ -87,7 +88,10 @@ const App = () => {
             <Route path="/admin/packages/add" element={<AddPackage />} /> {/* Add Package Route */}
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route path="*" element={<Navigate to="/home" />} />
+           
+
+            {/* 404 Page */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </div>
