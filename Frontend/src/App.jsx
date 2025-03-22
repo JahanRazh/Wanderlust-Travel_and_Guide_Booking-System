@@ -64,8 +64,10 @@ const App = () => {
             <Route path="/home" element={<Homenew />} />
             <Route path="/view/travel-story" element={<Home />} />
             <Route path="/profile-stats" element={<ProfileStats />} />
+            <Route path="/profile-stats/:userId" element={<ProfileStats />} />
+            <Route path="/admin/usercontroller" element={<UserController />} />
             <Route path="/admindashboard" element={<AdminDashboard />} />
-            <Route path='/admin/usercontroller' element={<UserController />} />
+            
             <Route path="/login" element={<Login login={login} />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/view/hotel" element={<Hotelview />} />
