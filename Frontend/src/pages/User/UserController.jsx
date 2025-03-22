@@ -19,13 +19,6 @@ const UserController = () => {
     const token = localStorage.getItem('token');
     return { headers: { Authorization: `Bearer ${token}` } };
   };
-
-  const formatDate = (dateString) => {
-    if (!dateString || dateString === "null") return "N/A"; // Handle null or string "null"
-    const date = new Date(dateString);
-    return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString('en-US');
-  };
-
   const fetchUserProfiles = async (page = 1) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/get-users?page=${page}&limit=10`, getAuthHeaders());
@@ -75,7 +68,6 @@ const UserController = () => {
               <th className="p-4 hidden sm:table-cell">Gender</th>
               <th className="p-4 hidden sm:table-cell">Phone</th>
               <th className="p-4 hidden lg:table-cell">Address</th>
-              <th className="p-4 hidden md:table-cell">DOB</th>
               <th className="p-4 hidden lg:table-cell">NIC</th>
               <th className="p-4 hidden sm:table-cell">Role</th>
               <th className="p-4">Actions</th>
@@ -85,16 +77,19 @@ const UserController = () => {
             {users.map((user) => (
               <tr key={user._id} className="border-t border-gray-700 hover:bg-gray-300">
                 <td className="p-4 hidden md:table-cell">
-                  {user.profileImage && <img src={`${API_BASE_URL}/${user.profileImage}`} alt="Profile" className="w-10 h-10 rounded-full" />}
+                  {user.profileImage ? (
+                    <img src={`${API_BASE_URL}/${user.profileImage}`} alt="Profile" className="w-10 h-10 rounded-full" />
+                  ) : (
+                    "N/A"
+                  )}
                 </td>
-                <td className="p-4">{user.fullName}</td>
-                <td className="p-4 hidden md:table-cell">{user.email}</td>
-                <td className="p-4 hidden sm:table-cell">{user.gender}</td>
-                <td className="p-4 hidden sm:table-cell">{user.phoneNumber}</td>
-                <td className="p-4 hidden lg:table-cell">{user.address}</td>
-                <td className="p-4 hidden md:table-cell">{formatDate(user.dateOfBirth)}</td>
-                <td className="p-4 hidden lg:table-cell">{user.nic}</td>
-                <td className="p-4 hidden sm:table-cell">{user.role}</td>
+                <td className="p-4">{user.fullName || "N/A"}</td>
+                <td className="p-4 hidden md:table-cell">{user.email || "N/A"}</td>
+                <td className="p-4 hidden sm:table-cell">{user.gender || "N/A"}</td>
+                <td className="p-4 hidden sm:table-cell">{user.phoneNumber || "N/A"}</td>
+                <td className="p-4 hidden lg:table-cell">{user.address || "N/A"}</td>
+                <td className="p-4 hidden lg:table-cell">{user.nic || "N/A"}</td>
+                <td className="p-4 hidden sm:table-cell">{user.role || "N/A"}</td>
                 <td className="p-4 flex space-x-2">
                   <button onClick={() => handleEdit(user._id)} className="px-3 py-1 bg-blue-500 rounded hover:bg-blue-600">Edit</button>
                   <button onClick={() => handleDelete(user._id)} className="px-3 py-1 bg-red-500 rounded hover:bg-red-600">Delete</button>
