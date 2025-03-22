@@ -7,7 +7,8 @@ import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
 import MainNavbar from './components/MainNavbar';
 import AdminDashboard from './pages/Admin/AdminDashboard';
-import ProfileStats from './components/Cards/ProfileStats';
+import ProfileStats from './pages/User/ProfileStats';
+import UserController from './pages/User/Usercontroller';
 import Guideview from './pages/Guide/Guideview';
 import About from './pages/About';
 import TravelStory from './components/Cards/TravelStoryCard';
@@ -63,7 +64,10 @@ const App = () => {
             <Route path="/home" element={<Homenew />} />
             <Route path="/view/travel-story" element={<Home />} />
             <Route path="/profile-stats" element={<ProfileStats />} />
+            <Route path="/profile-stats/:userId" element={<ProfileStats />} />
+            <Route path="/admin/usercontroller" element={<UserController />} />
             <Route path="/admindashboard" element={<AdminDashboard />} />
+            
             <Route path="/login" element={<Login login={login} />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/view/hotel" element={<Hotelview />} />

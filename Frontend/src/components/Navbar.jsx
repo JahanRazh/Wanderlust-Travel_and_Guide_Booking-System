@@ -8,6 +8,8 @@ const Navbar = ({  searchQuery, setSearchQuery, onSearchNote, handleClearSearch 
   const handleSearch = () => {
     if (searchQuery) {
       onSearchNote(searchQuery);
+    } else {
+      handleClearSearch();
     }
   };
 

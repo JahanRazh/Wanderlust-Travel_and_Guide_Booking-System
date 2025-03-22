@@ -200,7 +200,7 @@ const searchTravelStories = async (req, res) => {
   }
 };
 
-// Filter travel stories by visited date
+// Filter travel stories by visited date.
 const filterTravelStories = async (req, res) => {
   const { startDate, endDate } = req.query;
   const { userId } = req.user;
