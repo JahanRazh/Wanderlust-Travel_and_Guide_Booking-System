@@ -17,11 +17,13 @@ const UserController = () => {
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
+    return { headers: { Authorization: `Bearer ${token}` } };
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString || dateString === "null") return "N/A"; // Handle null or string "null"
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString('en-US');
   };
 
   const fetchUserProfiles = async (page = 1) => {
@@ -31,17 +33,7 @@ const UserController = () => {
       setTotalPages(response.data.totalPages);
       setCurrentPage(page);
     } catch (err) {
-      if (err.response) {
-        if (err.response.status === 401) {
-          setError("Unauthorized: Please log in again.");
-        } else if (err.response.status === 404) {
-          setError("No users found.");
-        } else {
-          setError("An error occurred while fetching user profiles.");
-        }
-      } else {
-        setError("Network error: Please check your internet connection.");
-      }
+      setError(err.response?.data?.message || "An error occurred while fetching user profiles.");
     } finally {
       setLoading(false);
     }
@@ -52,91 +44,60 @@ const UserController = () => {
   }, [currentPage]);
 
   const handleDelete = async (userId) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this user?");
-    if (!confirmDelete) return;
-
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await axios.delete(`${API_BASE_URL}/user/${userId}`, getAuthHeaders());
       setUsers(users.filter(user => user._id !== userId));
-      toast.success('User deleted successfully!', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.success('User deleted successfully!');
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "An error occurred while deleting the user.");
-      toast.error('Failed to delete user.', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error('Failed to delete user.');
     }
   };
 
   const handleEdit = (userId) => {
-    navigate(`/profile-stats/${userId}`); // Navigate to the user's profile page
+    navigate(`/profile-stats/${userId}`);
   };
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <div className="text-center text-xl mt-10">Loading...</div>;
+  if (error) return <div className="text-red-500 text-center mt-10">Error: {error}</div>;
 
   return (
-    <div className="w-full">
-      <h3 className="text-lg font-semibold ml-3 text-primary-foreground">User Profiles</h3>
-      <p className="text-primary mb-5 ml-3">Overview of user profiles and their details.</p>
-      <div className="relative flex flex-col w-full h-full overflow-scroll text-primary-foreground bg-background shadow-md rounded-lg bg-clip-border">
-        <table className="w-full text-left table-auto min-w-max">
+    <div className="w-full p-6 bg-gray-text-white rounded-lg shadow-lg">
+      <h3 className="text-2xl font-bold mb-2">User Profiles</h3>
+      <p className="text-gray-400 mb-5">Overview of user profiles and their details.</p>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
           <thead>
-            <tr>
-              <th className="p-4 border-b border-border bg-card">Profile Image</th>
-              <th className="p-4 border-b border-border bg-card">Full Name</th>
-              <th className="p-4 border-b border-border bg-card">Email</th>
-              <th className="p-4 border-b border-border bg-card">Gender</th>
-              <th className="p-4 border-b border-border bg-card">Phone Number</th>
-              <th className="p-4 border-b border-border bg-card">Actions</th>
+            <tr className="bg-gray-800 text-gray-300">
+              <th className="p-4 hidden md:table-cell">Profile Image</th>
+              <th className="p-4">Full Name</th>
+              <th className="p-4 hidden md:table-cell">Email</th>
+              <th className="p-4 hidden sm:table-cell">Gender</th>
+              <th className="p-4 hidden sm:table-cell">Phone</th>
+              <th className="p-4 hidden lg:table-cell">Address</th>
+              <th className="p-4 hidden md:table-cell">DOB</th>
+              <th className="p-4 hidden lg:table-cell">NIC</th>
+              <th className="p-4 hidden sm:table-cell">Role</th>
+              <th className="p-4">Actions</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user._id} className="hover:bg-card">
-                <td className="p-4 border-b border-border">
-                  {user.profileImage && (
-                    <img
-                      src={`${API_BASE_URL}/${user.profileImage}`}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full"
-                    />
-                  )}
+              <tr key={user._id} className="border-t border-gray-700 hover:bg-gray-300">
+                <td className="p-4 hidden md:table-cell">
+                  {user.profileImage && <img src={`${API_BASE_URL}/${user.profileImage}`} alt="Profile" className="w-10 h-10 rounded-full" />}
                 </td>
-                <td className="p-4 border-b border-border">{user.fullName}</td>
-                <td className="p-4 border-b border-border">{user.email}</td>
-                <td className="p-4 border-b border-border">{user.gender}</td>
-                <td className="p-4 border-b border-border">{user.phoneNumber}</td>
-                <td className="p-4 border-b border-border">
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(user._id)}
-                      className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user._id)}
-                      className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                <td className="p-4">{user.fullName}</td>
+                <td className="p-4 hidden md:table-cell">{user.email}</td>
+                <td className="p-4 hidden sm:table-cell">{user.gender}</td>
+                <td className="p-4 hidden sm:table-cell">{user.phoneNumber}</td>
+                <td className="p-4 hidden lg:table-cell">{user.address}</td>
+                <td className="p-4 hidden md:table-cell">{formatDate(user.dateOfBirth)}</td>
+                <td className="p-4 hidden lg:table-cell">{user.nic}</td>
+                <td className="p-4 hidden sm:table-cell">{user.role}</td>
+                <td className="p-4 flex space-x-2">
+                  <button onClick={() => handleEdit(user._id)} className="px-3 py-1 bg-blue-500 rounded hover:bg-blue-600">Edit</button>
+                  <button onClick={() => handleDelete(user._id)} className="px-3 py-1 bg-red-500 rounded hover:bg-red-600">Delete</button>
                 </td>
               </tr>
             ))}
@@ -144,28 +105,12 @@ const UserController = () => {
         </table>
       </div>
 
-      {/* Pagination Controls */}
-      <div className="flex justify-center mt-4">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="px-4 py-2 mx-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300"
-        >
-          Previous
-        </button>
-        <span className="px-4 py-2 mx-1">
-          Page {currentPage} of {totalPages}
-        </span>
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 mx-1 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-300"
-        >
-          Next
-        </button>
+      <div className="flex justify-center mt-5 space-x-2">
+        <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 bg-blue-500 rounded disabled:bg-gray-500">Previous</button>
+        <span className="px-4 py-2">Page {currentPage} of {totalPages}</span>
+        <button onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 bg-blue-500 rounded disabled:bg-gray-500">Next</button>
       </div>
 
-      {/* Toast Container */}
       <ToastContainer />
     </div>
   );
