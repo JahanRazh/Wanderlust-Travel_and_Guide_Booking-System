@@ -12,10 +12,17 @@ import UserController from './pages/User/Usercontroller';
 import Guideview from './pages/Guide/Guideview';
 import About from './pages/About';
 import TravelStory from './components/Cards/TravelStoryCard';
-import AllTravelpackages from './pages/Admin/Allpackages';
+import AllTravelpackages from './pages/Packages/AllPackage';
 import styles from './styles/App.module.css';
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
+import AddPackage from './pages/Admin/AddPackages'; // Add the AddPackage component
+import AllPackages from './pages/Admin/AllPackages'; // Add the AllPackages component
+import PackageDetails from './pages/Packages/packageDetails';
+
+
+
+
 const App = () => {
   const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
  
@@ -75,6 +82,9 @@ const App = () => {
             <Route path="/view/about" element={<About />} />
             <Route path="/view/travel-story" element={<TravelStory />} />
             <Route path="/view/Travel-packeges" element={<AllTravelpackages />} />
+            <Route path="/packages/:packageId" element={<PackageDetails />} />
+            <Route path="/admin/packages" element={<AllPackages />} /> {/* All Packages Route */}
+            <Route path="/admin/packages/add" element={<AddPackage />} /> {/* Add Package Route */}
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="*" element={<Navigate to="/home" />} />
