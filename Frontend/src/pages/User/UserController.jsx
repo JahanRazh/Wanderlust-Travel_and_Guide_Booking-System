@@ -5,6 +5,7 @@ import { BASE_URL } from "../../utils/constants";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LOGO from '../../assets/images/logo/WANDERLUST.LOGO.png';
+
 const API_BASE_URL = BASE_URL;
 
 const UserController = () => {
@@ -13,6 +14,7 @@ const UserController = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
   const getAuthHeaders = () => {
@@ -69,6 +71,20 @@ const UserController = () => {
     window.location.reload();
   };
 
+  // Filter users based on search query
+  const filteredUsers = users.filter((user) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      user.fullName?.toLowerCase().includes(query) ||
+      user.email?.toLowerCase().includes(query) ||
+      user.gender?.toLowerCase().includes(query) ||
+      user.phoneNumber?.toLowerCase().includes(query) ||
+      user.address?.toLowerCase().includes(query) ||
+      user.nic?.toLowerCase().includes(query) ||
+      user.role?.toLowerCase().includes(query)
+    );
+  });
+
   if (loading) return <div className="text-center text-xl mt-10">Loading...</div>;
   if (error) return <div className="text-red-500 text-center mt-10">Error: {error}</div>;
 
@@ -79,21 +95,30 @@ const UserController = () => {
           <h3 className="text-2xl font-bold mb-2">User Profiles</h3>
           <p className="text-gray-400">Overview of user profiles and their details.</p>
         </div>
-        <button
-          onClick={handlePrint}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-        >
-          Print Table
-        </button>
+        <div className="flex items-center space-x-4">
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={handlePrint}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            Print 
+          </button>
+        </div>
       </div>
 
       {/* Printable Content */}
       <div id="printable-content" className="hidden">
         <div className="text-center mb-4">
           <img
-            src={LOGO} // Replace with the path to your logo
+            src={LOGO}
             alt="Company Logo"
-            className="w-80 h-34 mx-auto" // Adjust size as needed
+            className="w-80 h-34 mx-auto"
           />
           <h3 className="text-2xl font-bold mt-2">User Profiles Report</h3>
           <p className="text-gray-400">Overview of user profiles and their details.</p>
@@ -112,15 +137,15 @@ const UserController = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user._id} className="border-t border-gray-700">
                 <td className="p-4">
                   {user.profileImage ? (
                     <img src={`${API_BASE_URL}/${user.profileImage}`} alt="Profile" className="w-10 h-10 rounded-full" />
-                  ) : (   
+                  ) : (
                     "N/A"
                   )}
-                </td>    
+                </td>
                 <td className="p-4">{user.fullName || "N/A"}</td>
                 <td className="p-4">{user.email || "N/A"}</td>
                 <td className="p-4">{user.gender || "N/A"}</td>
@@ -154,7 +179,7 @@ const UserController = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <tr key={user._id} className="border-t border-gray-700 hover:bg-gray-300">
                 <td className="p-4 hidden md:table-cell">
                   {user.profileImage ? (
