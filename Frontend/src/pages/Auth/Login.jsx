@@ -39,8 +39,11 @@ const Login = () => {
         console.log("Login successful, token:", response.data.accessToken);
         localStorage.setItem("token", response.data.accessToken);
 
-        // Check if the user is an admin
-        if (email === "admin@wanderlust.com" && password === "Admin") {
+        // Extract role from the response
+        const role = response.data.user.role;
+
+        // Check if the user is an admin if(email === "admin@wanderlust.com" && password === "Admin")
+        if (role === "admin") {
           console.log("Admin detected, navigating to /admindashboard");
           navigate("/admindashboard"); // Use absolute path
         } else {
