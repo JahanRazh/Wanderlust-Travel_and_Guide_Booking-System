@@ -98,7 +98,6 @@ const Dashboard = () => {
             >
               All Users
             </button>
-            <button className={Admincss.addBtn}>+</button>
           </p>
         </div>
       </div>
