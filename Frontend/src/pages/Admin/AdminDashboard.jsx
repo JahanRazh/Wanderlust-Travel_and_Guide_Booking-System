@@ -1,6 +1,6 @@
-import React from 'react';
-import Admincss from '../../styles/Admin.module.css';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import Admincss from "../../styles/Admin.module.css";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -17,15 +17,22 @@ const Dashboard = () => {
             alt="Travel Package Management"
             className="w-full h-48 object-cover rounded-lg mb-4"
           />
-          <p className="text-gray-600">Manage and update travel packages easily.</p>
+          <p className="text-gray-600">
+            Manage and update travel packages easily.
+          </p>
           <p>
-            <button 
+            <button
               className={Admincss.viewBtn}
-              onClick={() => navigate('/admin/packages')}
+              onClick={() => navigate("/admin/packages")} // Links to All Packages page
             >
               All Packages
-            </button>    
-            <button className={Admincss.addBtn}>+</button>
+            </button>
+            <button
+              className={Admincss.addBtn}
+              onClick={() => navigate("/admin/packages/add")} // Links to Add Package page
+            >
+              +
+            </button>
           </p>
         </div>
 
@@ -37,8 +44,18 @@ const Dashboard = () => {
             alt="Hotel Management"
             className="w-full h-48 object-cover rounded-lg mb-4"
           />
-          <p className="text-gray-600">Effortlessly handle hotel details and bookings.</p>
-          <p><button className={Admincss.viewBtn}>All Hotels</button>    <button className={Admincss.addBtn}>+</button></p>
+          <p className="text-gray-600">
+            Effortlessly handle hotel details and bookings.
+          </p>
+          <p>
+            <button
+              className={Admincss.viewBtn}
+              onClick={() => navigate("/admin/hotels")}
+            >
+              All Hotels
+            </button>
+            <button className={Admincss.addBtn}>+</button>
+          </p>
         </div>
 
         {/* Guide Management */}
@@ -49,8 +66,18 @@ const Dashboard = () => {
             alt="Guide Management"
             className="w-full h-48 object-cover rounded-lg mb-4"
           />
-          <p className="text-gray-600">Manage guides and their schedules seamlessly.</p>
-          <p><button className={Admincss.viewBtn}>All Guides</button>    <button className={Admincss.addBtn}>+</button></p>
+          <p className="text-gray-600">
+            Manage guides and their schedules seamlessly.
+          </p>
+          <p>
+            <button
+              className={Admincss.viewBtn}
+              onClick={() => navigate("/admin/guides")}
+            >
+              All Guides
+            </button>
+            <button className={Admincss.addBtn}>+</button>
+          </p>
         </div>
 
         {/* User Management */}
@@ -61,8 +88,17 @@ const Dashboard = () => {
             alt="User Management"
             className="w-full h-48 object-cover rounded-lg mb-4"
           />
-          <p className="text-gray-600">Handle user accounts and permissions efficiently.</p>
-          <p><button className={Admincss.viewBtn}>All Users</button>    <button className={Admincss.addBtn}>+</button></p>
+          <p className="text-gray-600">
+            Handle user accounts and permissions efficiently.
+          </p>
+          <p>
+            <button
+              className={Admincss.viewBtn}
+              onClick={() => navigate("/admin/usercontroller")}
+            >
+              All Users
+            </button>
+          </p>
         </div>
       </div>
     </div>

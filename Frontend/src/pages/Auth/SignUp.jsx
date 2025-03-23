@@ -47,8 +47,8 @@ const SignUp = () => {
       if (response.data && response.data.accessToken) {
         // Store the access token in local storage
         localStorage.setItem("token", response.data.accessToken);
-        // Navigate to the dashboard upon successful signup
-        navigate("/dashboard");
+        // Navigate to the home page upon successful signup
+        navigate("/home");
       }
     } catch (error) {
       // Handle error scenarios

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { BASE_URL } from "../../utils/constants";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,11 +23,12 @@ const ProfileStats = () => {
     travelstyle: '',
     travelbudget: '',
     travelinterest: '',
-    profileImage: null, // For file upload
+    profileImage: null,
   });
 
-  const [tempImagePreview, setTempImagePreview] = useState(null); // Temporary preview of the uploaded image
+  const [tempImagePreview, setTempImagePreview] = useState(null);
   const navigate = useNavigate();
+  const { userId } = useParams(); // Get userId from URL
 
   // Fetch user profile on component mount
   useEffect(() => {
@@ -40,7 +41,8 @@ const ProfileStats = () => {
       }
 
       try {
-        const response = await axios.get(`${API_BASE_URL}/get-user`, {
+        const endpoint = `${API_BASE_URL}/get-user/${userId}`; // Use the userId from URL params
+        const response = await axios.get(endpoint, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -58,7 +60,7 @@ const ProfileStats = () => {
           travelstyle: response.data.user.travelstyle,
           travelbudget: response.data.user.travelbudget,
           travelinterest: response.data.user.travelinterest,
-          profileImage: response.data.user.profileImage, // Set profileImage from response
+          profileImage: response.data.user.profileImage,
         });
         setLoading(false);
       } catch (err) {
@@ -68,44 +70,11 @@ const ProfileStats = () => {
     };
 
     fetchUserProfile();
-  }, []);
-
-  // Handle form input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  // Handle file input changes
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({
-        ...formData,
-        profileImage: file, // Store the file for upload
-      });
-
-      // Create a temporary preview of the image
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setTempImagePreview(reader.result); // Set the temporary preview URL
-      };
-      reader.readAsDataURL(file); // Convert the file to a data URL
-    }
-  };
+  }, [userId]);
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate required fields
-    if (!formData.fullName || !formData.email) {
-      setError("Full Name and Email are required.");
-      return;
-    }
 
     const token = localStorage.getItem('token');
     if (!token) {
@@ -113,7 +82,6 @@ const ProfileStats = () => {
       return;
     }
 
-    // Prepare form data for submission
     const data = new FormData();
     data.append('fullName', formData.fullName);
     data.append('email', formData.email);
@@ -130,21 +98,23 @@ const ProfileStats = () => {
       data.append('profileImage', formData.profileImage);
     }
 
+    // Include targetUserId if admin is updating another user
+    if (userId) {
+      data.append('targetUserId', userId);
+    }
+
     try {
-      // Send the form data to the backend
       const response = await axios.put(`${API_BASE_URL}/user/update-profile`, data, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
       });
-      setUser(response.data.user); // Update user state with the new data
-      setTempImagePreview(null); // Clear the temporary preview after successful upload
-
-      // Show success toast notification
+      setUser(response.data.user);
+      setTempImagePreview(null);
       toast.success('Profile updated successfully!', {
         position: "top-right",
-        autoClose: 3000, // Close the toast after 3 seconds
+        autoClose: 3000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -152,8 +122,6 @@ const ProfileStats = () => {
       });
     } catch (err) {
       setError(err.response?.data?.message || err.message || "An error occurred while updating your profile.");
-
-      // Show error toast notification
       toast.error('Failed to update profile.', {
         position: "top-right",
         autoClose: 3000,
@@ -165,19 +133,34 @@ const ProfileStats = () => {
     }
   };
 
-  // Redirect to dashboard if no user data is available
-  if (!user) {
-    navigate("/dashboard");
-    return null;
-  }
+  // Handle file input changes
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        profileImage: file,
+      });
 
-  // Check if the user is an admin
-  const isAdmin = user.email === "admin@wanderlust.com";
+      // Create a temporary preview of the image
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTempImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-  // Display loading state
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
   if (loading) return <div>Loading...</div>;
-
-  // Display error state
   if (error) return <div>Error: {error}</div>;
 
   return (
@@ -187,19 +170,19 @@ const ProfileStats = () => {
       {/* Profile Image Section */}
       <div className="flex flex-col items-center mb-6">
         <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-cyan-500">
-          {tempImagePreview ? ( // Show temporary preview if available
+          {tempImagePreview ? (
             <img
               src={tempImagePreview}
               alt="Profile Preview"
               className="w-full h-full object-cover"
             />
-          ) : user.profileImage ? ( // Show final uploaded image if available
+          ) : user.profileImage ? (
             <img
               src={`${API_BASE_URL}/${user.profileImage}`}
               alt="Profile"
               className="w-full h-full object-cover"
             />
-          ) : ( // Show placeholder if no image is available
+          ) : (
             <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
               No Image
             </div>
@@ -289,6 +272,7 @@ const ProfileStats = () => {
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
           </div>
+          
           {/* NIC */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">NIC</label>
@@ -301,7 +285,7 @@ const ProfileStats = () => {
             />
           </div>
           
-          {/* address */}
+          {/* Address */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
             <textarea
@@ -402,7 +386,7 @@ const ProfileStats = () => {
       </form>
 
       {/* Admin Dashboard Button (Conditional Rendering) */}
-      {isAdmin && (
+      {user?.role === 'admin' && (
         <button
           className="mt-4 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition mr-4"
           onClick={() => navigate("/admindashboard")}
@@ -414,7 +398,7 @@ const ProfileStats = () => {
       {/* Back to Dashboard Button */}
       <button
         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-        onClick={() => navigate("/dashboard")}
+        onClick={() => navigate("/home")}
       >
         Back to Dashboard
       </button>
