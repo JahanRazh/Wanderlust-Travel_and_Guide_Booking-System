@@ -74,7 +74,7 @@ const login = async (req, res) => {
     // Return a success response with the user details and access token
     return res.status(200).json({
       error: false,
-      user: { fullName: user.fullName, email: user.email },
+      user: { fullName: user.fullName, email: user.email, role: user.role },//by role identify the user or admin
       accessToken,
       message: "Login successful",
     });
