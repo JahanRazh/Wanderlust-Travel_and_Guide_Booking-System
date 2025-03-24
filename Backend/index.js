@@ -12,6 +12,7 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const storyRoutes = require("./routes/storyRoutes");
 const packageRoute = require("./routes/Admin/packageRoute");
+const hotelRoute = require("./routes/Admin/hotelRoute");
 
 // Connect to MongoDB
 connectDB();
@@ -32,6 +33,7 @@ app.use("/", authRoutes); // Authentication routes
 app.use("/", userRoutes);  // User routes
 app.use("/", storyRoutes); // Travel story routes
 app.use("/", packageRoute); // Package routes
+app.use("/", hotelRoute); // Hotel routes
 
 // Start the server
 const PORT = process.env.PORT || 3000;
