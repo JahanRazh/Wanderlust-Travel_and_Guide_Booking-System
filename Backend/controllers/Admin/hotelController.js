@@ -38,3 +38,23 @@ const getHotelById = async (req, res) => {
     }
 };
 
+// Update a hotel by ID
+const updateHotel = async (req, res) => {
+    try {
+        const { name, type, location, price, no_of_rooms } = req.body;
+        const updatedHotel = await Hotel.findByIdAndUpdate(
+            req.params.id,
+            { name, type, location, price, no_of_rooms },
+            { new: true }
+        );
+
+        if (!updatedHotel) return res.status(404).json({ error: "Hotel not found" });
+
+        res.status(200).json({ message: "Hotel updated", updatedHotel });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error updating hotel" });
+    }
+};
+
+// Delete a hotel by ID
