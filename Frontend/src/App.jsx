@@ -14,6 +14,7 @@ import About from './pages/About';
 import TravelStory from './components/Cards/TravelStoryCard';
 import AllTravelpackages from './pages/Packages/AllPackage';
 import styles from './styles/App.module.css';
+
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
 import AddPackage from './pages/Admin/AddPackages'; // Add the AddPackage component
@@ -21,6 +22,8 @@ import AllPackages from './pages/Admin/AllPackages'; // Add the AllPackages comp
 import PackageDetails from './pages/Packages/packageDetails';
 
 import NotFound from './components/NotFound';
+import GuideRegister from './pages/Guide/GuideRegister';
+import GuideProfile from './pages/Guide/GuideProfile';
 
 
 
@@ -75,7 +78,6 @@ const App = () => {
             <Route path="/profile-stats/:userId" element={<ProfileStats />} />
             <Route path="/admin/usercontroller" element={<UserController />} />
             <Route path="/admindashboard" element={<AdminDashboard />} />
-            
             <Route path="/login" element={<Login login={login} />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/view/hotel" element={<Hotelview />} />
@@ -88,6 +90,8 @@ const App = () => {
             <Route path="/admin/packages/add" element={<AddPackage />} /> {/* Add Package Route */}
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/guideregister" element={<GuideRegister />} />
+            <Route path="/guideprofile" element={<GuideProfile />} />
            
 
             {/* 404 Page */}
