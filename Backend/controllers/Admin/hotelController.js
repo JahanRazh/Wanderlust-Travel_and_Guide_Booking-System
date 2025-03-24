@@ -25,3 +25,16 @@ const getAllHotels = async (req, res) => {
     }
 };
 
+// Get a single hotel by ID
+const getHotelById = async (req, res) => {
+    try {
+        const hotel = await Hotel.findById(req.params.id);
+        if (!hotel) return res.status(404).json({ error: "Hotel not found" });
+
+        res.status(200).json({ success: true, hotel });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error fetching hotel" });
+    }
+};
+
