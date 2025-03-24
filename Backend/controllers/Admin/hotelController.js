@@ -14,3 +14,14 @@ const addHotel = async (req, res) => {
     }
 };
 
+// Get all hotels
+const getAllHotels = async (req, res) => {
+    try {
+        const hotels = await Hotel.find();
+        res.status(200).json({ success: true, hotels });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error fetching hotels" });
+    }
+};
+
