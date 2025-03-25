@@ -244,7 +244,7 @@ const AdminPackageList = () => {
                 <div className="flex space-x-4">
                   <button
                     onClick={handleUpdate}
-                    className="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors"
+                    className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
                   >
                     Update
                   </button>
