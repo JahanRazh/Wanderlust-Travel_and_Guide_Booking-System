@@ -6,6 +6,16 @@ const hotelSchema = new Schema({
     name: {
         type: String,
         required: true
+        
+    },
+    email : {
+        type: String,
+        required: true
+    },
+    pno: {
+        type: Number,
+        required: true,
+        unique: true
     },
     type: {
         type: String,
@@ -15,14 +25,16 @@ const hotelSchema = new Schema({
         type: String,
         required: true
     },
-    price: {
-        type: String,
-        required: true
-    },
+    
     no_of_rooms: {
         type: Number,
         required: true
-    }
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    
 });
 
 // Create model
