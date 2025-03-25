@@ -22,8 +22,9 @@ import AllPackages from './pages/Admin/AllPackages'; // Add the AllPackages comp
 import PackageDetails from './pages/Packages/packageDetails';
 
 import NotFound from './components/NotFound';
-import GuideRegister from './pages/Guide/GuideRegister';
-import GuideProfile from './pages/Guide/GuideProfile';
+import CreateGuide from './pages/Guide/CreateGuide';
+
+
 
 
 
@@ -90,8 +91,8 @@ const App = () => {
             <Route path="/admin/packages/add" element={<AddPackage />} /> {/* Add Package Route */}
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route path="/guideregister" element={<GuideRegister />} />
-            <Route path="/guideprofile" element={<GuideProfile />} />
+            <Route path="/createguide" element={<CreateGuide />} />
+            
            
 
             {/* 404 Page */}

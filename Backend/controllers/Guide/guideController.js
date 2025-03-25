@@ -1,9 +1,9 @@
 import Guide from "../models/Guide.js";
 import bcrypt from "bcrypt";
 
-export const registerGuide = async (req, res) => {
+export const CreateGuide = async (req, res) => {
   try {
-    const { fullname, age, dateOfBirth, gender, contactNumber, email, address, workExperience } = req.body;
+    const { fullname, age, dateOfBirth, gender, contactNumber, email, address, about, workExperience } = req.body;
     const profilePic = req.file ? req.file.filename : null;
 
     // Check if email exists
@@ -21,6 +21,7 @@ export const registerGuide = async (req, res) => {
       contactNumber,
       email,
       address,
+      about,
       workExperience,
       profilePic,
     });
