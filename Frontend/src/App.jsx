@@ -23,6 +23,7 @@ import PackageDetails from './pages/Packages/packageDetails';
 
 import NotFound from './components/NotFound';
 import CreateGuide from './pages/Guide/CreateGuide';
+import GuideProfile from './pages/Guide/GuideProfile';
 
 
 
@@ -92,7 +93,7 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/createguide" element={<CreateGuide />} />
-            
+            <Route path="/guideprofile" element={<GuideProfile />} />
            
 
             {/* 404 Page */}
