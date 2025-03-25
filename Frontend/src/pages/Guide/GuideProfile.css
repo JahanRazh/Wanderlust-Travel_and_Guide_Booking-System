@@ -3,7 +3,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f8f9fa;
+    background-color: #ddeafa;
   }
   
   .profile-card {
@@ -11,7 +11,7 @@
     padding: 60px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
+    max-width: 1000px;
     width: 100%;
     text-align: center;
   }
@@ -25,10 +25,11 @@
   }
   
   .profile-pic {
-    width: 125px;
-    height: 125px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     border: 3px solid #007bff;
+    
   }
   
   .about-text {
@@ -36,23 +37,26 @@
     text-align: left;
     max-width: 400px;
     font-style: italic;
-    color: #555;
+    color: #3e3d3d;
   }
   
   .profile-details {
     margin-top: 15px;
+    text-align: center;
+    line-height: 2; /* This adds spacing between text lines */
   }
   
   .profile-actions {
     display: flex;
     justify-content: space-between;
-    margin-top: 50px;
+    gap: 10px;
+    margin-top: 100px;
   }
   
   .edit-btn, .delete-btn {
     flex: 1;
-    margin: 0 5px;
-    padding: 10px;
+    margin: 0 60px;
+    padding: 8px;
     border: none;
     border-radius: 5px;
     cursor: pointer;

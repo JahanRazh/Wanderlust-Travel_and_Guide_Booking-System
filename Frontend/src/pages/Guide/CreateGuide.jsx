@@ -120,7 +120,7 @@ const CreateGuide = () => {
             !formData.workExperience ||
             !formData.about
           }
-          onClick={() => navigate("/guideProfile")} // Links to All Packages page
+          onClick={() => navigate("/guideProfile")} 
         >
           Create Profile
         </button>

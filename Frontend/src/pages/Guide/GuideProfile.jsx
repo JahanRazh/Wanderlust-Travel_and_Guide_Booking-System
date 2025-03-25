@@ -34,6 +34,7 @@ const GuideProfile = () => {
           <img src={guideData.profilePic} alt="Profile" className="profile-pic" />
           <p className="about-text">{guideData.about}</p>
         </div>
+        <div className="profile-details">
         <h2>{guideData.fullname}</h2>
         <p><strong>Age:</strong> {guideData.age}</p>
         <p><strong>Date of Birth:</strong> {guideData.dateOfBirth}</p>
@@ -42,6 +43,7 @@ const GuideProfile = () => {
         <p><strong>Email:</strong> {guideData.email}</p>
         <p><strong>Address:</strong> {guideData.address}</p>
         <p><strong>Work Experience:</strong> {guideData.workExperience} years</p>
+        </div>
         <div className="profile-actions">
           <button className="edit-btn" onClick={handleEdit}>Edit</button>
           <button className="delete-btn" onClick={handleDelete}>Delete</button>

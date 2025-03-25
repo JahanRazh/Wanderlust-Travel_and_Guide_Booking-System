@@ -1,6 +1,6 @@
 import express from "express";
 import multer from "multer";
-import { registerGuide } from "../controllers/guideController.js";
+import { createGuide } from "../controllers/guideController.js";
 
 const router = express.Router();
 
@@ -15,6 +15,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-router.post("/register", upload.single("profilePic"), registerGuide);
+router.post("/create", upload.single("profilePic"), createGuide);
 
 export default router;
