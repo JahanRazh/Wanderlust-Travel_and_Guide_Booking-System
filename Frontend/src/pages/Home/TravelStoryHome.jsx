@@ -290,7 +290,6 @@ const TravelStoryHome = () => {
   return (
     <>
       <Navbar
-        userInfo={userInfo}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         onSearchNote={searchStories}
