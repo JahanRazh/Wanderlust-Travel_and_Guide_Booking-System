@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../../styles/AllPackages.module.css';// Define your custom CSS
-import Footer from '../../components/footer';
 
 const AllPackages = () => {
   const [packages, setPackages] = useState([]);
@@ -71,7 +70,6 @@ const AllPackages = () => {
   }, []);
 
   return (
-    <>
     
     <div className="center px-8 py-8">
       <h1 className="text-3xl font-bold text-center mb-10">Our Travel Packages</h1>
@@ -95,8 +93,6 @@ const AllPackages = () => {
         ))}
       </div>
       </div>
-       <Footer />
-       </>
     
   );
 };
