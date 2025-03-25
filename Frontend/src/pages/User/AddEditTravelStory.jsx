@@ -84,13 +84,7 @@ const AddEditTravelStory = ({
         }
         break;
         
-      case 'storyImg':
-        if (type === "add" && !value) {
-          error = "Image is required";
-        } else if (value && value.size && value.size > 5 * 1024 * 1024) {
-          error = "Image size must be less than 5MB";
-        }
-        break;
+      
         
       case 'visitedDate':
         if (!value) {
@@ -362,7 +356,7 @@ const AddEditTravelStory = ({
             <p className="mt-1 text-sm text-red-600">{errors.storyImg}</p>
           )}
           <p className="mt-1 text-xs text-gray-500">
-            Recommended size: 1200x800 pixels (max 5MB)
+            Recommended size: 1200x800 pixels
           </p>
         </div>
 
