@@ -19,6 +19,9 @@ import ResetPassword from "./pages/Auth/ResetPassword";
 import AddPackage from './pages/Admin/AddPackages'; // Add the AddPackage component
 import AllPackages from './pages/Admin/AllPackages'; // Add the AllPackages component
 import PackageDetails from './pages/Packages/packageDetails';
+import AllHotels from './pages/Admin/AllHotels';
+import AddHotels from './pages/Admin/AddHotels';
+import DateTime from './components/datetime';
 
 import NotFound from './components/NotFound';
 
@@ -75,6 +78,9 @@ const App = () => {
             <Route path="/profile-stats/:userId" element={<ProfileStats />} />
             <Route path="/admin/usercontroller" element={<UserController />} />
             <Route path="/admindashboard" element={<AdminDashboard />} />
+            <Route path="/admin/hotels" element={<AllHotels />} />
+            <Route path="/admin/hotels/add" element={<AddHotels />} />
+            <Route path="/datetime" element={<DateTime />} />
             
             <Route path="/login" element={<Login login={login} />} />
             <Route path="/signup" element={<SignUp />} />
