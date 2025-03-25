@@ -8,7 +8,14 @@ const AddPackage = () => {
     hotel: "",
     guide: "",
     climate: "",
+    description: "",
   });
+
+  const climateZones = [
+    'Wet Zone',
+    'Dry Zone', 
+    'Intermediate Zone'
+  ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -40,19 +47,21 @@ const AddPackage = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">Add New Package</h2>
+    <div className="container mx-auto p-8 bg-blue-50 min-h-screen">
+      <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
+        Add New Travel Package
+      </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-lg shadow-xl max-w-2xl mx-auto">
         <div>
-          <label htmlFor="packageName" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="packageName" className="block text-lg font-medium text-gray-700 mb-2">
             Package Name
           </label>
           <input
             type="text"
             id="packageName"
             name="packageName"
-            className="border p-2 w-full"
+            className="border border-gray-300 p-1 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50"
             value={formData.packageName}
             onChange={handleInputChange}
             required
@@ -60,14 +69,14 @@ const AddPackage = () => {
         </div>
 
         <div>
-          <label htmlFor="pricePerPerson" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="pricePerPerson" className="block text-lg font-medium text-gray-700 mb-2">
             Price Per Person
           </label>
           <input
             type="number"
             id="pricePerPerson"
             name="pricePerPerson"
-            className="border p-2 w-full"
+            className="border border-gray-300 p-1 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50"
             value={formData.pricePerPerson}
             onChange={handleInputChange}
             required
@@ -75,14 +84,14 @@ const AddPackage = () => {
         </div>
 
         <div>
-          <label htmlFor="hotel" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="hotel" className="block text-lg font-medium text-gray-700 mb-2">
             Hotel
           </label>
           <input
             type="text"
             id="hotel"
             name="hotel"
-            className="border p-2 w-full"
+            className="border border-gray-300 p-1 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50"
             value={formData.hotel}
             onChange={handleInputChange}
             required
@@ -90,14 +99,14 @@ const AddPackage = () => {
         </div>
 
         <div>
-          <label htmlFor="guide" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="guide" className="block text-lg font-medium text-gray-700 mb-2">
             Guide
           </label>
           <input
             type="text"
             id="guide"
             name="guide"
-            className="border p-2 w-full"
+            className="border border-gray-300 p-1 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50"
             value={formData.guide}
             onChange={handleInputChange}
             required
@@ -105,14 +114,13 @@ const AddPackage = () => {
         </div>
 
         <div>
-          <label htmlFor="guide" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="description" className="block text-lg font-medium text-gray-700 mb-2">
             Description
           </label>
-          <input
-            type="text"
+          <textarea
             id="description"
             name="description"
-            className="border p-2 w-full"
+            className="border border-gray-300 p-1 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50"
             value={formData.description}
             onChange={handleInputChange}
             required
@@ -120,29 +128,38 @@ const AddPackage = () => {
         </div>
 
         <div>
-          <label htmlFor="climate" className="block text-sm font-medium text-gray-700">
+          <label className="block text-lg font-medium text-gray-700 mb-2">
             Climate
           </label>
-          <input
-            type="text"
+         
+          <select
             id="climate"
             name="climate"
-            className="border p-2 w-full"
+            className="border border-gray-300 p-2 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50"
             value={formData.climate}
             onChange={handleInputChange}
             required
-          />
+          >
+            <option value="">Select Climate Zone</option>
+            {climateZones.map((zone) => (
+              <option key={zone} value={zone}>
+                {zone}
+              </option>
+            ))}
+          </select>
         </div>
 
         <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
-        >
-          Add Package
-        </button>
+  type="submit"
+  className="block mx-auto px-8 py-3 text-lg font-semibold rounded-lg shadow-md btn-light "
+>
+  Add Package
+</button>
       </form>
     </div>
   );
 };
 
 export default AddPackage;
+
+

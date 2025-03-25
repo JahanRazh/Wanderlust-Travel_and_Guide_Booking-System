@@ -3,10 +3,7 @@ import {
   FaFacebook, 
   FaTwitter, 
   FaInstagram, 
-  FaLinkedin, 
-  FaEnvelope, 
-  FaPhone, 
-  FaMapMarkerAlt 
+  FaLinkedin 
 } from 'react-icons/fa';
 
 export default function Footer() {
