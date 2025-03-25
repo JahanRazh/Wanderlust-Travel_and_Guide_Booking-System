@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import React, { useState } from 'react';
+import TravelStoryHome from './pages/Home/TravelStoryHome';
 import Home from './pages/Home/Home';
-import Homenew from './pages/Home/Homenew';
 import Hotelview from './pages/Hotel/Hotelview';
 import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
@@ -68,9 +68,9 @@ const App = () => {
         
         <div>
           <Routes>
-            <Route index element={<Homenew/>} />
-            <Route path="/home" element={<Homenew />} />
-            <Route path="/view/travel-story" element={<Home />} />
+            <Route index element={<Home/>} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/view/travel-story" element={<TravelStoryHome/>} />
             <Route path="/profile-stats" element={<ProfileStats />} />
             <Route path="/profile-stats/:userId" element={<ProfileStats />} />
             <Route path="/admin/usercontroller" element={<UserController />} />

@@ -1,54 +1,73 @@
-const Package = require("../../models/Admin/packageModel");
+const Hotel = require("../../models/Admin/hotelModel");
 
-exports.addPackage = async (req, res) => {
-  try {
-    const packageData = new Package(req.body);
-    const savedPackage = await packageData.save();
-    res.status(201).json(savedPackage);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
+// Add a new hotel
+const addHotel = async (req, res) => {
+    try {
+        const { name, type, location, price, no_of_rooms } = req.body;
+        const newHotel = new Hotel({ name, type, location, price, no_of_rooms });
+
+        await newHotel.save();
+        res.status(201).json({ message: "Hotel Added" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error adding hotel" });
+    }
 };
 
-// Get all packages
-exports.getPackages = async (req, res) => {
-  try {
-    const packages = await Package.find();
-    res.status(200).json(packages);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Get all hotels
+const getAllHotels = async (req, res) => {
+    try {
+        const hotels = await Hotel.find();
+        res.status(200).json({ success: true, hotels });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error fetching hotels" });
+    }
 };
 
-// Get a single package by ID
-exports.getPackageById = async (req, res) => {
-  try {
-    const package = await Package.findById(req.params.id);
-    if (!package) return res.status(404).json({ message: "Package not found" });
-    res.status(200).json(package);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Get a single hotel by ID
+const getHotelById = async (req, res) => {
+    try {
+        const hotel = await Hotel.findById(req.params.id);
+        if (!hotel) return res.status(404).json({ error: "Hotel not found" });
+
+        res.status(200).json({ success: true, hotel });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error fetching hotel" });
+    }
 };
 
-// Update a package
-exports.updatePackage = async (req, res) => {
-  try {
-    const updatedPackage = await Package.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedPackage) return res.status(404).json({ message: "Package not found" });
-    res.status(200).json(updatedPackage);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Update a hotel by ID
+const updateHotel = async (req, res) => {
+    try {
+        const { name, type, location, price, no_of_rooms } = req.body;
+        const updatedHotel = await Hotel.findByIdAndUpdate(
+            req.params.id,
+            { name, type, location, price, no_of_rooms },
+            { new: true }
+        );
+
+        if (!updatedHotel) return res.status(404).json({ error: "Hotel not found" });
+
+        res.status(200).json({ message: "Hotel updated", updatedHotel });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error updating hotel" });
+    }
 };
 
-// Delete a package
-exports.deletePackage = async (req, res) => {
-  try {
-    const deletedPackage = await Package.findByIdAndDelete(req.params.id);
-    if (!deletedPackage) return res.status(404).json({ message: "Package not found" });
-    res.status(200).json({ message: "Package deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Delete a hotel by ID
+const deleteHotel = async (req, res) => {
+    try {
+        const deletedHotel = await Hotel.findByIdAndDelete(req.params.id);
+        if (!deletedHotel) return res.status(404).json({ error: "Hotel not found" });
+
+        res.status(200).json({ message: "Hotel deleted" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error deleting hotel" });
+    }
 };
+
+module.exports = { addHotel, getAllHotels, getHotelById, updateHotel, deleteHotel };

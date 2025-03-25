@@ -1,15 +1,30 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const packageSchema = new mongoose.Schema(
-  {
-    packageName: { type: String, required: true },
-    pricePerPerson: { type: Number, required: true },
-    hotel: { type: String, required: true },
-    guide: { type: String, required: true },
-    description: { type: String, required: true },
-    climate: { type: String, required: true },
-  }
-);
+// Define schema
+const Schema = mongoose.Schema;
+const hotelSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: String,
+        required: true
+    },
+    location: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: String,
+        required: true
+    },
+    no_of_rooms: {
+        type: Number,
+        required: true
+    }
+});
 
-const Package = mongoose.model("Package", packageSchema);
-module.exports = Package;
+// Create model
+const Hotel = mongoose.model("Hotel", hotelSchema);
+module.exports = Hotel;

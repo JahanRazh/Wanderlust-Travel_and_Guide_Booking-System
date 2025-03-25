@@ -388,7 +388,7 @@ const ProfileStats = () => {
       {/* Admin Dashboard Button (Conditional Rendering) */}
       {user?.role === 'admin' && (
         <button
-          className="mt-4 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition mr-4"
+          className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition mr-4"
           onClick={() => navigate("/admindashboard")}
         >
           Admin Dashboard
@@ -400,7 +400,7 @@ const ProfileStats = () => {
         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
         onClick={() => navigate("/home")}
       >
-        Back to Dashboard
+        Back to Home
       </button>
 
       {/* Toast Container */}

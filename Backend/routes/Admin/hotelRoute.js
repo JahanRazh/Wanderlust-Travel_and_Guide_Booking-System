@@ -1,12 +1,18 @@
 const express = require("express");
-const { addPackage, getPackages, getPackageById, updatePackage, deletePackage } = require("../../controllers/Admin/packageController");
-
 const router = express.Router();
+const {
+    addHotel,
+    getAllHotels,
+    getHotelById,
+    updateHotel,
+    deleteHotel
+} = require("../../controllers/Admin/hotelController");
 
-router.post("/packages", addPackage);
-router.get("/packages", getPackages);
-router.get("/packages/:id", getPackageById);
-router.put("/packages/:id", updatePackage);
-router.delete("/packages/:id", deletePackage);
+// Define hotel routes
+router.post("/hotel/add", addHotel);
+router.get("/hotel/all", getAllHotels);
+router.get("/hotel/get/:id", getHotelById);
+router.put("/hotel/update/:id", updateHotel);
+router.delete("/hotel/delete/:id", deleteHotel);
 
 module.exports = router;
