@@ -76,7 +76,7 @@ const Dashboard = () => {
             >
               All Guides
             </button>
-            <button className={Admincss.addBtn}>+</button>
+            <button className={Admincss.addBtn}onClick={() => navigate("/createGuide")} >+</button>
           </p>
         </div>
 
