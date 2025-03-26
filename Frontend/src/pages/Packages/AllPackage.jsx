@@ -72,7 +72,6 @@ const AllPackages = () => {
 
   return (
     <>
-    
     <div className="center px-8 py-8">
       <h1 className="text-3xl font-bold text-center mb-10">Our Travel Packages</h1>
       
@@ -95,9 +94,8 @@ const AllPackages = () => {
         ))}
       </div>
       </div>
-       <Footer />
-       </>
-    
+      <Footer/>
+      </>
   );
 };
 
