@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";  // Import Link from react-router-dom
+import { Link } from "react-router-dom";
+import { 
+  PlusIcon, 
+  PencilIcon, 
+  TrashIcon, 
+  EyeIcon, 
+  MagnifyingGlassIcon 
+} from '@heroicons/react/24/outline';
 
 const AdminPackageList = () => {
   const [packages, setPackages] = useState([]);
@@ -13,7 +20,14 @@ const AdminPackageList = () => {
     hotel: "",
     guide: "",
     climate: "",
+    description: "",
   });
+
+  const climateZones = [
+    'Wet Zone',
+    'Dry Zone', 
+    'Intermediate Zone'
+  ];
 
   useEffect(() => {
     fetchPackages();
@@ -29,11 +43,13 @@ const AdminPackageList = () => {
   };
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:3000/packages/${id}`);
-      fetchPackages();
-    } catch (error) {
-      console.error("Error deleting package:", error);
+    if (window.confirm("Are you sure you want to delete this package?")) {
+      try {
+        await axios.delete(`http://localhost:3000/packages/${id}`);
+        fetchPackages();
+      } catch (error) {
+        console.error("Error deleting package:", error);
+      }
     }
   };
 
@@ -45,6 +61,7 @@ const AdminPackageList = () => {
       hotel: pkg.hotel,
       guide: pkg.guide,
       climate: pkg.climate,
+      description: pkg.description,
     });
   };
 
@@ -59,145 +76,190 @@ const AdminPackageList = () => {
   };
 
   const handleView = (pkg) => {
-    setViewingPackage(pkg); // Set the package to view
+    setViewingPackage(pkg);
   };
 
-  // Search filter
   const filteredPackages = packages.filter((pkg) =>
     pkg.packageName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">Admin - Package List</h2>
+    <div className="bg-gray-50 min-h-screen p-8">
+      <div className="container mx-auto bg-white shadow-lg rounded-xl p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold text-gray-800">Package Management</h2>
+          <Link to="/admin/packages/add">
+            <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+              <PlusIcon className="h-5 w-5" />
+              <span>Add New Package</span>
+            </button>
+          </Link>
+        </div>
 
-      {/* Add Package Button */}
-      <Link to="/admin/packages/add">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded mb-4">
-          Add New Package
-        </button>
-      </Link>
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <input
+            type="text"
+            placeholder="Search packages..."
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg "
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+        </div>
 
-      {/* Search Bar */}
-      <input
-        type="text"
-        placeholder="Search by package name..."
-        className="border p-2 mb-4 w-full"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto border-collapse border border-gray-200">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border px-4 py-2">Package Name</th>
-              <th className="border px-4 py-2">Price Per Person</th>
-              <th className="border px-4 py-2">Hotel</th>
-              <th className="border px-4 py-2">Guide</th>
-              <th className="border px-4 py-2">Climate</th>
-              <th className="border px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPackages.map((pkg) => (
-              <tr key={pkg._id} className="border">
-                <td className="border px-4 py-2">{pkg.packageName}</td>
-                <td className="border px-4 py-2">${pkg.pricePerPerson}</td>
-                <td className="border px-4 py-2">{pkg.hotel}</td>
-                <td className="border px-4 py-2">{pkg.guide}</td>
-                <td className="border px-4 py-2">{pkg.climate}</td>
-                <td className="border px-4 py-2">
-                  <button
-                    className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
-                    onClick={() => handleEdit(pkg)}
+        {/* Packages Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
+            <thead className="bg-blue-100">
+              <tr>
+                {['Package Name', 'Price', 'Hotel', 'Guide', 'Climate', 'Actions'].map((header) => (
+                  <th 
+                    key={header} 
+                    className="px-4 py-3 text-left text-xs font-medium text-blue-800 uppercase tracking-wider"
                   >
-                    Edit
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-3 py-1 rounded mr-2"
-                    onClick={() => handleDelete(pkg._id)}
-                  >
-                    Delete
-                  </button>
-                  <button
-                    className="bg-green-500 text-white px-3 py-1 rounded"
-                    onClick={() => handleView(pkg)} // View button
-                  >
-                    View
-                  </button>
-                </td>
+                    {header}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-800">
+              {filteredPackages.map((pkg) => (
+                <tr key={pkg._id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 py-4">{pkg.packageName}</td>
+                  <td className="px-4 py-4">${pkg.pricePerPerson}</td>
+                  <td className="px-4 py-4">{pkg.hotel}</td>
+                  <td className="px-4 py-4">{pkg.guide}</td>
+                  <td className="px-4 py-4">{pkg.climate}</td>
+
+                  <td className="px-4 py-4 flex space-x-2">
+                    <button 
+                      onClick={() => handleEdit(pkg)}
+                      className="text-blue-600 hover:text-blue-800 transition-colors"
+                      title="Edit"
+                    >
+                      <PencilIcon className="h-5 w-5" />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(pkg._id)}
+                      className="text-red-600 hover:text-red-800 transition-colors"
+                      title="Delete"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
+                    <button 
+                      onClick={() => handleView(pkg)}
+                      className="text-green-600 hover:text-green-800 transition-colors"
+                      title="View"
+                    >
+                      <EyeIcon className="h-5 w-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* View Package Modal */}
+        {viewingPackage && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-96">
+              <h3 className="text-xl font-bold mb-4 text-gray-800">Package Details</h3>
+              <div className="space-y-2">
+                <p><strong>Package Name:</strong> {viewingPackage.packageName}</p>
+                <p><strong>Price:</strong> ${viewingPackage.pricePerPerson}</p>
+                <p><strong>Hotel:</strong> {viewingPackage.hotel}</p>
+                <p><strong>Guide:</strong> {viewingPackage.guide}</p>
+                <p><strong>Climate:</strong> {viewingPackage.climate}</p>
+                <p><strong>Description:</strong> {viewingPackage.description}</p>
+              </div>
+              <button
+                onClick={() => setViewingPackage(null)}
+                className="mt-4 w-full bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Package Modal */}
+        {editingPackage && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-96">
+              <h3 className="text-xl font-bold mb-4 text-gray-800">Edit Package</h3>
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Package Name"
+                  className="w-full border border-gray-300 rounded-lg p-2"
+                  value={formData.packageName}
+                  onChange={(e) => setFormData({ ...formData, packageName: e.target.value })}
+                />
+                <input
+                  type="number"
+                  placeholder="Price Per Person"
+                  className="w-full border border-gray-300 rounded-lg p-2"
+                  value={formData.pricePerPerson}
+                  onChange={(e) => setFormData({ ...formData, pricePerPerson: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Hotel"
+                  className="w-full border border-gray-300 rounded-lg p-2"
+                  value={formData.hotel}
+                  onChange={(e) => setFormData({ ...formData, hotel: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Guide"
+                  className="w-full border border-gray-300 rounded-lg p-2"
+                  value={formData.guide}
+                  onChange={(e) => setFormData({ ...formData, guide: e.target.value })}
+                />
+                 <div>
+                  
+                  <select
+                    className="w-full border border-gray-300 rounded-lg p-2"
+                    value={formData.climate}
+                    onChange={(e) => setFormData({ ...formData, climate: e.target.value })}
+                    required
+                  >
+                    <option value="">Select Climate Zone</option>
+                    {climateZones.map((zone) => (
+                      <option key={zone} value={zone}>
+                        {zone}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Description"
+                  className="w-full border border-gray-300 rounded-lg p-2"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                />
+                <div className="flex space-x-4">
+                  <button
+                    onClick={handleUpdate}
+                    className="flex-1 bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    Update
+                  </button>
+                  <button
+                    onClick={() => setEditingPackage(null)}
+                    className="flex-1 bg-gray-500 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* View package details */}
-      {viewingPackage && (
-        <div className="mt-6 p-4 border rounded bg-gray-100">
-          <h3 className="text-lg font-bold mb-2">Package Details</h3>
-          <p><strong>Package Name:</strong> {viewingPackage.packageName}</p>
-          <p><strong>Price Per Person:</strong> ${viewingPackage.pricePerPerson}</p>
-          <p><strong>Hotel:</strong> {viewingPackage.hotel}</p>
-          <p><strong>Guide:</strong> {viewingPackage.guide}</p>
-          <p><strong>Climate:</strong> {viewingPackage.climate}</p>
-          <button
-            className="bg-gray-500 text-white px-3 py-1 rounded mt-2"
-            onClick={() => setViewingPackage(null)} // Close the view
-          >
-            Close View
-          </button>
-        </div>
-      )}
-
-      {/* Edit Package Form */}
-      {editingPackage && (
-        <div className="mt-6 p-4 border rounded bg-gray-100">
-          <h3 className="text-lg font-bold mb-2">Edit Package</h3>
-          <input
-            type="text"
-            className="border p-2 w-full mb-2"
-            placeholder="Package Name"
-            value={formData.packageName}
-            onChange={(e) => setFormData({ ...formData, packageName: e.target.value })}
-          />
-          <input
-            type="number"
-            className="border p-2 w-full mb-2"
-            placeholder="Price Per Person"
-            value={formData.pricePerPerson}
-            onChange={(e) => setFormData({ ...formData, pricePerPerson: e.target.value })}
-          />
-          <input
-            type="text"
-            className="border p-2 w-full mb-2"
-            placeholder="Hotel"
-            value={formData.hotel}
-            onChange={(e) => setFormData({ ...formData, hotel: e.target.value })}
-          />
-          <input
-            type="text"
-            className="border p-2 w-full mb-2"
-            placeholder="Guide"
-            value={formData.guide}
-            onChange={(e) => setFormData({ ...formData, guide: e.target.value })}
-          />
-          <input
-            type="text"
-            className="border p-2 w-full mb-2"
-            placeholder="Climate"
-            value={formData.climate}
-            onChange={(e) => setFormData({ ...formData, climate: e.target.value })}
-          />
-          <button
-            className="bg-green-500 text-white px-3 py-1 rounded mt-2"
-            onClick={handleUpdate}
-          >
-            Update Package
-          </button>
-        </div>
-      )}
     </div>
   );
 };
