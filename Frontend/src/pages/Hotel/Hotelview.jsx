@@ -62,7 +62,7 @@ const Hotelview = () => {
   {
     id: 1,
     type: 'Adventure',
-    title: 'Jungle Safari Expedition',
+    title: 'Jungle Safari ',
     price: '$499',
     image: 'https://cdn.pixabay.com/photo/2014/09/01/11/51/hotel-432721_1280.jpg',
     description: 'Explore the wild and witness exotic wildlife up close.',
