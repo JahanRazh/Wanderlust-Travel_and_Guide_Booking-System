@@ -7,7 +7,7 @@ const uploadImage = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: true, message: "No file uploaded" });
-    } 
+    }
     const image = req.file;
     const imageUrl = `http://localhost:3000/uploads/${image.filename}`;
 
@@ -24,13 +24,10 @@ const deleteImage = async (req, res) => {
     return res.status(400).json({ error: true, message: "ImageUrl parameter is required" });
   }
   try {
-    // Extract the filename from the imageUrl
     const filename = path.basename(imageUrl);
-     // Define the file path
     const filePath = path.join(__dirname, "../uploads", filename);
-    // Check if the file exists
-    if (fs.existsSync(filePath)){
-      fs.unlinkSync(filePath);// Delete the file
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
       res.status(200).json({ message: "Image deleted successfully" });
     } else {
       res.status(404).json({ error: true, message: "Image not found" });
@@ -44,15 +41,13 @@ const deleteImage = async (req, res) => {
 const addTravelStory = async (req, res) => {
   const { title, story, visitedLocations, ImageUrl, visitedDate } = req.body;
   const { userId } = req.user;
-  
-  // Validate that all required fields are provided
+
   if (!title || !story || !visitedLocations || !ImageUrl || !visitedDate) {
     return res.status(400).json({ error: true, message: "All fields are required" });
   }
- 
-  //convert visitedDate from milliseconds to Date object
+
   const parsedVisitedDate = new Date(parseInt(visitedDate));
-  
+
   try {
     const travelStory = new TravelStory({
       title,
@@ -69,6 +64,7 @@ const addTravelStory = async (req, res) => {
   }
 };
 
+/*
 // Get all travel stories
 const getAllTravelStories = async (req, res) => {
   const { userId } = req.user;
@@ -79,23 +75,33 @@ const getAllTravelStories = async (req, res) => {
     res.status(400).json({ error: true, message: error.message });
   }
 };
+*/
+
+// Get all travel stories (fixed to return all stories, not just user's)
+const getAllTravelStories = async (req, res) => {
+  try {
+    const travelStories = await TravelStory.find().sort({ isFavourite: -1 });
+    res.status(200).json({ travelStories, message: "Travel stories fetched successfully" });
+  } catch (error) {
+    res.status(400).json({ error: true, message: error.message });
+  }
+};
 
 // Edit Travel Story
 const editTravelStory = async (req, res) => {
   const { id } = req.params;
   const { title, story, visitedLocations, ImageUrl, visitedDate } = req.body;
   const { userId } = req.user;
-  
-  // Validate that all required fields are provided
+
   if (!title || !story || !visitedLocations || !ImageUrl || !visitedDate) {
     return res.status(400).json({ error: true, message: "All fields are required" });
   }
-  //convert visitedDate from milliseconds to Date object
+
   const parsedVisitedDate = new Date(parseInt(visitedDate));
+
   try {
-    // Find the travel story by id and userId and ensure it belongs to the authenticated user
     const travelStory = await TravelStory.findOne({ _id: id, userId: userId });
-    
+
     if (!travelStory) {
       return res.status(404).json({ error: true, message: "Travel story not found" });
     }
@@ -120,26 +126,25 @@ const deleteTravelStory = async (req, res) => {
   const { userId } = req.user;
 
   try {
-    // Find the travel story by id and userId and ensure it belongs to the authenticated user
     const travelStory = await TravelStory.findOne({ _id: id, userId: userId });
     if (!travelStory) {
       return res.status(404).json({ error: true, message: "Travel story not found" });
     }
 
-    // Extract the filename from the imageUrl
     const ImageUrl = travelStory.ImageUrl;
-    const filename = path.basename(travelStory.ImageUrl);
+    const filename = path.basename(ImageUrl);
     const filePath = path.join(__dirname, "../uploads", filename);
 
-    // Delete the travel story from the database
     await travelStory.deleteOne();
 
-    // Delete the image from the uploads folder/directory
     if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+      try {
+        fs.unlinkSync(filePath);
+      } catch (fileError) {
+        console.error("Failed to delete image file:", fileError.message);
+      }
     }
 
-    // Send a single response after all operations are completed
     res.status(200).json({ message: "Travel story deleted successfully" });
   } catch (error) {
     console.error("Error deleting travel story:", error.message);
@@ -152,8 +157,12 @@ const updateFavouriteStatus = async (req, res) => {
   const { id } = req.params;
   const { isFavourite } = req.body;
   const { userId } = req.user;
+
+  if (typeof isFavourite !== "boolean") {
+    return res.status(400).json({ error: true, message: "isFavourite must be a boolean" });
+  }
+
   try {
-    // Find the travel story by id and userId and ensure it belongs to the authenticated user
     const travelStory = await TravelStory.findOne({ _id: id, userId: userId });
     if (!travelStory) {
       return res.status(404).json({ error: true, message: "Travel story not found" });
@@ -173,10 +182,9 @@ const searchTravelStories = async (req, res) => {
 
   if (!query) {
     return res.status(400).json({ error: true, message: "Search query is required" });
-  } 
+  }
 
   try {
-    // Find travel stories that match the search query and belong to the authenticated user
     const searchResults = await TravelStory.find({
       userId: userId,
       $or: [
@@ -192,42 +200,35 @@ const searchTravelStories = async (req, res) => {
   }
 };
 
-// Filter travel stories by visited date
+// Filter travel stories by visited date.
 const filterTravelStories = async (req, res) => {
   const { startDate, endDate } = req.query;
   const { userId } = req.user;
 
   try {
-    // Validate that startDate and endDate are provided and are valid numbers
     if (!startDate || !endDate || isNaN(startDate) || isNaN(endDate)) {
       return res.status(400).json({ error: true, message: "Invalid startDate or endDate" });
     }
 
-    // Convert startDate and endDate from milliseconds to Date objects
     const start = new Date(parseInt(startDate));
     const end = new Date(parseInt(endDate));
 
-    // Validate that the dates are valid
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
       return res.status(400).json({ error: true, message: "Invalid startDate or endDate" });
     }
 
-    // Ensure startDate is before endDate
     if (start > end) {
       return res.status(400).json({ error: true, message: "startDate must be before endDate" });
     }
 
-    // Log the dates for debugging purposes
     console.log("Start Date:", start);
     console.log("End Date:", end);
 
-    // Find travel stories that belong to the authenticated user and have visitedDate between startDate and endDate
     const filteredResults = await TravelStory.find({
       userId: userId,
       visitedDate: { $gte: start, $lte: end },
     }).sort({ isFavourite: -1 });
 
-    // Return the filtered results
     res.status(200).json({ stories: filteredResults, message: "Travel stories filtered successfully" });
   } catch (error) {
     console.error("Error filtering travel stories:", error.message);
@@ -244,5 +245,5 @@ module.exports = {
   deleteTravelStory,
   updateFavouriteStatus,
   searchTravelStories,
-  filterTravelStories
+  filterTravelStories,
 };

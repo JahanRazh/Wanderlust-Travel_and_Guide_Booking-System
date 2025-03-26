@@ -33,18 +33,27 @@ const Login = () => {
         email: email,
         password: password,
       });
+
       // Handle success login response
       if (response.data && response.data.accessToken) {
+        console.log("Login successful, token:", response.data.accessToken);
         localStorage.setItem("token", response.data.accessToken);
-        navigate("/dashboard");
+
+        // Extract role from the response
+        const role = response.data.user.role;
+
+        // Check if the user is an admin if(email === "admin@wanderlust.com" && password === "Admin")
+        if (role === "admin") {
+          console.log("Admin detected, navigating to /admindashboard");
+          navigate("/admindashboard"); // Use absolute path
+        } else {
+          console.log("Regular user, navigating to /home");
+          navigate("/home"); // Navigate to home page for regular users
+        }
       }
     } catch (error) {
-      // Handle error
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
+      console.error("Login error:", error);
+      if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
       } else {
         setError("Something went wrong. Please try again later.");
@@ -100,8 +109,19 @@ const Login = () => {
                 setPassword(target.value);
               }}
             />
+            
+            {/* Add Forgot Password Link */}
+            <div className="flex justify-end mt-1 mb-4">
+              <button
+                type="button"
+                className="text-sm text-cyan-600 hover:underline"
+                onClick={() => navigate("/forgot-password")}
+              >
+                Forgot Password?
+              </button>
+            </div>
+            
             {error && <p className="text-red-500 text-xs pb-1">{error}</p>}
-            <br />
             <button type="submit" className="btn-primary" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </button>
@@ -119,7 +139,7 @@ const Login = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Login;

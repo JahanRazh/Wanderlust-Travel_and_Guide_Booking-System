@@ -1,310 +1,106 @@
-import React, { useEffect, useState } from 'react';
-import Navbar from '../../components/Navbar';
-import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../../utils/axiosInstance';
-import { MdAdd } from 'react-icons/md';
-import Modal from 'react-modal';
-import TravelStoryCard from '../../components/Cards/TravelStoryCard';
-import AddEditTravelStory from './AddEditTravelStory';
-import ViewTravelStory from './ViewTravelStory';
-import { ToastContainer, toast } from 'react-toastify';
-import EmptyCard from '../../components/Cards/EmptyCard';
-import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
-import EmptyImg from '../../assets/images/add-story.png';
-import FilterInfoTitle from '../../components/Cards/FilterInfoTitle';
-import { getEmptyCardMessage } from '../../utils/helper';
+import React from "react";
+import Footer from "../../components/footer";
+//import css file from style sheets directory
+import styleHome from "../../styles/Home.module.css";
+
+//import images from img directory
+import coverImg from "../../assets/images/home/Beach.jpg"
+import paymentImg from "../../assets/images/home/ezpayment.png"
+import nearbyImg from "../../assets/images/home/Nearby.png"
+import covidImg from "../../assets/images/home/Safe.png"
+import priceImg from "../../assets/images/home/Prices.png"
 
 const Home = () => {
-    const navigate = useNavigate();
-    const [userInfo, setUserInfo] = useState(null);
-    const [allStories, setAllStories] = useState([]);
-    const [filteredStories, setFilteredStories] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filterType, setFilterType] = useState('');
-    const [dateRange, setDateRange] = useState({ from: null, to: null });
-
-    const [openAddEditModal, setOpenAddEditModal] = useState({
-        isShown: false,
-        type: "add",
-        data: null,
-    });
-
-    const [openViewModal, setOpenViewModal] = useState({
-        isShown: false,
-        data: null,
-    });
-
-    const getUserInfo = async () => {
-        try {
-            const response = await axiosInstance.get("/get-user");
-            if (response.data?.user) {
-                setUserInfo(response.data.user);
-            }
-        } catch (error) {
-            if (error.response?.status === 401) {
-                localStorage.clear();
-                navigate("/login");
-            }
-            console.error("Error fetching user info:", error);
-        }
-    };
-
-    const getAllTravelStories = async () => {
-        try {
-            const response = await axiosInstance.get("/get-all-travel-stories");
-            if (response.data?.travelStories) {
-                setAllStories(response.data.travelStories);
-                setFilteredStories(response.data.travelStories);
-            }
-        } catch (error) {
-            console.error("An error occurred while fetching stories:", error);
-            toast.error("Failed to fetch stories");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleEdit = (data) => {
-        setOpenAddEditModal({ isShown: true, type: "edit", data });
-    };
-
-    const handleViewStory = (data) => {
-        setOpenViewModal({ isShown: true, data });
-    };
-
-    const updateFavorite = async (storyData) => {
-        try {
-            const response = await axiosInstance.put(`/update-favourite/${storyData._id}`, {
-                isFavourite: !storyData.isFavourite,
-            });
-            if (response.data) {
-                const updatedStories = allStories.map((story) =>
-                    story._id === storyData._id ? { ...story, isFavourite: !story.isFavourite } : story
-                );
-                setAllStories(updatedStories);
-                setFilteredStories(updatedStories);
-                toast.success("Story updated successfully.");
-            }
-        } catch (error) {
-            console.error("Error updating favorite status:", error);
-            toast.error("Failed to update favorite status");
-        }
-    };
-
-    const deleteTravelStory = async (data) => {
-        if (!data?._id) return;
-        
-        const originalStories = [...allStories];
-        try {
-            const updatedStories = allStories.filter(story => story._id !== data._id);
-            setAllStories(updatedStories);
-            setFilteredStories(updatedStories);
-
-            const response = await axiosInstance.delete(`/delete-travel-story/${data._id}`);
-            
-            if (response.status === 200 || response.status === 204) {
-                toast.success("Story deleted successfully.");
-                setOpenViewModal({ isShown: false, data: null });
-            } else {
-                setAllStories(originalStories);
-                setFilteredStories(originalStories);
-                toast.error("Failed to delete the story.");
-            }
-        } catch (error) {
-            setAllStories(originalStories);
-            setFilteredStories(originalStories);
-            toast.error(error.response?.data?.message || "Failed to delete the story");
-        }
-    };
-
-    const searchStories = (query) => {
-        const searchTerm = query.toLowerCase().trim();
-        if (!searchTerm) {
-            setFilteredStories(allStories);
-            setFilterType("");
-            return;
-        }
-
-        const matchedStories = allStories.filter(story => {
-            const titleMatch = story.title.toLowerCase().includes(searchTerm);
-            const storyMatch = story.story.toLowerCase().includes(searchTerm);
-            const locationMatch = story.visitedLocations.some(location => 
-                location.toLowerCase().includes(searchTerm)
-            );
-            
-            return titleMatch || storyMatch || locationMatch;
-        });
-
-        setFilteredStories(matchedStories);
-        setFilterType("search");
-        setSearchQuery(query);
-    };
-
-    const handleClearSearch = () => {
-        setFilterType("");
-        setSearchQuery("");
-        setFilteredStories(allStories);
-    };
-
-    const filterStoriesByDate = async (dateRange) => {
-        if (!dateRange?.from || !dateRange?.to) return;
-
-        try {
-            const startDate = new Date(dateRange.from).getTime();
-            const endDate = new Date(dateRange.to).getTime();
-
-            const filteredStories = allStories.filter(story => {
-                const storyDate = new Date(story.visitedDate).getTime();
-                return storyDate >= startDate && storyDate <= endDate;
-            });
-
-            setFilteredStories(filteredStories);
-            setFilterType("date");
-        } catch (error) {
-            console.error("An error occurred while filtering stories by date:", error);
-            toast.error("Failed to filter stories by date");
-        }
-    };
-
-    const handleDayClick = (range) => {
-        setDateRange(range);
-        if (range?.from && range?.to) {
-            filterStoriesByDate(range);
-        }
-    };
-
-    const resetFilter = () => {
-        setDateRange({ from: null, to: null });
-        setFilterType("");
-        setFilteredStories(allStories);
-    };
-
-    const handleCloseAddEditModal = () => {
-        setOpenAddEditModal({ isShown: false, type: "add", data: null });
-        getAllTravelStories();
-    };
-
-    useEffect(() => {
-        getUserInfo();
-        getAllTravelStories();
-    }, []);
-
-    if (loading) {
-        return <div className="flex items-center justify-center h-screen">Loading...</div>;
-    }
-
     return (
         <>
-            <Navbar
-                userInfo={userInfo}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                onSearchNote={searchStories}
-                handleClearSearch={handleClearSearch}
-            />
-
-            <div className="container mx-auto px-10">
-                <FilterInfoTitle
-                    filterType={filterType}
-                    filterDates={dateRange}
-                    onClear={resetFilter}
-                />
-
-                <div className="flex gap-7">
-                    <div className="flex-1">
-                        {filteredStories.length > 0 ? (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {filteredStories.map((item) => (
-                                    <TravelStoryCard
-                                        key={item._id}
-                                        ImgUrl={item.ImageUrl}
-                                        title={item.title}
-                                        story={item.story}
-                                        date={item.visitedDate}
-                                        visitedLocations={item.visitedLocations}
-                                        isFavorite={item.isFavourite}
-                                        onEdit={() => handleEdit(item)}
-                                        onClick={() => handleViewStory(item)}
-                                        onFavoriteClick={() => updateFavorite(item)}
-                                    />
-                                ))}
-                            </div>
-                        ) : (
-                            <EmptyCard
-                                imgSrc={EmptyImg}
-                                message={getEmptyCardMessage(filterType)}
-                            />
-                        )}
-                    </div>
-                  
-                    <div className="w-[320px] hidden md:block">
-                        <div className="bg-white border border-slate-200 shadow-slate-200/60 rounded-lg">
-                            <div className="p-3">
-                                <DayPicker
-                                    mode="range"
-                                    selected={dateRange}
-                                    onSelect={handleDayClick}
-                                    numberOfMonths={1}
-                                />
-                            </div>
-                        </div>
-                    </div>
+        
+        <div className={styleHome.container}>
+            <img src={coverImg} alt="Cover Beach" className={styleHome.img} />
+            <div className={styleHome.layer}>
+                <div className={styleHome.centered}>
+                    <div className={styleHome.headerTxt}>TRAVEL TO EXPLORE</div>
+                    <div className={styleHome.sloganTxt}>Stop worrying about the potholes in the road and enjoy the journey <br/>~ Babs Hoffman ~</div>
+                    <button className={styleHome.exploreBtn}>Explore Now</button>
                 </div>
             </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-10">
+                {[{
+                    img: priceImg,
+                    title: "Get Best Prices",
+                    text: "Pay through our application and save thousands and get amazing rewards"
+                }, {
+                    img: covidImg,
+                    title: "Covid Safe",
+                    text: "We have all the curated hotels that have all the precautions for a covid safe environment"
+                }, {
+                    img: paymentImg,
+                    title: "Flexible Payment",
+                    text: "Enjoy the flexible payment through our app and get rewards on every payment"
+                }, {
+                    img: nearbyImg,
+                    title: "Find The Best Near You",
+                    text: "Find the best hotels and places to visit near you in a single click"
+                }].map((item, index) => (
+                    <div key={index} className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
+                        <div className="bg-gray-200 p-4 rounded-full">
+                            <img src={item.img} className="w-12 h-12" alt="Feature Icon" />
+                        </div>
+                        <h5 className="mt-4 text-lg font-semibold">{item.title}</h5>
+                        <p className="text-gray-600 text-sm mt-2 text-center">{item.text}</p>
+                    </div>
+                ))}
+            </div>
 
-            <Modal
-                isOpen={openAddEditModal.isShown}
-                onRequestClose={handleCloseAddEditModal}
-                style={{
-                    overlay: {
-                        backgroundColor: "rgba(0,0,0,0.2)",
-                        zIndex: 999,
-                    },
-                }}
-                appElement={document.getElementById("root")}
-                className="model-box"
-            >
-                <AddEditTravelStory
-                    type={openAddEditModal.type}
-                    storyInfo={openAddEditModal.data}
-                    onClose={handleCloseAddEditModal}
-                    getAllTravelStories={getAllTravelStories}
-                />
-            </Modal>
+            <section className="py-16 bg-gray-100">
+                <div className="text-center">
+                    <h3 className="text-3xl font-bold">Here's What Our Customers Say?</h3>
+                    <p className="text-gray-600 mt-4">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit, error amet numquam iure provident voluptate esse quasi.</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 px-10">
+                    {[{
+                        img: "https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(1).webp",
+                        name: "Maria Smantha",
+                        role: "Travel Vlogger",
+                        text: "Lorem ipsum dolor sit amet, consectetur adipisicing elit."
+                    }, {
+                        img: "https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(2).webp",
+                        name: "Lisa Cudrow",
+                        role: "Traveller",
+                        text: "Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam."
+                    }, {
+                        img: "https://mdbcdn.b-cdn.net/img/Photos/Avatars/img%20(9).webp",
+                        name: "John Smith",
+                        role: "Traveller",
+                        text: "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis."
+                    }].map((review, index) => (
+                        <div key={index} className="bg-white shadow-lg p-6 rounded-lg text-center">
+                            <img src={review.img} alt={review.name} className="w-24 h-24 rounded-full mx-auto mb-4" />
+                            <h5 className="text-lg font-semibold">{review.name}</h5>
+                            <h6 className="text-blue-500 text-sm">{review.role}</h6>
+                            <p className="text-gray-600 mt-2">{review.text}</p>
+                        </div>
+                    ))}
+                </div>
+            </section>
 
-            <Modal
-                isOpen={openViewModal.isShown}
-                onRequestClose={() => setOpenViewModal({ isShown: false, data: null })}
-                style={{
-                    overlay: {
-                        backgroundColor: "rgba(0,0,0,0.2)",
-                        zIndex: 999,
-                    },
-                }}
-                appElement={document.getElementById("root")}
-                className="model-box"
-            >
-                <ViewTravelStory
-                    storyInfo={openViewModal.data}
-                    onClose={() => setOpenViewModal({ isShown: false, data: null })}
-                    onDeleteClick={() => deleteTravelStory(openViewModal.data)}
-                    onEditClick={() => {
-                        setOpenViewModal({ isShown: false, data: null });
-                        handleEdit(openViewModal.data);
-                    }}
-                />
-            </Modal>
-
-            <button
-                className="fixed right-10 bottom-10 w-16 h-16 flex items-center justify-center rounded-full bg-cyan-500 hover:bg-cyan-400 transition-colors"
-                onClick={() => setOpenAddEditModal({ isShown: true, type: "add", data: null })}
-            >
-                <MdAdd className="text-3xl text-white" />
-            </button>
-
-            <ToastContainer />
+            <div className="py-16 px-10 text-center">
+                <p className="text-3xl font-bold"><span className="text-blue-500">BEST</span> DESTINATIONS</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+                    {["https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(73).webp",
+                      "https://mdbcdn.b-cdn.net/img/Photos/Vertical/mountain1.webp",
+                      "https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(18).webp",
+                      "https://mdbcdn.b-cdn.net/img/Photos/Vertical/mountain2.webp",
+                      "https://mdbcdn.b-cdn.net/img/Photos/Horizontal/Nature/4-col/img%20(73).webp",
+                      "https://mdbcdn.b-cdn.net/img/Photos/Vertical/mountain3.webp"].map((img, index) => (
+                        <div key={index} className="bg-white shadow-lg rounded-lg overflow-hidden">
+                            <img src={img} alt={`Destination ${index + 1}`} className="w-full h-48 object-cover" />
+                        </div>
+                      ))
+                    }
+                </div>
+            </div>
+            <Footer />
         </>
     );
 };
