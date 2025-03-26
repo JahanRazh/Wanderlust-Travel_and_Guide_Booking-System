@@ -1,21 +1,37 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import React, { useState } from 'react';
+import TravelStoryHome from './pages/Home/TravelStoryHome';
 import Home from './pages/Home/Home';
-import Homenew from './pages/Home/Homenew';
 import Hotelview from './pages/Hotel/Hotelview';
 import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
 import MainNavbar from './components/MainNavbar';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import ProfileStats from './pages/User/ProfileStats';
-import UserController from './pages/User/Usercontroller';
+import UserController from './pages/User/UserController';
 import Guideview from './pages/Guide/Guideview';
 import About from './pages/About';
 import TravelStory from './components/Cards/TravelStoryCard';
-import AllTravelpackages from './pages/Admin/Allpackages';
+import AllTravelpackages from './pages/Packages/AllPackage';
 import styles from './styles/App.module.css';
+
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
+import AddPackage from './pages/Admin/AddPackages'; // Add the AddPackage component
+import AllPackages from './pages/Admin/AllPackages'; // Add the AllPackages component
+import PackageDetails from './pages/Packages/packageDetails';
+import AllHotels from './pages/Admin/AllHotels';
+import AddHotels from './pages/Admin/AddHotels';
+import DateTime from './components/datetime';
+
+import NotFound from './components/NotFound';
+import CreateGuide from './pages/Guide/CreateGuide';
+import GuideProfile from './pages/Guide/GuideProfile';
+
+
+
+
+
 const App = () => {
   const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
  
@@ -60,13 +76,16 @@ const App = () => {
         
         <div>
           <Routes>
-            <Route index element={<Homenew/>} />
-            <Route path="/home" element={<Homenew />} />
-            <Route path="/view/travel-story" element={<Home />} />
+            <Route index element={<Home/>} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/view/travel-story" element={<TravelStoryHome/>} />
             <Route path="/profile-stats" element={<ProfileStats />} />
             <Route path="/profile-stats/:userId" element={<ProfileStats />} />
             <Route path="/admin/usercontroller" element={<UserController />} />
             <Route path="/admindashboard" element={<AdminDashboard />} />
+            <Route path="/admin/hotels" element={<AllHotels />} />
+            <Route path="/admin/hotels/add" element={<AddHotels />} />
+            <Route path="/datetime" element={<DateTime />} />
             
             <Route path="/login" element={<Login login={login} />} />
             <Route path="/signup" element={<SignUp />} />
@@ -75,9 +94,17 @@ const App = () => {
             <Route path="/view/about" element={<About />} />
             <Route path="/view/travel-story" element={<TravelStory />} />
             <Route path="/view/Travel-packeges" element={<AllTravelpackages />} />
+            <Route path="/packages/:packageId" element={<PackageDetails />} />
+            <Route path="/admin/packages" element={<AllPackages />} /> {/* All Packages Route */}
+            <Route path="/admin/packages/add" element={<AddPackage />} /> {/* Add Package Route */}
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
-            <Route path="*" element={<Navigate to="/home" />} />
+            <Route path="/createguide" element={<CreateGuide />} />
+            <Route path="/guideprofile" element={<GuideProfile />} />
+           
+
+            {/* 404 Page */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
       </div>

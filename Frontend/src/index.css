@@ -100,3 +100,9 @@
 .bg-current {
   background-color: #05b6d3;
 }
+
+@media print {
+  .no-print {
+    display: none;
+  }
+}

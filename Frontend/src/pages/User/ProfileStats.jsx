@@ -26,9 +26,117 @@ const ProfileStats = () => {
     profileImage: null,
   });
 
+  const [errors, setErrors] = useState({
+    fullName: '',
+    email: '',
+    dateofBirth: '',
+    gender: '',
+    phoneNumber: '',
+    nic: '',
+    address: '',
+    bio: '',
+    profileImage: '',
+  });
+
   const [tempImagePreview, setTempImagePreview] = useState(null);
   const navigate = useNavigate();
-  const { userId } = useParams(); // Get userId from URL
+  const { userId } = useParams();
+
+  // Validation functions
+  const validateField = (name, value) => {
+    let error = '';
+    
+    switch (name) {
+      case 'fullName':
+        if (!value.trim()) {
+          error = 'Full name is required';
+        } else if (value.length > 50) {
+          error = 'Full name must be less than 50 characters';
+        }
+        break;
+      
+      case 'email':
+        if (!value.trim()) {
+          error = 'Email is required';
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          error = 'Please enter a valid email address';
+        }
+        break;
+      
+      case 'dateofBirth':
+        if (value) {
+          const dob = new Date(value);
+          const today = new Date();
+          if (dob >= today) {
+            error = 'Date of birth must be in the past';
+          }
+        }
+        break;
+      
+      case 'phoneNumber':
+        if (value && !/^[0-9]{10}$/.test(value)) {
+          error = 'Please enter a valid 10-digit phone number';
+        }
+        break;
+      
+      case 'nic':
+        if (value && !/^([0-9]{9}[vVxX]|[0-9]{12})$/.test(value)) {
+          error = 'Please enter a valid NIC (old or new format)';
+        }
+        break;
+    }
+    
+    return error;
+  };
+
+  // Handle input changes with validation
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Validate the field
+    const error = validateField(name, value);
+    
+    setErrors({
+      ...errors,
+      [name]: error
+    });
+    
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  // Handle file input changes with validation
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    
+    if (file) {
+      // Validate the file
+      const error = validateField('profileImage', file);
+      
+      setErrors({
+        ...errors,
+        profileImage: error
+      });
+      
+      if (!error) {
+        setFormData({
+          ...formData,
+          profileImage: file,
+        });
+
+        // Create a temporary preview of the image
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setTempImagePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        toast.error(error);
+      }
+    }
+  };
 
   // Fetch user profile on component mount
   useEffect(() => {
@@ -41,7 +149,7 @@ const ProfileStats = () => {
       }
 
       try {
-        const endpoint = `${API_BASE_URL}/get-user/${userId}`; // Use the userId from URL params
+        const endpoint = `${API_BASE_URL}/get-user/${userId}`;
         const response = await axios.get(endpoint, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -72,9 +180,57 @@ const ProfileStats = () => {
     fetchUserProfile();
   }, [userId]);
 
+  // Validate entire form before submission
+  const validateForm = () => {
+    const newErrors = {};
+    let isValid = true;
+
+    // Validate required fields
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = 'Full name is required';
+      isValid = false;
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+      isValid = false;
+    }
+
+    // Validate other fields
+    if (formData.phoneNumber && !/^[0-9]{10}$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = 'Please enter a valid 10-digit phone number';
+      isValid = false;
+    }
+
+    if (formData.nic && !/^([0-9]{9}[vVxX]|[0-9]{12})$/.test(formData.nic)) {
+      newErrors.nic = 'Please enter a valid NIC (old or new format)';
+      isValid = false;
+    }
+
+    if (formData.dateofBirth) {
+      const dob = new Date(formData.dateofBirth);
+      const today = new Date();
+      if (dob >= today) {
+        newErrors.dateofBirth = 'Date of birth must be in the past';
+        isValid = false;
+      }
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      toast.error('Please fix the errors in the form before submitting.');
+      return;
+    }
 
     const token = localStorage.getItem('token');
     if (!token) {
@@ -94,7 +250,7 @@ const ProfileStats = () => {
     data.append('travelstyle', formData.travelstyle);
     data.append('travelbudget', formData.travelbudget);
     data.append('travelinterest', formData.travelinterest);
-    if (formData.profileImage) {
+    if (formData.profileImage && typeof formData.profileImage !== 'string') {
       data.append('profileImage', formData.profileImage);
     }
 
@@ -122,7 +278,7 @@ const ProfileStats = () => {
       });
     } catch (err) {
       setError(err.response?.data?.message || err.message || "An error occurred while updating your profile.");
-      toast.error('Failed to update profile.', {
+      toast.error(err.response?.data?.message || 'Failed to update profile.', {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -133,38 +289,11 @@ const ProfileStats = () => {
     }
   };
 
-  // Handle file input changes
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData({
-        ...formData,
-        profileImage: file,
-      });
-
-      // Create a temporary preview of the image
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setTempImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  if (error) return <div className="text-red-500 text-center mt-10">Error: {error}</div>;
 
   return (
-    <div className="w-3/4 p-10 bg-white rounded-lg shadow-lg z-50 mx-auto mt-10">
+    <div className="w-full md:w-3/4 p-4 md:p-10 bg-white rounded-lg shadow-lg z-50 mx-auto mt-4 md:mt-10 mb-10">
       <h2 className="text-2xl font-semibold mb-4">Profile Statistics</h2>
       
       {/* Profile Image Section */}
@@ -194,9 +323,13 @@ const ProfileStats = () => {
             type="file"
             name="profileImage"
             onChange={handleFileChange}
+            accept="image/jpeg, image/png, image/gif"
             className="hidden"
           />
         </label>
+        {errors.profileImage && (
+          <p className="text-red-500 text-sm mt-1">{errors.profileImage}</p>
+        )}
       </div>
 
       {/* Profile Form */}
@@ -209,28 +342,34 @@ const ProfileStats = () => {
           
           {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
             <input
               type="text"
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className={`w-full p-2 border ${errors.fullName ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500`}
               required
             />
+            {errors.fullName && (
+              <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
+            )}
           </div>
           
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className={`w-full p-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500`}
               required
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
           
           {/* Date of Birth */}
@@ -241,8 +380,12 @@ const ProfileStats = () => {
               name="dateofBirth"
               value={formData.dateofBirth}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              max={new Date().toISOString().split('T')[0]}
+              className={`w-full p-2 border ${errors.dateofBirth ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500`}
             />
+            {errors.dateofBirth && (
+              <p className="text-red-500 text-sm mt-1">{errors.dateofBirth}</p>
+            )}
           </div>
           
           {/* Gender */}
@@ -269,8 +412,12 @@ const ProfileStats = () => {
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              placeholder="10 digits without spaces"
+              className={`w-full p-2 border ${errors.phoneNumber ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500`}
             />
+            {errors.phoneNumber && (
+              <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
+            )}
           </div>
           
           {/* NIC */}
@@ -281,8 +428,12 @@ const ProfileStats = () => {
               name="nic"
               value={formData.nic}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              placeholder="Old (9 digits + V/X) or new (12 digits)"
+              className={`w-full p-2 border ${errors.nic ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500`}
             />
+            {errors.nic && (
+              <p className="text-red-500 text-sm mt-1">{errors.nic}</p>
+            )}
           </div>
           
           {/* Address */}
@@ -305,8 +456,11 @@ const ProfileStats = () => {
               value={formData.bio}
               onChange={handleChange}
               rows="2"
+              maxLength="200"
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              placeholder="Tell us about yourself (max 200 characters)"
             />
+           
           </div>
           
           {/* Travel Preferences */}
@@ -378,7 +532,8 @@ const ProfileStats = () => {
         <div className="mt-6 text-right">
           <button
             type="submit"
-            className="px-6 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700 transition"
+            className="px-6 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700 transition disabled:opacity-50"
+            disabled={Object.values(errors).some(error => error)}
           >
             Update Profile
           </button>
@@ -388,7 +543,7 @@ const ProfileStats = () => {
       {/* Admin Dashboard Button (Conditional Rendering) */}
       {user?.role === 'admin' && (
         <button
-          className="mt-4 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition mr-4"
+          className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition mr-4"
           onClick={() => navigate("/admindashboard")}
         >
           Admin Dashboard
@@ -398,9 +553,9 @@ const ProfileStats = () => {
       {/* Back to Dashboard Button */}
       <button
         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-        onClick={() => navigate("/dashboard")}
+        onClick={() => navigate("/home")}
       >
-        Back to Dashboard
+        Back to Home
       </button>
 
       {/* Toast Container */}
