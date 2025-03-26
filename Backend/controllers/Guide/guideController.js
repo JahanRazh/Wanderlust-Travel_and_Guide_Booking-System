@@ -33,6 +33,15 @@ export const createGuide = async (req, res) => {
   }
 };
 
+const getGuides = async (req, res) => {
+  try {
+    const guides = await Guide.find();
+    res.status(200).json(guides);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}; 
+
 const updateGuide = async (req, res) => {
   try {
       const { fullname, age, dateOfBirth, gender, contactNumber, email, address, about, workExperience, profilePic } = req.body;
@@ -64,4 +73,4 @@ const deleteGuide = async (req, res) => {
   }
 };
 
-module.exports = { createGuide, updateGuide, deleteGuide };
+module.exports = { getGuides, createGuide, updateGuide, deleteGuide };
