@@ -10,8 +10,15 @@ import {
 } from 'lucide-react';
 import DateTime from "../../components/datetime";
 
+
+
+
 const Dashboard = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0); // Scroll to top when the component mounts
+  }, []);
 
   // State to store counts
   const [counts, setCounts] = useState({
