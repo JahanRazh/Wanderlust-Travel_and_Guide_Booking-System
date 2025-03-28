@@ -7,7 +7,7 @@ const ProfileInfo = ({ userInfo, onLogout }) => {
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
-    navigate(`/profile-stats/${userInfo._id}`); // Pass the userId in the URL
+    navigate(`/profile-stats/${userInfo._id}`); // Pass the userId in the URL.
   };
 
   return (
