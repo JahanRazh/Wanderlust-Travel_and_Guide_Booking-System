@@ -3,7 +3,7 @@ import React from 'react'
 const Guideview = () => {
   return (
     <div>
-      Guide View
+      All Guides
     </div>
   )
 }
