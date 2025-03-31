@@ -23,11 +23,11 @@ export default function Footer() {
           <h3 className="text-2xl font-bold text-gray-800 mb-4">Quick Links</h3>
           
                         <ul className="space-y-2">
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Home</a></li><br/>
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Travel Packages</a></li><br/>
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Hotels</a></li>
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Guides</a></li>
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">About</a></li>
+                            <li><a href="../home" className="text-gray-600 hover:text-gray-900">Home</a></li><br/>
+                            <li><a href="../view/Travel-packeges" className="text-gray-600 hover:text-gray-900">Travel Packages</a></li><br/>
+                            <li><a href="../view/hotel" className="text-gray-600 hover:text-gray-900">Hotels</a></li>
+                            <li><a href="../view/guide" className="text-gray-600 hover:text-gray-900">Guides</a></li>
+                            <li><a href="../view/about" className="text-gray-600 hover:text-gray-900">About</a></li>
                         </ul>
                     </div>
 

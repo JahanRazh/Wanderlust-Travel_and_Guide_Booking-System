@@ -4,7 +4,7 @@ import Footer from "../../components/footer";
 import styleHome from "../../styles/Home.module.css";
 
 //import images from img directory
-import coverImg from "../../assets/images/home/Beach.jpg"
+import coverImg from "../../assets/images/home/beach.jpg"
 import paymentImg from "../../assets/images/home/ezpayment.png"
 import nearbyImg from "../../assets/images/home/Nearby.png"
 import covidImg from "../../assets/images/home/Safe.png"
@@ -20,7 +20,7 @@ const Home = () => {
                 <div className={styleHome.centered}>
                     <div className={styleHome.headerTxt}>TRAVEL TO EXPLORE</div>
                     <div className={styleHome.sloganTxt}>Stop worrying about the potholes in the road and enjoy the journey <br/>~ Babs Hoffman ~</div>
-                    <button className={styleHome.exploreBtn}>Explore Now</button>
+                    <button onClick={() => {window.location.href = "/view/Travel-packeges"}} className={styleHome.exploreBtn}>Explore Now</button>
                 </div>
             </div>
         </div>
@@ -31,7 +31,7 @@ const Home = () => {
                     text: "Pay through our application and save thousands and get amazing rewards"
                 }, {
                     img: covidImg,
-                    title: "Covid Safe",
+                    title: " Safety Frist",
                     text: "We have all the curated hotels that have all the precautions for a covid safe environment"
                 }, {
                     img: paymentImg,
