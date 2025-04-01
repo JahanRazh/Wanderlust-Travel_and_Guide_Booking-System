@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import Navbar from '../../components/Navbar';
-import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../../utils/axiosInstance';
-import { MdAdd } from 'react-icons/md';
-import Modal from 'react-modal';
-import TravelStoryCard from '../../components/Cards/TravelStoryCard';
-import AddEditTravelStory from '../User/AddEditTravelStory';
-import ViewTravelStory from '../User/ViewTravelStory';
-import { ToastContainer, toast } from 'react-toastify';
-import EmptyCard from '../../components/Cards/EmptyCard';
-import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
-import EmptyImg from '../../assets/images/add-story.png';
-import FilterInfoTitle from '../../components/Cards/FilterInfoTitle';
-import { getEmptyCardMessage } from '../../utils/helper';
+import React, { useEffect, useState } from "react";
+import Navbar from "../../components/Navbar";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../utils/axiosInstance";
+import { MdAdd } from "react-icons/md";
+import Modal from "react-modal";
+import TravelStoryCard from "../../components/Cards/TravelStoryCard";
+import AddEditTravelStory from "../User/AddEditTravelStory";
+import ViewTravelStory from "../User/ViewTravelStory";
+import { ToastContainer, toast } from "react-toastify";
+import EmptyCard from "../../components/Cards/EmptyCard";
+import { DayPicker } from "react-day-picker";
+import "react-day-picker/dist/style.css";
+import EmptyImg from "../../assets/images/add-story.png";
+import FilterInfoTitle from "../../components/Cards/FilterInfoTitle";
+import { getEmptyCardMessage } from "../../utils/helper";
 
 const TravelStoryHome = () => {
   const navigate = useNavigate();
@@ -21,10 +21,10 @@ const TravelStoryHome = () => {
   const [allStories, setAllStories] = useState([]);
   const [filteredStories, setFilteredStories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState("");
   const [dateRange, setDateRange] = useState({ from: null, to: null });
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState("all");
 
   const [openAddEditModal, setOpenAddEditModal] = useState({
     isShown: false,
@@ -71,8 +71,8 @@ const TravelStoryHome = () => {
 
   // Filter stories based on the active tab
   const filterStoriesByTab = () => {
-    if (activeTab === 'my' && userInfo?._id) {
-      return allStories.filter(story => story.userId === userInfo._id);
+    if (activeTab === "my" && userInfo?._id) {
+      return allStories.filter((story) => story.userId === userInfo._id);
     } else {
       return allStories;
     }
@@ -86,10 +86,10 @@ const TravelStoryHome = () => {
 
     if (searchQuery) {
       const searchTerm = searchQuery.toLowerCase().trim();
-      const matchedStories = tabSpecificStories.filter(story => {
+      const matchedStories = tabSpecificStories.filter((story) => {
         const titleMatch = story.title.toLowerCase().includes(searchTerm);
         const storyMatch = story.story.toLowerCase().includes(searchTerm);
-        const locationMatch = story.visitedLocations.some(location =>
+        const locationMatch = story.visitedLocations.some((location) =>
           location.toLowerCase().includes(searchTerm)
         );
         return titleMatch || storyMatch || locationMatch;
@@ -99,7 +99,7 @@ const TravelStoryHome = () => {
     } else if (dateRange.from && dateRange.to) {
       const startDate = new Date(dateRange.from).getTime();
       const endDate = new Date(dateRange.to).getTime();
-      const filteredStories = tabSpecificStories.filter(story => {
+      const filteredStories = tabSpecificStories.filter((story) => {
         const storyDate = new Date(story.visitedDate).getTime();
         return storyDate >= startDate && storyDate <= endDate;
       });
@@ -121,25 +121,58 @@ const TravelStoryHome = () => {
     setOpenViewModal({ isShown: true, data });
   };
 
-  // Update favorite status
+  // Update the updateFavorite function
   const updateFavorite = async (storyData) => {
     try {
-      const response = await axiosInstance.put(`/update-favourite/${storyData._id}`, {
-        isFavourite: !storyData.isFavourite,
-      });
+      const response = await axiosInstance.put(
+        `/update-favourite/${storyData._id}`,
+        {
+          isFavourite: !storyData.isFavourite,
+        }
+      );
+
       if (response.data) {
-        const updatedStories = allStories.map((story) =>
-          story._id === storyData._id ? { ...story, isFavourite: !storyData.isFavourite } : story
-        );
+        const updatedStories = allStories.map((story) => {
+          if (story._id === storyData._id) {
+            return {
+              ...story,
+              isFavourite: response.data.isFavourite,
+              favoriteCount: response.data.favoriteCount,
+            };
+          }
+          return story;
+        });
+
         setAllStories(updatedStories);
         setFilteredStories(updatedStories);
-        toast.success("Story updated successfully.");
+        toast.success(response.data.message);
       }
     } catch (error) {
       console.error("Error updating favorite status:", error);
-      toast.error("Failed to update favorite status");
+      toast.error(
+        error.response?.data?.message || "Failed to update favorite status"
+      );
     }
   };
+
+  // Update the card rendering part
+  {
+    filteredStories.map((item) => (
+      <TravelStoryCard
+        key={item._id}
+        ImgUrl={item.ImageUrl}
+        title={item.title}
+        story={item.story}
+        date={item.visitedDate}
+        visitedLocations={item.visitedLocations}
+        isFavorite={item.isFavourite}
+        favoriteCount={item.favoriteCount}
+        onEdit={() => handleEdit(item)}
+        onClick={() => handleViewStory(item)}
+        onFavoriteClick={() => updateFavorite(item)}
+      />
+    ));
+  }
 
   // Delete travel story
   const deleteTravelStory = async (data) => {
@@ -147,11 +180,15 @@ const TravelStoryHome = () => {
 
     const originalStories = [...allStories];
     try {
-      const updatedStories = allStories.filter(story => story._id !== data._id);
+      const updatedStories = allStories.filter(
+        (story) => story._id !== data._id
+      );
       setAllStories(updatedStories);
       setFilteredStories(updatedStories);
 
-      const response = await axiosInstance.delete(`/delete-travel-story/${data._id}`);
+      const response = await axiosInstance.delete(
+        `/delete-travel-story/${data._id}`
+      );
 
       if (response.status === 200 || response.status === 204) {
         toast.success("Story deleted successfully.");
@@ -164,7 +201,9 @@ const TravelStoryHome = () => {
     } catch (error) {
       setAllStories(originalStories);
       setFilteredStories(originalStories);
-      toast.error(error.response?.data?.message || "Failed to delete the story");
+      toast.error(
+        error.response?.data?.message || "Failed to delete the story"
+      );
     }
   };
 
@@ -179,10 +218,10 @@ const TravelStoryHome = () => {
 
     const tabSpecificStories = filterStoriesByTab();
 
-    const matchedStories = tabSpecificStories.filter(story => {
+    const matchedStories = tabSpecificStories.filter((story) => {
       const titleMatch = story.title.toLowerCase().includes(searchTerm);
       const storyMatch = story.story.toLowerCase().includes(searchTerm);
-      const locationMatch = story.visitedLocations.some(location =>
+      const locationMatch = story.visitedLocations.some((location) =>
         location.toLowerCase().includes(searchTerm)
       );
 
@@ -211,7 +250,7 @@ const TravelStoryHome = () => {
 
       const tabSpecificStories = filterStoriesByTab();
 
-      const filteredStories = tabSpecificStories.filter(story => {
+      const filteredStories = tabSpecificStories.filter((story) => {
         const storyDate = new Date(story.visitedDate).getTime();
         return storyDate >= startDate && storyDate <= endDate;
       });
@@ -219,7 +258,10 @@ const TravelStoryHome = () => {
       setFilteredStories(filteredStories);
       setFilterType("date");
     } catch (error) {
-      console.error("An error occurred while filtering stories by date:", error);
+      console.error(
+        "An error occurred while filtering stories by date:",
+        error
+      );
       toast.error("Failed to filter stories by date");
     }
   };
@@ -258,10 +300,10 @@ const TravelStoryHome = () => {
 
     if (searchQuery) {
       const searchTerm = searchQuery.toLowerCase().trim();
-      const matchedStories = tabSpecificStories.filter(story => {
+      const matchedStories = tabSpecificStories.filter((story) => {
         const titleMatch = story.title.toLowerCase().includes(searchTerm);
         const storyMatch = story.story.toLowerCase().includes(searchTerm);
-        const locationMatch = story.visitedLocations.some(location =>
+        const locationMatch = story.visitedLocations.some((location) =>
           location.toLowerCase().includes(searchTerm)
         );
         return titleMatch || storyMatch || locationMatch;
@@ -271,7 +313,7 @@ const TravelStoryHome = () => {
     } else if (dateRange.from && dateRange.to) {
       const startDate = new Date(dateRange.from).getTime();
       const endDate = new Date(dateRange.to).getTime();
-      const filteredStories = tabSpecificStories.filter(story => {
+      const filteredStories = tabSpecificStories.filter((story) => {
         const storyDate = new Date(story.visitedDate).getTime();
         return storyDate >= startDate && storyDate <= endDate;
       });
@@ -284,7 +326,11 @@ const TravelStoryHome = () => {
   }, [activeTab, allStories]);
 
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -301,17 +347,21 @@ const TravelStoryHome = () => {
         <div className="flex gap-4 mb-6">
           <button
             className={`px-4 py-2 rounded-lg ${
-              activeTab === 'all' ? 'bg-cyan-500 text-white' : 'bg-gray-200 text-gray-700'
+              activeTab === "all"
+                ? "bg-cyan-500 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
-            onClick={() => handleTabChange('all')}
+            onClick={() => handleTabChange("all")}
           >
             All Stories
           </button>
           <button
             className={`px-4 py-2 rounded-lg ${
-              activeTab === 'my' ? 'bg-cyan-500 text-white' : 'bg-gray-200 text-gray-700'
+              activeTab === "my"
+                ? "bg-cyan-500 text-white"
+                : "bg-gray-200 text-gray-700"
             }`}
-            onClick={() => handleTabChange('my')}
+            onClick={() => handleTabChange("my")}
           >
             My Stories
           </button>
@@ -329,16 +379,15 @@ const TravelStoryHome = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredStories.map((item) => (
                   <TravelStoryCard
-                    key={item._id}
                     ImgUrl={item.ImageUrl}
                     title={item.title}
                     story={item.story}
                     date={item.visitedDate}
                     visitedLocations={item.visitedLocations}
                     isFavorite={item.isFavourite}
-                    onEdit={() => handleEdit(item)}
-                    onClick={() => handleViewStory(item)}
+                    favoriteCount={item.favoriteCount} // Pass the count here
                     onFavoriteClick={() => updateFavorite(item)}
+                    onClick={() => handleViewStory(item)}
                   />
                 ))}
               </div>
@@ -387,6 +436,7 @@ const TravelStoryHome = () => {
       </Modal>
 
       {/* View Modal */}
+
       <Modal
         isOpen={openViewModal.isShown}
         onRequestClose={() => setOpenViewModal({ isShown: false, data: null })}
@@ -396,7 +446,6 @@ const TravelStoryHome = () => {
             zIndex: 999,
           },
         }}
-        appElement={document.getElementById("root")}
         className="model-box"
       >
         <ViewTravelStory
@@ -407,13 +456,16 @@ const TravelStoryHome = () => {
             setOpenViewModal({ isShown: false, data: null });
             handleEdit(openViewModal.data);
           }}
+          onFavoriteClick={(story) => updateFavorite(story)} // Add this line
         />
       </Modal>
 
       {/* Add Story Button */}
       <button
         className="fixed right-10 bottom-10 w-16 h-16 flex items-center justify-center rounded-full bg-cyan-500 hover:bg-cyan-400 transition-colors"
-        onClick={() => setOpenAddEditModal({ isShown: true, type: "add", data: null })}
+        onClick={() =>
+          setOpenAddEditModal({ isShown: true, type: "add", data: null })
+        }
       >
         <MdAdd className="text-3xl text-white" />
       </button>
