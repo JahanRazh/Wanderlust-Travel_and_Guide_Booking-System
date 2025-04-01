@@ -8,7 +8,7 @@ const upload = require("../middleware/upload");
 router.post("/image-upload", upload.single("image"), storyController.uploadImage);
 router.delete("/delete-image", storyController.deleteImage);
 
-// Travel story routes (all require authentication)
+// Travel story routes
 router.post("/add-travel-story", authenticateToken, storyController.addTravelStory);
 router.get("/get-all-travel-stories", authenticateToken, storyController.getAllTravelStories);
 router.put("/edit-travel-story/:id", authenticateToken, storyController.editTravelStory);
