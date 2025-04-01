@@ -7,7 +7,7 @@ exports.addPackage = async (req, res) => {
     // Create a new package object from request body
     const packageData = new Package({
       ...req.body,
-      images: req.files ? req.files.map(file => `/uploads/packages/${file.filename}`) : []
+      images: req.files ? req.files.map(file => `/uploads/packages4to/${file.filename}`) : []
     });
     
     const savedPackage = await packageData.save();
@@ -58,7 +58,7 @@ exports.updatePackage = async (req, res) => {
     // Handle image updates
     if (req.files && req.files.length > 0) {
       // Add new images
-      const newImages = req.files.map(file => `/uploads/packages/${file.filename}`);
+      const newImages = req.files.map(file => `/uploads/packages4to/${file.filename}`);
       
       // If keepExistingImages flag is set, combine with existing images
       if (req.body.keepExistingImages === 'true' && package.images) {
