@@ -2,43 +2,53 @@ import React from "react";
 import moment from "moment";
 import { GrMapLocation } from "react-icons/gr";
 import { MdClose, MdDeleteOutline, MdUpdate } from "react-icons/md";
+import { FaHeart } from "react-icons/fa";
 
 const ViewTravelStory = ({ 
   onClose,
   onDeleteClick,
   onEditClick,
-  storyInfo 
+  storyInfo,
+  onFavoriteClick // Add this prop
 }) => {
   return (
     <div className="relative">
       {/* Action Buttons */}
-      <div className="flex items-center justify-end">
-        <div>
-          <div className="flex items-center gap-3 bg-cyan-50/50 p-2 rounded-l-lg">
-            <button
-              className="btn-small"
-              onClick={onEditClick}
-              aria-label="Update story"
-            >
-              <MdUpdate className="text-lg" />
-              UPDATE STORY
-            </button>
-            <button
-              className="btn-small btn-delete"
-              onClick={onDeleteClick}
-              aria-label="Delete story"
-            >
-              <MdDeleteOutline className="text-lg" />
-              Delete
-            </button>
-            <button
-              className=""
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <MdClose className="text-lg text-slate-400" />
-            </button>
-          </div>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <button
+            className="flex items-center gap-1 text-sm bg-cyan-500 text-white px-3 py-1 rounded-lg"
+            onClick={() => onFavoriteClick(storyInfo)}
+          >
+            <FaHeart className={storyInfo?.isFavourite ? "text-red-500" : "text-white"} />
+            {storyInfo?.favoriteCount || 0} Likes
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-3 bg-cyan-50/50 p-2 rounded-l-lg">
+          <button
+            className="btn-small"
+            onClick={onEditClick}
+            aria-label="Update story"
+          >
+            <MdUpdate className="text-lg" />
+            UPDATE STORY
+          </button>
+          <button
+            className="btn-small btn-delete"
+            onClick={onDeleteClick}
+            aria-label="Delete story"
+          >
+            <MdDeleteOutline className="text-lg" />
+            Delete
+          </button>
+          <button
+            className=""
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <MdClose className="text-lg text-slate-400" />
+          </button>
         </div>
       </div>
 
@@ -53,9 +63,8 @@ const ViewTravelStory = ({
           </span>
           <div className="inline-flex items-center gap-2 text-[13px] text-cyan-600 bg-cyan200/40 rounded px-2 py-1">
             <GrMapLocation className="text-sm" />
-            {storyInfo &&
-            storyInfo.visitedLocation?.map((item, index) => 
-                storyInfo.visitedLocation.length == index + 1
+            {storyInfo?.visitedLocations?.map((item, index) => 
+                storyInfo.visitedLocations.length === index + 1
                 ? `${item}`
                 : `${item}, `
             )}

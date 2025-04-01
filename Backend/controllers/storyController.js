@@ -153,28 +153,48 @@ const deleteTravelStory = async (req, res) => {
 };
 
 // Update isFavourite status of a travel story
+// Updated updateFavouriteStatus function
 const updateFavouriteStatus = async (req, res) => {
   const { id } = req.params;
   const { isFavourite } = req.body;
   const { userId } = req.user;
 
   if (typeof isFavourite !== "boolean") {
-    return res.status(400).json({ error: true, message: "isFavourite must be a boolean" });
+      return res.status(400).json({ error: true, message: "isFavourite must be a boolean" });
   }
 
   try {
-    const travelStory = await TravelStory.findOne({ _id: id, userId: userId });
-    if (!travelStory) {
-      return res.status(404).json({ error: true, message: "Travel story not found" });
-    }
-    travelStory.isFavourite = isFavourite;
-    await travelStory.save();
-    res.status(200).json({ message: "Favourite status updated successfully" });
+      const travelStory = await TravelStory.findById(id);
+      if (!travelStory) {
+          return res.status(404).json({ error: true, message: "Travel story not found" });
+      }
+
+      const userIndex = travelStory.favoritedBy.indexOf(userId);
+      
+      if (isFavourite) {
+          if (userIndex === -1) {
+              travelStory.favoritedBy.push(userId);
+              travelStory.favoriteCount += 1;
+          }
+      } else {
+          if (userIndex !== -1) {
+              travelStory.favoritedBy.splice(userIndex, 1);
+              travelStory.favoriteCount -= 1;
+          }
+      }
+
+      travelStory.isFavourite = isFavourite;
+      await travelStory.save();
+      
+      res.status(200).json({ 
+          message: "Favourite status updated successfully",
+          favoriteCount: travelStory.favoriteCount,
+          isFavourite: travelStory.isFavourite
+      });
   } catch (error) {
-    res.status(500).json({ error: true, message: error.message });
+      res.status(500).json({ error: true, message: error.message });
   }
 };
-
 // Search travel stories
 const searchTravelStories = async (req, res) => {
   const { userId } = req.user;
