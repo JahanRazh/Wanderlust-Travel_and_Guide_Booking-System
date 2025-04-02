@@ -1,6 +1,6 @@
 import React from "react";
 import { GrMapLocation } from "react-icons/gr";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import moment from "moment";
 
 const TravelStoryCard = ({
@@ -10,6 +10,7 @@ const TravelStoryCard = ({
   story,
   visitedLocations = [],
   isFavorite,
+  favoriteCount = 0, // Add favoriteCount prop
   onFavoriteClick,
   onClick,
 }) => {
@@ -21,17 +22,27 @@ const TravelStoryCard = ({
         className="w-full h-56 object-cover rounded-t-lg"
         onClick={onClick}
       />
-      <button
-        className="w-12 h-12 flex items-center justify-center bg-white/40 rounded-lg border border-white/30 absolute top-4 right-4"
-        onClick={(e) => {
-          e.stopPropagation();
-          onFavoriteClick();
-        }}
-      >
-        <FaHeart
-          className={`icon-btn ${isFavorite ? "text-red-500" : "text-white"}`}
-        />
-      </button>
+
+      {/* Favorite button with count */}
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <div className="bg-white/80 rounded-full px-2 py-1 text-xs flex items-center">
+          <FaHeart className="text-red-500 mr-1" />
+          <span>{favoriteCount}</span>
+        </div>
+        <button
+          className="w-10 h-10 flex items-center justify-center bg-white/80 rounded-full border border-white/30"
+          onClick={(e) => {
+            e.stopPropagation();
+            onFavoriteClick();
+          }}
+        >
+          {isFavorite ? (
+            <FaHeart className="text-red-500 text-lg" />
+          ) : (
+            <FaRegHeart className="text-gray-600 text-lg" />
+          )}
+        </button>
+      </div>
 
       <div className="p-4" onClick={onClick}>
         <div className="flex items-center grp-3">
@@ -42,7 +53,7 @@ const TravelStoryCard = ({
             </span>
           </div>
         </div>
-        <p className="text-xs text-slate-600 mt-2">{story?.slice(0, 60)}</p>
+        <p className="text-xs text-slate-600 mt-2">{story?.slice(0, 60)}...</p>
         {visitedLocations.length > 0 && (
           <div className="inline-flex items-center gap-2 text-xs text-[13px] text-cyan-600 bg-cyan-200/40 rounded mt-3 px-2 py-1">
             <GrMapLocation className="text-sm" />

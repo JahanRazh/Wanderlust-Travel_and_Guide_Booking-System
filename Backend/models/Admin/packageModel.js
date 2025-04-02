@@ -8,6 +8,8 @@ const packageSchema = new mongoose.Schema(
     guide: { type: String, required: true },
     description: { type: String, required: true },
     climate: { type: String, required: true },
+    // Add the image field
+    images: [{ type: String }] // Array of image paths
   }
 );
 

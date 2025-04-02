@@ -12,8 +12,9 @@ import UserController from './pages/User/UserController';
 import Guideview from './pages/Guide/Guideview';
 import About from './pages/About';
 import TravelStory from './components/Cards/TravelStoryCard';
-import AllTravelpackages from './pages/Packages/AllPackage';
+import AllPackage from './pages/Packages/AllPackage';
 import styles from './styles/App.module.css';
+
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
 import AddPackage from './pages/Admin/AddPackages'; // Add the AddPackage component
@@ -24,6 +25,10 @@ import AddHotels from './pages/Admin/AddHotels';
 import DateTime from './components/datetime';
 
 import NotFound from './components/NotFound';
+import CreateGuide from './pages/Guide/CreateGuide';
+import GuideProfile from './pages/Guide/GuideProfile';
+
+
 
 
 
@@ -81,6 +86,8 @@ const App = () => {
             <Route path="/admin/hotels" element={<AllHotels />} />
             <Route path="/admin/hotels/add" element={<AddHotels />} />
             <Route path="/datetime" element={<DateTime />} />
+
+
             
             <Route path="/login" element={<Login login={login} />} />
             <Route path="/signup" element={<SignUp />} />
@@ -88,12 +95,16 @@ const App = () => {
             <Route path="/view/guide" element={<Guideview />} />
             <Route path="/view/about" element={<About />} />
             <Route path="/view/travel-story" element={<TravelStory />} />
-            <Route path="/view/Travel-packeges" element={<AllTravelpackages />} />
+            <Route path="/view/TravelPackages" element={<AllPackage />} />
             <Route path="/packages/:packageId" element={<PackageDetails />} />
             <Route path="/admin/packages" element={<AllPackages />} /> {/* All Packages Route */}
             <Route path="/admin/packages/add" element={<AddPackage />} /> {/* Add Package Route */}
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/createguide" element={<CreateGuide />} />
+            <Route path="/guideprofile" element={<GuideProfile />} />
+
+
            
 
             {/* 404 Page */}

@@ -8,14 +8,8 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-100 py-12">
-      <div className="container mx-auto px-4 grid md:grid-cols-4 gap-8">
-
-        
-
-                  
-
-                    
+    <footer className="bg-gray-200 py-5">
+      <div className="container mx-auto px-4 grid md:grid-cols-4 gap-8">           
         {/* About Us Section */}
         <div>
           <h3 className="text-2xl font-bold text-gray-800 mb-4">About Wanderlust</h3>
@@ -29,11 +23,11 @@ export default function Footer() {
           <h3 className="text-2xl font-bold text-gray-800 mb-4">Quick Links</h3>
           
                         <ul className="space-y-2">
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Home</a></li><br/>
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Travel Packages</a></li><br/>
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Hotels</a></li>
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">Guides</a></li>
-                            <li><a href="#" className="text-gray-600 hover:text-gray-900">About</a></li>
+                            <li><a href="../home" className="text-gray-600 hover:text-gray-900">Home</a></li><br/>
+                            <li><a href="../view/Travel-packeges" className="text-gray-600 hover:text-gray-900">Travel Packages</a></li><br/>
+                            <li><a href="../view/hotel" className="text-gray-600 hover:text-gray-900">Hotels</a></li>
+                            <li><a href="../view/guide" className="text-gray-600 hover:text-gray-900">Guides</a></li>
+                            <li><a href="../view/about" className="text-gray-600 hover:text-gray-900">About</a></li>
                         </ul>
                     </div>
 
@@ -71,7 +65,7 @@ export default function Footer() {
       </div>
 
       {/* Copyright Section */}
-      <div className="mt-8 border-t border-gray-200 pt-6 text-center">
+      <div className="mt-4 border-t border-gray-300 pt-4 text-center">
         <p className="text-gray-600">
           &copy; {new Date().getFullYear()} WANDERLUST. All Rights Reserved.
         </p>

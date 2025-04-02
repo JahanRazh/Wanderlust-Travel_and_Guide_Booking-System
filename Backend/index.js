@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const fs = require('fs');
 
 // Import database connection
 const connectDB = require("./config/database");
@@ -13,7 +14,11 @@ const userRoutes = require("./routes/userRoutes");
 const storyRoutes = require("./routes/storyRoutes");
 const packageRoute = require("./routes/Admin/packageRoute");
 const hotelRoute = require("./routes/Admin/hotelRoute");
+const uploadDir = path.join(__dirname, 'uploads/packages4to');
 
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Connect to MongoDB
 connectDB();
