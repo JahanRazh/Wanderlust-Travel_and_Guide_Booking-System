@@ -31,7 +31,27 @@ const ResetPassword = () => {
     }
 
     if (password.length < 8) {
-      setError("Password must be at least 8 characters long");
+      setError("Password must be at least 8 characters long"); // Minimum password length requirement
+      return;
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      setError("Password must contain at least one uppercase letter"); // Ensure uppercase letter
+      return;
+    }
+
+    if (!/[a-z]/.test(password)) {
+      setError("Password must contain at least one lowercase letter"); // Ensure lowercase letter
+      return;
+    }
+
+    if (!/[0-9]/.test(password)) {
+      setError("Password must contain at least one number"); // Ensure at least one number
+      return;
+    }
+
+    if (!/[!@#$%^&*]/.test(password)) {
+      setError("Password must contain at least one special character (!@#$%^&*)"); // Ensure special character
       return;
     }
 
