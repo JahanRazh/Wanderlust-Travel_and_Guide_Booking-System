@@ -2,7 +2,7 @@
 
 **WANDERLUST** is a personalized travel platform that connects travelers with expert local guides, unique destinations, and suitable accommodations. The system dynamically adapts its recommendations based on user preferences and real-time weather conditions to enhance the overall travel experience.
 
-## 📌 Features
+## 📌 Features.
 
 - 🔍 Personalized destination and accommodation recommendations
 - 🌦️ Real-time weather integration for adaptive trip planning
@@ -15,13 +15,13 @@
 
 | Layer         | Technology Used                         |
 |---------------|------------------------------------------|
-| Frontend      | React.js + vite                                |
+| Frontend      | React.js + vite , Tailwind CSS                              |
 | Backend       | Node.js + Express                        |
 | Database      | MongoDB                                  |
 | APIs Used     | OpenWeatherMap API, Google Maps API      |
 | Authentication| JWT                                      |
 
-## 📐 System Architecture
+## 📐 System Architecture.
 
 The system consists of the following core modules:
 
@@ -31,7 +31,7 @@ The system consists of the following core modules:
 - **Story Module**: Add/view travel stories, like/comment
 - **Admin Module**: Moderate content, manage users and reviews
 
-## 🔧 Setup Instructions
+## 🔧 Setup Instructions.
 
 1. Clone the repository:
    ```bash
