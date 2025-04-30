@@ -15,7 +15,7 @@
 
 | Layer         | Technology Used                         |
 |---------------|------------------------------------------|
-| Frontend      | React.js                                 |
+| Frontend      | React.js + vite                                |
 | Backend       | Node.js + Express                        |
 | Database      | MongoDB                                  |
 | APIs Used     | OpenWeatherMap API, Google Maps API      |
