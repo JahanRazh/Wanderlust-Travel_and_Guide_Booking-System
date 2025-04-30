@@ -15,12 +15,11 @@
 
 | Layer         | Technology Used                         |
 |---------------|------------------------------------------|
-| Frontend      | React.js / Vue.js / Flutter (Choose one) |
-| Backend       | Node.js + Express / Django / Laravel     |
-| Database      | MongoDB / MySQL / Firebase               |
+| Frontend      | React.js                                 |
+| Backend       | Node.js + Express                        |
+| Database      | MongoDB                                  |
 | APIs Used     | OpenWeatherMap API, Google Maps API      |
-| Authentication| Firebase Auth / JWT                      |
-| Hosting       | Vercel / Firebase Hosting / Heroku       |
+| Authentication| JWT                                      |
 
 ## 📐 System Architecture
 
@@ -36,4 +35,4 @@ The system consists of the following core modules:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/wanderlust.git
+   git clone https://github.com/JahanRazh/Wanderlust-Travel_and_Guide_Booking-System
