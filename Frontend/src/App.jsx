@@ -28,6 +28,8 @@ import NotFound from './components/NotFound';
 import CreateGuide from './pages/Guide/CreateGuide';
 import GuideProfile from './pages/Guide/GuideProfile';
 
+import ChatBot from './components/ChatBot';
+
 
 
 
@@ -106,7 +108,8 @@ const App = () => {
 
 
            
-
+            {/* ChatBot Route */}
+            <Route path="/chatbot" element={<ChatBot />} />
             {/* 404 Page */}
             <Route path="*" element={<NotFound />} />
           </Routes>

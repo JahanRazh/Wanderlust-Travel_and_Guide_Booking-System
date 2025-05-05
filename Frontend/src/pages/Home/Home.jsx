@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Footer from "../../components/footer";
-//import css file from style sheets directory
-import styleHome from "../../styles/Home.module.css";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import ChatBot from "../../components/ChatBot";
 
-//import images from img directory
+// CSS & Images
+import styleHome from "../../styles/Home.module.css";
 import coverImg from "../../assets/images/home/beach.jpg";
 import paymentImg from "../../assets/images/home/ezpayment.png";
 import nearbyImg from "../../assets/images/home/Nearby.png";
@@ -12,16 +14,24 @@ import priceImg from "../../assets/images/home/Prices.png";
 import sriLankaImg from "../../assets/images/home/climate .jpg";
 
 const Home = () => {
+  useEffect(() => {
+    AOS.init({ duration: 1000, once: true });
+  }, []);
+
   return (
     <>
+    <div>
+      
+      <ChatBot />
+    </div>
+      {/* Hero Section */}
       <div className={styleHome.container}>
         <img src={coverImg} alt="Cover Beach" className={styleHome.img} />
         <div className={styleHome.layer}>
           <div className={styleHome.centered}>
             <div className={styleHome.headerTxt}>TRAVEL TO EXPLORE</div>
             <div className={styleHome.sloganTxt}>
-              Stop worrying about the potholes in the road and enjoy the journey{" "}
-              <br />~ Babs Hoffman ~
+              Stop worrying about the potholes in the road and enjoy the journey <br />~ Babs Hoffman ~
             </div>
             <button
               onClick={() => {
@@ -34,7 +44,9 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-10">
+
+      {/* Features Section */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-10" data-aos="fade-up">
         {[
           {
             img: priceImg,
@@ -43,7 +55,7 @@ const Home = () => {
           },
           {
             img: covidImg,
-            title: " Safety Frist",
+            title: " Safety First",
             text: "We have all the curated hotels that have all the precautions for a covid safe environment",
           },
           {
@@ -60,62 +72,47 @@ const Home = () => {
           <div
             key={index}
             className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center"
+            data-aos="zoom-in"
           >
             <div className="bg-gray-200 p-4 rounded-full">
               <img src={item.img} className="w-12 h-12" alt="Feature Icon" />
             </div>
             <h5 className="mt-4 text-lg font-semibold">{item.title}</h5>
-            <p className="text-gray-600 text-sm mt-2 text-center">
-              {item.text}
-            </p>
+            <p className="text-gray-600 text-sm mt-2 text-center">{item.text}</p>
           </div>
         ))}
       </div>
 
-      <section className="py-16 px-10 bg-white">
+      {/* Climate Zones Section */}
+      <section className="py-16 px-10 bg-white" data-aos="fade-up">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          {/* Left Side - Climate Zone Details */}
+          {/* Text Section */}
           <div>
-            <h3 className="text-4xl font-extrabold ml-25 mb-6">
-              Sri Lanka's Climate Zones
-            </h3>
+            <h3 className="text-4xl font-extrabold ml-25 mb-6">Sri Lanka's Climate Zones</h3>
             <div className="space-y-6 ml-20">
-              <div className="bg-blue-50 p-5 rounded-lg shadow hover:shadow-md transition">
-                <h4 className="text-xl font-semibold text-blue-800 mb-2">
-                  🌧️ Wet Zone
-                </h4>
+              <div className="bg-blue-50 p-5 rounded-lg shadow hover:shadow-md transition" data-aos="fade-right">
+                <h4 className="text-xl font-semibold text-blue-800 mb-2">🌧️ Wet Zone</h4>
                 <p className="text-gray-700">
-                  Located in the southwest, this zone receives high rainfall
-                  year-round. It features lush green vegetation and is famous
-                  for tea plantations.
+                  Located in the southwest, this zone receives high rainfall year-round. It features lush green vegetation and is famous for tea plantations.
                 </p>
               </div>
-
-              <div className="bg-yellow-50 p-5 rounded-lg shadow hover:shadow-md transition">
-                <h4 className="text-xl font-semibold text-yellow-800 mb-2">
-                  ☀️ Dry Zone
-                </h4>
+              <div className="bg-yellow-50 p-5 rounded-lg shadow hover:shadow-md transition" data-aos="fade-left">
+                <h4 className="text-xl font-semibold text-yellow-800 mb-2">☀️ Dry Zone</h4>
                 <p className="text-gray-700">
-                  Covers the northern and eastern parts of Sri Lanka. It has
-                  lower rainfall, high temperatures, and is characterized by
-                  scrub forests and ancient reservoirs.
+                  Covers the northern and eastern parts of Sri Lanka. It has lower rainfall, high temperatures, and is characterized by scrub forests and ancient reservoirs.
                 </p>
               </div>
-
-              <div className="bg-green-50 p-5 rounded-lg shadow hover:shadow-md transition">
-                <h4 className="text-xl font-semibold text-green-800 mb-2">
-                  🌿 Intermediate Zone
-                </h4>
+              <div className="bg-green-50 p-5 rounded-lg shadow hover:shadow-md transition" data-aos="fade-right">
+                <h4 className="text-xl font-semibold text-green-800 mb-2">🌿 Intermediate Zone</h4>
                 <p className="text-gray-700">
-                  Lies between the Wet and Dry zones. It gets moderate rainfall
-                  and supports mixed agriculture, like vegetables and spices.
+                  Lies between the Wet and Dry zones. It gets moderate rainfall and supports mixed agriculture, like vegetables and spices.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Sri Lanka Image */}
-          <div className="flex justify-center">
+          {/* Image Section */}
+          <div className="flex justify-center" data-aos="zoom-in">
             <img
               src={sriLankaImg}
               alt="Map of Sri Lanka"
@@ -125,12 +122,12 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-100">
+      {/* Testimonials Section */}
+      <section className="py-16 bg-gray-100" data-aos="fade-up">
         <div className="text-center">
           <h3 className="text-3xl font-bold">Here's What Our Customers Say?</h3>
           <p className="text-gray-600 mt-4">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit,
-            error amet numquam iure provident voluptate esse quasi.
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit, error amet numquam iure provident voluptate esse quasi.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 px-10">
@@ -157,6 +154,7 @@ const Home = () => {
             <div
               key={index}
               className="bg-white shadow-lg p-6 rounded-lg text-center"
+              data-aos="flip-left"
             >
               <img
                 src={review.img}
@@ -171,7 +169,8 @@ const Home = () => {
         </div>
       </section>
 
-      <div className="py-16 px-10 text-center">
+      {/* Destinations Section */}
+      <div className="py-16 px-10 text-center" data-aos="fade-up">
         <p className="text-3xl font-bold">
           <span className="text-blue-500">BEST</span> DESTINATIONS
         </p>
@@ -187,6 +186,7 @@ const Home = () => {
             <div
               key={index}
               className="bg-white shadow-lg rounded-lg overflow-hidden"
+              data-aos="zoom-in"
             >
               <img
                 src={img}
@@ -197,6 +197,7 @@ const Home = () => {
           ))}
         </div>
       </div>
+
       <Footer />
     </>
   );
