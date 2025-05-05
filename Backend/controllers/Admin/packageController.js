@@ -134,3 +134,33 @@ exports.deletePackage = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+// Get similar packages based on climate and price range
+exports.getSimilarPackages = async (req, res) => {
+  try {
+    const { id, priceRange = 50 } = req.params;
+    
+    // First, get the reference package
+    const referencePackage = await Package.findById(id);
+    if (!referencePackage) {
+      return res.status(404).json({ message: "Package not found" });
+    }
+    
+    // Calculate price range
+    const minPrice = referencePackage.pricePerPerson - priceRange;
+    const maxPrice = referencePackage.pricePerPerson + priceRange;
+    
+    // Find similar packages
+    const similarPackages = await Package.find({
+      _id: { $ne: id }, // Exclude the current package
+      climate: referencePackage.climate, // Same climate zone
+      pricePerPerson: { $gte: minPrice, $lte: maxPrice } // Price within range
+    }).limit(4); // Limit to 4 similar packages
+    
+    res.status(200).json(similarPackages);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
