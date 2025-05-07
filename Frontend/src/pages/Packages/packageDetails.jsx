@@ -9,6 +9,7 @@ const PackageDetails = () => {
   const navigate = useNavigate();
   
   const [packageData, setPackageData] = useState(null);
+  const [similarPackages, setSimilarPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -23,6 +24,9 @@ const PackageDetails = () => {
         const response = await axios.get(`http://localhost:3000/packages/${packageId}`);
         setPackageData(response.data);
         setLoading(false);
+        
+        // After getting package data, fetch similar packages
+        fetchSimilarPackages(response.data);
       } catch (err) {
         setError('Failed to fetch package details');
         setLoading(false);
@@ -32,6 +36,19 @@ const PackageDetails = () => {
 
     fetchPackageDetails();
   }, [packageId]);
+
+  // Function to fetch similar packages
+  const fetchSimilarPackages = async (currentPackage) => {
+    if (!currentPackage) return;
+    
+    try {
+      // Use the new API endpoint to get similar packages directly
+      const response = await axios.get(`http://localhost:3000/packages/${currentPackage._id}/similar/50`);
+      setSimilarPackages(response.data);
+    } catch (err) {
+      console.error('Error fetching similar packages:', err);
+    }
+  };
 
   // Functions for image carousel
   const nextImage = () => {
@@ -83,6 +100,12 @@ const PackageDetails = () => {
     
     // For now, show an alert
     alert('Your booking has been confirmed!');
+  };
+
+  // Navigate to another package
+  const handlePackageClick = (id) => {
+    navigate(`/packages/${id}`);
+    window.scrollTo(0, 0); // Scroll back to top
   };
 
   if (loading) {
@@ -331,9 +354,55 @@ const PackageDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Similar Packages Section */}
+      {similarPackages.length > 0 && (
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Similar Packages You May Like</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {similarPackages.map(pkg => (
+              <div 
+                key={pkg._id} 
+                className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => handlePackageClick(pkg._id)}
+              >
+                <div className="h-48 relative">
+                  {pkg.images && pkg.images.length > 0 ? (
+                    <img 
+                      src={pkg.images[0]} 
+                      alt={pkg.packageName} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+                    <h3 className="text-white font-semibold">{pkg.packageName}</h3>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm text-gray-600">{pkg.climate}</span>
+                    <span className="font-bold text-blue-600">${pkg.pricePerPerson}</span>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <span>{pkg.hotel}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default PackageDetails;
-

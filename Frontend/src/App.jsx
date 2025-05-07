@@ -28,6 +28,8 @@ import NotFound from './components/NotFound';
 import CreateGuide from './pages/Guide/CreateGuide';
 import GuideProfile from './pages/Guide/GuideProfile';
 
+import ChatBot from './components/ChatBot';
+
 
 import Weatherprediction from './pages/WeatherForecast/Weatherprediction'; // Import the Weatherprediction component
 
@@ -107,7 +109,8 @@ const App = () => {
             <Route path="/weather" element={<Weatherprediction />} /> {/* Weather Prediction Route */}
 
            
-
+            {/* ChatBot Route */}
+            <Route path="/chatbot" element={<ChatBot />} />
             {/* 404 Page */}
             <Route path="*" element={<NotFound />} />
           </Routes>
