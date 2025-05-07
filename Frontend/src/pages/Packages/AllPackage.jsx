@@ -172,7 +172,7 @@ const PackageCard = ({ packageData, weatherData }) => {
   return (
     <motion.div
       className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-105"
-      whileHover={{ scale: 1.03 }}
+      whileHover={{ scale: 1.00000000000001 }}
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.10 }}
