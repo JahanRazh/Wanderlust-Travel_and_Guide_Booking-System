@@ -4,6 +4,7 @@ const packageSchema = new mongoose.Schema(
   {
     packageName: { type: String, required: true },
     pricePerPerson: { type: Number, required: true },
+    area : { type: String, required: true },
     hotel: { type: String, required: true },
     guide: { type: String, required: true },
     description: { type: String, required: true },

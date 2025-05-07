@@ -18,6 +18,12 @@ const PackageDetails = () => {
   const [travelers, setTravelers] = useState(1);
   const [addedToWishlist, setAddedToWishlist] = useState(false);
   
+  // Weather forecast states
+  const [weatherResult, setWeatherResult] = useState(null);
+  const [weatherError, setWeatherError] = useState('');
+  const [isWeatherLoading, setIsWeatherLoading] = useState(false);
+  const [selectedWeatherDate, setSelectedWeatherDate] = useState('');
+  
   useEffect(() => {
     const fetchPackageDetails = async () => {
       try {
@@ -42,7 +48,7 @@ const PackageDetails = () => {
     if (!currentPackage) return;
     
     try {
-      // Use the new API endpoint to get similar packages directly
+      // Use the API endpoint to get similar packages directly
       const response = await axios.get(`http://localhost:3000/packages/${currentPackage._id}/similar/50`);
       setSimilarPackages(response.data);
     } catch (err) {
@@ -79,9 +85,6 @@ const PackageDetails = () => {
   const toggleWishlist = () => {
     // In a real application, this would call an API to save to user's wishlist
     setAddedToWishlist(!addedToWishlist);
-    
-    // Example of how to implement with API
-    // axios.post('/api/user/wishlist', { packageId });
   };
 
   // Function to handle booking
@@ -95,9 +98,6 @@ const PackageDetails = () => {
       totalPrice: calculateTotalPrice()
     });
     
-    // Navigate to a booking confirmation page (you'll need to create this)
-    // navigate('/booking/confirmation', { state: { packageData, startDate, endDate, travelers } });
-    
     // For now, show an alert
     alert('Your booking has been confirmed!');
   };
@@ -107,6 +107,58 @@ const PackageDetails = () => {
     navigate(`/packages/${id}`);
     window.scrollTo(0, 0); // Scroll back to top
   };
+
+  // Weather forecast functions
+  const validateCity = (cityName) => {
+    if (!/^[A-Z]/.test(cityName)) {
+      setWeatherError('City name must start with a capital letter');
+      return false;
+    }
+    return true;
+  };
+
+  const handleWeatherForecast = async (e) => {
+    e.preventDefault();
+    
+    if (!packageData) return;
+    
+    const city = packageData.area.split(',')[0].trim(); // Assuming first part is the city
+    
+    if (!validateCity(city) || !selectedWeatherDate) {
+      return;
+    }
+    
+    setWeatherError('');
+    setWeatherResult(null);
+    setIsWeatherLoading(true);
+
+    try {
+      const res = await axios.post('http://localhost:3000/predict', { 
+        city: city, 
+        date: selectedWeatherDate 
+      });
+      setWeatherResult(res.data);
+    } catch (err) {
+      setWeatherError(err.response?.data?.error || 'Failed to get weather forecast');
+    } finally {
+      setIsWeatherLoading(false);
+    }
+  };
+
+  // Format date for the weather input
+  const formatDateForWeather = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Initialize weather date when package data loads
+  useEffect(() => {
+    if (packageData && startDate) {
+      setSelectedWeatherDate(formatDateForWeather(startDate));
+    }
+  }, [packageData, startDate]);
 
   if (loading) {
     return (
@@ -223,6 +275,12 @@ const PackageDetails = () => {
                 <div>
                   <h2 className="text-xl font-semibold text-gray-800 mb-2">Details</h2>
                   <ul className="space-y-2">
+                  <li className="flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                      </svg>
+                      <span><strong>Area:</strong> {packageData.area}</span>
+                    </li>
                     <li className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -255,6 +313,83 @@ const PackageDetails = () => {
                 </div>
               </div>
             </div>
+            
+            {/* Weather Forecast Component */}
+            <div className="mt-8">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-md p-6">
+                <h2 className="text-2xl font-bold text-center text-indigo-700 mb-6">
+                  Check {packageData.area.split(',')[0]} Weather Forecast
+                </h2>
+                <form onSubmit={handleWeatherForecast} className="space-y-4">
+                  <div>
+                    <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                      Select Date
+                    </label>
+                    <input
+                      id="date"
+                      type="date"
+                      value={selectedWeatherDate}
+                      onChange={(e) => setSelectedWeatherDate(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+                      required
+                      min={formatDateForWeather(new Date())}
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isWeatherLoading}
+                    className={`w-full py-2 px-4 rounded-lg font-medium text-white transition-colors ${
+                      isWeatherLoading 
+                        ? 'bg-indigo-400 cursor-not-allowed' 
+                        : 'bg-indigo-600 hover:bg-indigo-700'
+                    }`}
+                  >
+                    {isWeatherLoading ? 'Loading...' : 'Get Forecast'}
+                  </button>
+                </form>
+
+                {weatherError && (
+                  <div className="mt-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+                    <p>{weatherError}</p>
+                  </div>
+                )}
+
+                {weatherResult && (
+                  <div className="mt-6 p-5 bg-white rounded-lg shadow-md border border-gray-100">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                      {weatherResult.city} <span className="text-gray-500">on</span> {weatherResult.date}
+                    </h3>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center">
+                        <span className="text-2xl mr-2">🌡️</span>
+                        <div>
+                          <p className="text-sm text-gray-500">Temperature</p>
+                          <p className="font-medium text-indigo-600">{weatherResult.temperature}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <span className="text-2xl mr-2">🌧️</span>
+                        <div>
+                          <p className="text-sm text-gray-500">Rainfall</p>
+                          <p className="font-medium text-blue-600">{weatherResult.rainfall}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <span className="text-2xl mr-2">🌤️</span>
+                        <div>
+                          <p className="text-sm text-gray-500">Conditions</p>
+                          <p className="font-medium text-green-600">{weatherResult.conditions}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -268,7 +403,10 @@ const PackageDetails = () => {
                 <label className="block text-gray-700 mb-2">Start Date</label>
                 <DatePicker
                   selected={startDate}
-                  onChange={(date) => setStartDate(date)}
+                  onChange={(date) => {
+                    setStartDate(date);
+                    setSelectedWeatherDate(formatDateForWeather(date));
+                  }}
                   selectsStart
                   startDate={startDate}
                   endDate={endDate}
@@ -294,6 +432,7 @@ const PackageDetails = () => {
                 <label className="block text-gray-700 mb-2">Number of Travelers</label>
                 <div className="flex items-center">
                   <button 
+                    type="button"
                     onClick={() => setTravelers(prev => Math.max(1, prev - 1))}
                     className="p-2 border border-gray-300 rounded-l-md"
                   >
@@ -303,6 +442,7 @@ const PackageDetails = () => {
                   </button>
                   <div className="flex-1 py-2 text-center border-t border-b border-gray-300">{travelers}</div>
                   <button 
+                    type="button"
                     onClick={() => setTravelers(prev => prev + 1)}
                     className="p-2 border border-gray-300 rounded-r-md"
                   >
@@ -331,6 +471,7 @@ const PackageDetails = () => {
             
             <div className="flex space-x-4">
               <button
+                type="button"
                 onClick={toggleWishlist}
                 className={`flex-1 py-3 px-4 flex justify-center items-center rounded-md border ${
                   addedToWishlist 
@@ -345,6 +486,7 @@ const PackageDetails = () => {
               </button>
               
               <button
+                type="button"
                 onClick={handleBooking}
                 className="flex-1 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
               >
@@ -406,3 +548,6 @@ const PackageDetails = () => {
 };
 
 export default PackageDetails;
+
+
+

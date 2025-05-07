@@ -22,6 +22,7 @@ const AdminPackageList = () => {
   const [formData, setFormData] = useState({
     packageName: "",
     pricePerPerson: "",
+    area: "",
     hotel: "",
     guide: "",
     climate: "",
@@ -67,6 +68,7 @@ const AdminPackageList = () => {
     setFormData({
       packageName: pkg.packageName,
       pricePerPerson: pkg.pricePerPerson,
+      area: pkg.area,
       hotel: pkg.hotel,
       guide: pkg.guide,
       climate: pkg.climate,
@@ -236,6 +238,9 @@ const AdminPackageList = () => {
                       </div>
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Area
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Hotel
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -276,6 +281,9 @@ const AdminPackageList = () => {
                           <div className="text-sm text-gray-500">per person</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{pkg.area}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">{pkg.hotel}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -313,7 +321,7 @@ const AdminPackageList = () => {
                             </div>
                           ) : (
                             <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                              No photos
+                              Photos
                             </span>
                           )}
                         </td>
@@ -403,6 +411,10 @@ const AdminPackageList = () => {
                         </p>
                       </div>
                       <div>
+                        <h4 className="text-sm font-medium text-gray-500">Area</h4>
+                        <p className="mt-1 text-gray-900">{viewingPackage.area}</p>
+                      </div>
+                      <div>
                         <h4 className="text-sm font-medium text-gray-500">Hotel</h4>
                         <p className="mt-1 text-gray-900">{viewingPackage.hotel}</p>
                       </div>
@@ -486,6 +498,15 @@ const AdminPackageList = () => {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Area</label>
+                      <input
+                        type="text"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+                        value={formData.area}
+                        onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                      />
+                    </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Hotel</label>
                       <input
