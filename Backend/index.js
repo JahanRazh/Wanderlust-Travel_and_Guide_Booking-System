@@ -9,6 +9,7 @@ const fs = require('fs');
 const connectDB = require("./config/database");
 
 // Import routes
+const weatherRoutes = require('./routes/Weather/weatherRoutes');
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const storyRoutes = require("./routes/storyRoutes");
@@ -40,7 +41,7 @@ app.use("/", userRoutes);  // User routes
 app.use("/", storyRoutes); // Travel story routes
 app.use("/", packageRoute); // Package routes
 app.use("/", hotelRoute); // Hotel routes
-
+app.use("/", weatherRoutes);
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
@@ -49,3 +50,13 @@ app.listen(PORT, () => {
 
 // Export the Express app for testing
 module.exports = app;
+
+// Add to your main server file
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    // Consider proper error handling/restart here
+});
