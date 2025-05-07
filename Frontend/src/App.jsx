@@ -31,7 +31,7 @@ import GuideProfile from './pages/Guide/GuideProfile';
 import ChatBot from './components/ChatBot';
 
 
-
+import Weatherprediction from './pages/WeatherForecast/Weatherprediction'; // Import the Weatherprediction component
 
 
 const App = () => {
@@ -106,6 +106,7 @@ const App = () => {
             <Route path="/createguide" element={<CreateGuide />} />
             <Route path="/guideprofile" element={<GuideProfile />} />
 
+            <Route path="/weather" element={<Weatherprediction />} /> {/* Weather Prediction Route */}
 
            
             {/* ChatBot Route */}
