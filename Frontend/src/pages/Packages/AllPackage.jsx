@@ -4,6 +4,11 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
+const BACKEND_URL = "http://localhost:3000"; // or from env
+
+const getImageUrl = (imgPath) => 
+  imgPath.startsWith('http') ? imgPath : `${BACKEND_URL}${imgPath}`;
+
 // Weather Prediction Component
 const WeatherPredictionFilter = ({ onWeatherUpdate, areas, setSelectedWeatherArea }) => {
   const [date, setDate] = useState('');
@@ -169,6 +174,30 @@ const PackageCard = ({ packageData, weatherData }) => {
     }
   };
 
+  const handleBooking = async () => {
+    try {
+      const bookingData = {
+        userId: currentUser._id, // Get this from your auth context
+        packageId: packageData._id,
+        startDate,
+        endDate,
+        totalBudget: calculateTotalPrice(),
+        numberOfPeople: travelers
+      };
+
+      const response = await axios.post('http://localhost:3000/bookings', bookingData);
+      
+      if (response.status === 201) {
+        alert('Booking successful!');
+        // Optionally navigate to a booking confirmation page
+        // navigate(`/bookings/${response.data._id}`);
+      }
+    } catch (error) {
+      console.error('Booking failed:', error);
+      alert('Failed to create booking. Please try again.');
+    }
+  };
+
   return (
     <motion.div
       className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-105"
@@ -182,7 +211,7 @@ const PackageCard = ({ packageData, weatherData }) => {
         {packageData.images?.length > 0 ? (
           <>
             <img
-              src={packageData.images[currentImageIndex]}
+              src={getImageUrl(packageData.images[currentImageIndex])}
               alt={packageData.packageName}
               className="w-full h-64 object-cover transition duration-300 ease-in-out"
             />

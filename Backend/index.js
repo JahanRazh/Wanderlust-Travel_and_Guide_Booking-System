@@ -15,6 +15,7 @@ const userRoutes = require("./routes/userRoutes");
 const storyRoutes = require("./routes/storyRoutes");
 const packageRoute = require("./routes/Admin/packageRoute");
 const hotelRoute = require("./routes/Admin/hotelRoute");
+const bookingRoute = require("./routes/Admin/bookingRoute");
 const uploadDir = path.join(__dirname, 'uploads/packages4to');
 
 if (!fs.existsSync(uploadDir)) {
@@ -41,7 +42,9 @@ app.use("/", userRoutes);  // User routes
 app.use("/", storyRoutes); // Travel story routes
 app.use("/", packageRoute); // Package routes
 app.use("/", hotelRoute); // Hotel routes
-app.use("/", weatherRoutes);
+app.use("/", weatherRoutes); // Weather routes
+app.use("/", bookingRoute); // Booking routes
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

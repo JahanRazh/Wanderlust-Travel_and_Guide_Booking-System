@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getInitials } from "../../utils/helper";
 import { BASE_URL } from "../../utils/constants";
-import { ChevronDownIcon, ChevronUpIcon, UserIcon, ArrowLeftOnRectangleIcon } from "@heroicons/react/24/outline";
+import { ChevronDownIcon, ChevronUpIcon, UserIcon, ArrowLeftOnRectangleIcon, CalendarIcon } from "@heroicons/react/24/outline";
 
 const ProfileInfo = ({ userInfo, onLogout }) => {
   const navigate = useNavigate();
@@ -26,6 +26,11 @@ const ProfileInfo = ({ userInfo, onLogout }) => {
   const handleProfileClick = () => {
     setIsDropdownOpen(false);
     navigate(`/profile-stats/${userInfo._id}`);
+  };
+
+  const handleMyBookingsClick = () => {
+    setIsDropdownOpen(false);
+    navigate('/my-bookings');
   };
 
   const handleLogout = () => {
@@ -91,6 +96,14 @@ const ProfileInfo = ({ userInfo, onLogout }) => {
               >
                 <UserIcon className="h-5 w-5 mr-2 text-gray-500" />
                 Profile
+              </button>
+              <button
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+                onClick={handleMyBookingsClick}
+                role="menuitem"
+              >
+                <CalendarIcon className="h-5 w-5 mr-2 text-gray-500" />
+                My Bookings
               </button>
             </div>
             <div className="py-1">

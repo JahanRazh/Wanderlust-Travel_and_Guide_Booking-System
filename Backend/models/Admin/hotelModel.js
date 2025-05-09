@@ -38,13 +38,50 @@ const hotelSchema = new Schema({
         min: [1, "There must be at least one room"],
         max: [1000, "The maximum number of rooms allowed is 1000"]
     },
+    price: {
+        type: Number,
+        required: [true, "Price per night is required"],
+        min: [0, "Price cannot be negative"]
+    },
     description: {
         type: String,
         required: [true, "Description is required"],
         trim: true,
         minlength: [10, "Description must be at least 10 characters long"],
         maxlength: [500, "Description cannot exceed 500 characters"]
+    },
+    amenities: [{
+        type: String
+    }],
+    checkIn: {
+        type: String,
+        required: [true, "Check-in time is required"],
+        default: "14:00"
+    },
+    checkOut: {
+        type: String,
+        required: [true, "Check-out time is required"],
+        default: "12:00"
+    },
+    photos: [{
+        url: {
+            type: String,
+            required: true
+        },
+        public_id: {
+            type: String,
+            required: true
+        }
+    }],
+    mainPhoto: {
+        url: {
+            type: String,
+            default: 'https://via.placeholder.com/300x200?text=Hotel+Image'
+        },
+        public_id: String
     }
+}, {
+    timestamps: true
 });
 
 // Create model
