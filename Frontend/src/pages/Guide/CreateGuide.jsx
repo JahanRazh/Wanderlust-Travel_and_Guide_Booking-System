@@ -159,6 +159,15 @@ const CreateGuide = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    const existingGuides = JSON.parse(localStorage.getItem("guideProfiles")) || [];
+
+    // Check if editing (via email match), then update
+    const updatedGuides = existingGuides.filter(g => g.email !== formData.email);
+    updatedGuides.push(formData);
+
+    localStorage.setItem("guideProfiles", JSON.stringify(updatedGuides));
+
     
     // Mark all fields as touched to show errors
     const allTouched = {};
