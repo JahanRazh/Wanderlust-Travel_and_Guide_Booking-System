@@ -88,7 +88,7 @@ const App = () => {
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/createguide" element={<CreateGuide />} />
             <Route path="/guideprofile" element={<GuideProfile />} />
-
+            <Route path="/admin/guides" element={<AllGuides />} />
             <Route path="/weather" element={<Weatherprediction />} />
 
            
