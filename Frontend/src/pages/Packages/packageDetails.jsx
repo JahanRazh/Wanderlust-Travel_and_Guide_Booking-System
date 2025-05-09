@@ -94,6 +94,8 @@ const PackageDetails = () => {
     };
 
     fetchPackageDetails();
+    // Scroll to top when component mounts or packageId changes
+    window.scrollTo(0, 0);
   }, [packageId]);
 
   // Function to fetch similar packages
