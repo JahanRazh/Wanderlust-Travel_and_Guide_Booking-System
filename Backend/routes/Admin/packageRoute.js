@@ -4,7 +4,8 @@ const {
     getPackages, 
     getPackageById, 
     updatePackage, 
-    deletePackage 
+    deletePackage,
+    getSimilarPackages // Add the new function here
 } = require("../../controllers/Admin/packageController");
 const Package = require("../../models/Admin/packageModel");
 const multer = require("multer");
@@ -47,6 +48,9 @@ router.get("/packages/count", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+// Add new route for similar packages
+router.get("/packages/:id/similar/:priceRange?", getSimilarPackages);
 
 // Modified routes to handle file uploads
 router.post("/packages", upload.array('images', 5), addPackage);
