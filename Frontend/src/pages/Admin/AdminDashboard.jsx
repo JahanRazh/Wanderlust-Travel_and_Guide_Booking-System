@@ -273,7 +273,7 @@ const Dashboard = () => {
           <div className="flex">
             <button
               className={Admincss.viewBtn}
-              onClick={() => navigate("/admin/guides")}
+              onClick={() => navigate("/allguides")}
             >
               All Guides
             </button>
