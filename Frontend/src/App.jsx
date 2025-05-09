@@ -27,7 +27,7 @@ import DateTime from './components/datetime';
 import NotFound from './components/NotFound';
 import CreateGuide from './pages/Guide/CreateGuide';
 import GuideProfile from './pages/Guide/GuideProfile';
-
+import AllGuides from './pages/Guide/AllGuides';
 
 
 
@@ -103,6 +103,8 @@ const App = () => {
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/createguide" element={<CreateGuide />} />
             <Route path="/guideprofile" element={<GuideProfile />} />
+            <Route path="/admin/guides" element={<AllGuides />} />
+            
 
 
            
