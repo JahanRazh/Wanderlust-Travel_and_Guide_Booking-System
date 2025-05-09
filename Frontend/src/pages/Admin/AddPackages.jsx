@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -17,6 +17,8 @@ const AddPackageWithWeather = () => {
   const [images, setImages] = useState([]);
   const [imagePreview, setImagePreview] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [guides, setGuides] = useState([]);
+  const [hotels, setHotels] = useState([]);
   
   // Weather forecast states
   const [weatherDate, setWeatherDate] = useState('');
@@ -25,6 +27,29 @@ const AddPackageWithWeather = () => {
   const [isWeatherLoading, setIsWeatherLoading] = useState(false);
 
   const climateZones = ["Wet Zone", "Dry Zone", "Intermediate Zone"];
+
+  useEffect(() => {
+    fetchGuides();
+    fetchHotels();
+  }, []);
+
+  const fetchGuides = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/getguide');
+      setGuides(response.data);
+    } catch (error) {
+      console.error("Error fetching guides:", error);
+    }
+  };
+
+  const fetchHotels = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/hotels');
+      setHotels(response.data);
+    } catch (error) {
+      console.error("Error fetching hotels:", error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -167,9 +192,9 @@ const AddPackageWithWeather = () => {
                     </div>
                   </div>
 
-                  {/* Area - This will be used for weather forecast */}
+                  {/* Area */}
                   <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Area * (Used for weather forecast)</label>
+                    <label className="block text-sm font-medium text-gray-700">Area *</label>
                     <input
                       type="text"
                       name="area"
@@ -180,30 +205,42 @@ const AddPackageWithWeather = () => {
                     />
                   </div>
 
-                  {/* Hotel */}
+                  {/* Hotel Selection */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Hotel *</label>
-                    <input
-                      type="text"
+                    <select
                       name="hotel"
                       className="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                       value={formData.hotel}
                       onChange={handleInputChange}
                       required
-                    />
+                    >
+                      <option value="">Select a Hotel</option>
+                      {hotels.map((hotel) => (
+                        <option key={hotel._id} value={hotel._id}>
+                          {hotel.name} - {hotel.location}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  {/* Guide */}
+                  {/* Guide Selection */}
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Guide *</label>
-                    <input
-                      type="text"
+                    <select
                       name="guide"
                       className="block w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                       value={formData.guide}
                       onChange={handleInputChange}
                       required
-                    />
+                    >
+                      <option value="">Select a Guide</option>
+                      {guides.map((guide) => (
+                        <option key={guide._id} value={guide._id}>
+                          {guide.fullname} - {guide.workExperience} years experience
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Climate Zone */}
@@ -226,7 +263,7 @@ const AddPackageWithWeather = () => {
                   </div>
 
                   {/* Image Upload */}
-                  <div className="space-y-2">
+                  <div className="space-y-2 md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700">Package Images (Up to 5)</label>
                     <div className="flex items-center justify-center w-full">
                       <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">

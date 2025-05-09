@@ -15,6 +15,8 @@ const PackageDetails = () => {
   const navigate = useNavigate();
   
   const [packageData, setPackageData] = useState(null);
+  const [hotels, setHotels] = useState([]);
+  const [guides, setGuides] = useState([]);
   const [similarPackages, setSimilarPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -78,25 +80,42 @@ const PackageDetails = () => {
   }, []);
 
   useEffect(() => {
-    const fetchPackageDetails = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/packages/${packageId}`);
-        setPackageData(response.data);
+        const [packageRes, hotelsRes, guidesRes] = await Promise.all([
+          axios.get(`http://localhost:3000/packages/${packageId}`),
+          axios.get('http://localhost:3000/hotels'),
+          axios.get('http://localhost:3000/getguide')
+        ]);
+
+        setPackageData(packageRes.data);
+        setHotels(hotelsRes.data);
+        setGuides(guidesRes.data);
         setLoading(false);
         
         // After getting package data, fetch similar packages
-        fetchSimilarPackages(response.data);
+        fetchSimilarPackages(packageRes.data);
       } catch (err) {
-        setError('Failed to fetch package details');
+        setError('Failed to fetch data');
         setLoading(false);
-        console.error('Error fetching package details:', err);
+        console.error('Error fetching data:', err);
       }
     };
 
-    fetchPackageDetails();
+    fetchData();
     // Scroll to top when component mounts or packageId changes
     window.scrollTo(0, 0);
   }, [packageId]);
+
+  const getHotelName = (hotelId) => {
+    const hotel = hotels.find(h => h._id === hotelId);
+    return hotel ? hotel.name : 'Unknown Hotel';
+  };
+
+  const getGuideName = (guideId) => {
+    const guide = guides.find(g => g._id === guideId);
+    return guide ? guide.fullname : 'Unknown Guide';
+  };
 
   // Function to fetch similar packages
   const fetchSimilarPackages = async (currentPackage) => {
@@ -361,7 +380,7 @@ const PackageDetails = () => {
                 <div>
                   <h2 className="text-xl font-semibold text-gray-800 mb-2">Details</h2>
                   <ul className="space-y-2">
-                  <li className="flex items-center">
+                    <li className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                       </svg>
@@ -371,13 +390,13 @@ const PackageDetails = () => {
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                       </svg>
-                      <span><strong>Hotel:</strong> {packageData.hotel}</span>
+                      <span><strong>Hotel:</strong> {getHotelName(packageData.hotel)}</span>
                     </li>
                     <li className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      <span><strong>Guide:</strong> {packageData.guide}</span>
+                      <span><strong>Guide:</strong> {getGuideName(packageData.guide)}</span>
                     </li>
                     <li className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -646,7 +665,7 @@ const PackageDetails = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
-                    <span>{pkg.hotel}</span>
+                    <span>{getHotelName(pkg.hotel)}</span>
                   </div>
                 </div>
               </div>

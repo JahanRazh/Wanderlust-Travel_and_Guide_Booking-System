@@ -138,7 +138,7 @@ const WeatherPredictionFilter = ({ onWeatherUpdate, areas, setSelectedWeatherAre
 };
 
 // Individual Package Card Component - Now with Weather Badge
-const PackageCard = ({ packageData, weatherData }) => {
+const PackageCard = ({ packageData, weatherData, hotels, guides }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const hasWeatherData = weatherData && weatherData[packageData.area];
 
@@ -172,6 +172,16 @@ const PackageCard = ({ packageData, weatherData }) => {
     } else {
       return 'bg-green-100 text-green-800 border-green-300';
     }
+  };
+
+  const getHotelName = (hotelId) => {
+    const hotel = hotels.find(h => h._id === hotelId);
+    return hotel ? hotel.name : 'Unknown Hotel';
+  };
+
+  const getGuideName = (guideId) => {
+    const guide = guides.find(g => g._id === guideId);
+    return guide ? guide.fullname : 'Unknown Guide';
   };
 
   const handleBooking = async () => {
@@ -269,14 +279,14 @@ const PackageCard = ({ packageData, weatherData }) => {
             <svg className="h-5 w-5 mr-2 text-gray-500" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <span>{packageData.hotel}</span>
+            <span>{getHotelName(packageData.hotel)}</span>
           </div>
 
           <div className="flex items-center">
             <svg className="h-5 w-5 mr-2 text-gray-500" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span>Guide: {packageData.guide}</span>
+            <span>Guide: {getGuideName(packageData.guide)}</span>
           </div>
 
           <div className="flex items-center">
@@ -487,6 +497,8 @@ const FilterSection = ({ filters, setFilters, uniqueClimates, uniqueAreas, weath
 // All Packages Component
 const AllPackages = () => {
   const [packages, setPackages] = useState([]);
+  const [hotels, setHotels] = useState([]);
+  const [guides, setGuides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filteredPackages, setFilteredPackages] = useState([]);
@@ -502,29 +514,36 @@ const AllPackages = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch packages
+  // Fetch packages, hotels, and guides
   useEffect(() => {
-    const fetchPackages = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/packages');
-        setPackages(response.data);
-        setFilteredPackages(response.data);
+        const [packagesRes, hotelsRes, guidesRes] = await Promise.all([
+          axios.get('http://localhost:3000/packages'),
+          axios.get('http://localhost:3000/hotels'),
+          axios.get('http://localhost:3000/getguide')
+        ]);
+
+        setPackages(packagesRes.data);
+        setFilteredPackages(packagesRes.data);
+        setHotels(hotelsRes.data);
+        setGuides(guidesRes.data);
         
         // Extract unique climates and areas
-        const climates = [...new Set(response.data.map(pkg => pkg.climate))];
-        const areas = [...new Set(response.data.map(pkg => pkg.area))];
+        const climates = [...new Set(packagesRes.data.map(pkg => pkg.climate))];
+        const areas = [...new Set(packagesRes.data.map(pkg => pkg.area))];
         
         setUniqueClimates(climates);
         setUniqueAreas(areas);
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch packages');
+        setError('Failed to fetch data');
         setLoading(false);
-        console.error('Error fetching packages:', err);
+        console.error('Error fetching data:', err);
       }
     };
 
-    fetchPackages();
+    fetchData();
   }, []);
 
   // Apply filters
@@ -629,6 +648,8 @@ const AllPackages = () => {
                     key={pkg._id} 
                     packageData={pkg} 
                     weatherData={weatherData}
+                    hotels={hotels}
+                    guides={guides}
                   />
                 ))}
               </div>

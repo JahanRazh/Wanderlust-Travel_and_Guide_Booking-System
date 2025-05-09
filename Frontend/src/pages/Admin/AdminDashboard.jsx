@@ -54,16 +54,18 @@ const Dashboard = () => {
   // Fetch counts from backend
   const fetchCounts = async () => {
     try {
-      const [packagesResponse, hotelsResponse, usersResponse] =
+      const [packagesResponse, hotelsResponse, guidesResponse, usersResponse] =
         await Promise.all([
           axios.get("http://localhost:3000/packages/count"),
           axios.get("http://localhost:3000/hotels/count"),
+          axios.get("http://localhost:3000/getguide"),
           axios.get('http://localhost:3000/users/count')
         ]);
 
       setCounts({
         packages: packagesResponse.data.count,
         hotels: hotelsResponse.data.count,
+        guides: guidesResponse.data.length,
         users: usersResponse.data.count
       });
     } catch (error) {
@@ -199,7 +201,7 @@ const Dashboard = () => {
           icon={Compass}
           title="Total Guides"
           count={counts.guides}
-          onClick={() => navigate("/admin/guides")}
+          onClick={() => navigate("/allguides")}
         />
         <CountCard
           icon={Users}
@@ -268,7 +270,7 @@ const Dashboard = () => {
             src="https://images.unsplash.com/photo-1583417319070-4a69db38a482?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80"
             alt="Guide Management"
             className="w-full h-48 object-cover rounded-lg mb-4"
-            onClick={() => navigate("/admin/guides")}
+            onClick={() => navigate("/allguides")}
           />
           <div className="flex">
             <button
