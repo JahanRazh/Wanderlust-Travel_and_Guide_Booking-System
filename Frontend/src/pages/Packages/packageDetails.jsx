@@ -4,6 +4,12 @@ import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
+const BACKEND_URL = "http://localhost:3000"; // or from env
+
+const getImageUrl = (imgPath) => 
+  imgPath.startsWith('http') ? imgPath : `${BACKEND_URL}${imgPath}`;
+
+
 const PackageDetails = () => {
   const { packageId } = useParams();
   const navigate = useNavigate();
@@ -17,6 +23,8 @@ const PackageDetails = () => {
   const [endDate, setEndDate] = useState(new Date(new Date().setDate(new Date().getDate() + 7)));
   const [travelers, setTravelers] = useState(1);
   const [addedToWishlist, setAddedToWishlist] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState(null);
   
   // Weather forecast states
   const [weatherResult, setWeatherResult] = useState(null);
@@ -24,6 +32,51 @@ const PackageDetails = () => {
   const [isWeatherLoading, setIsWeatherLoading] = useState(false);
   const [selectedWeatherDate, setSelectedWeatherDate] = useState('');
   
+  // User information states
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  
+  // Check authentication status and get user data when component mounts
+  useEffect(() => {
+    const updateUserDetails = (userData) => {
+      if (userData) {
+        setUserName(userData.fullName || '');
+        setUserEmail(userData.email || '');
+        setIsAuthenticated(true);
+        setLoggedInUser(userData);
+      }
+    };
+
+    // Initial load of user data
+    const token = localStorage.getItem('token');
+    if (token) {
+      const userData = JSON.parse(localStorage.getItem('user'));
+      updateUserDetails(userData);
+    }
+
+    // Listen for changes in localStorage
+    const handleStorageChange = (e) => {
+      if (e.key === 'user') {
+        const updatedUserData = JSON.parse(e.newValue);
+        updateUserDetails(updatedUserData);
+      }
+    };
+
+    // Listen for custom event for profile updates
+    const handleProfileUpdate = (e) => {
+      const updatedUserData = e.detail;
+      updateUserDetails(updatedUserData);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, []);
+
   useEffect(() => {
     const fetchPackageDetails = async () => {
       try {
@@ -88,18 +141,49 @@ const PackageDetails = () => {
   };
 
   // Function to handle booking
-  const handleBooking = () => {
-    // In a real application, this would navigate to checkout or booking confirmation
-    console.log('Booking:', {
-      packageId,
-      startDate,
-      endDate,
-      travelers,
-      totalPrice: calculateTotalPrice()
-    });
-    
-    // For now, show an alert
-    alert('Your booking has been confirmed!');
+  const handleBooking = async () => {
+    try {
+      // Validate user information
+      if (!userName || !userEmail) {
+        alert('Please fill in all your information to proceed with booking');
+        return;
+      }
+
+      // Get user data from localStorage
+      const userData = JSON.parse(localStorage.getItem('user'));
+      
+      const bookingData = {
+        userName,
+        userEmail,
+        userPhone: userData?.phoneNumber || '', // Make phone optional
+        packageId,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        totalBudget: calculateTotalPrice(),
+        numberOfPeople: travelers
+      };
+
+      console.log('Sending booking data:', bookingData);
+
+      const response = await axios.post(`${BACKEND_URL}/bookings`, bookingData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.status === 201) {
+        alert('Booking successful! We will contact you shortly with more details.');
+        // Reset form
+        setUserName('');
+        setUserEmail('');
+        setTravelers(1);
+        setStartDate(new Date());
+        setEndDate(new Date(new Date().setDate(new Date().getDate() + 7)));
+      }
+    } catch (error) {
+      console.error('Booking failed:', error);
+      alert(error.response?.data?.message || 'Failed to create booking. Please try again.');
+    }
   };
 
   // Navigate to another package
@@ -212,7 +296,7 @@ const PackageDetails = () => {
             {packageData.images && packageData.images.length > 0 ? (
               <>
                 <img 
-                  src={packageData.images[currentImageIndex]} 
+                  src={getImageUrl(packageData.images[currentImageIndex])} 
                   alt={packageData.packageName} 
                   className="w-full h-full object-cover"
                 />
@@ -399,14 +483,39 @@ const PackageDetails = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Book This Package</h2>
             
             <div className="space-y-4 mb-6">
+              {/* User Information */}
+              <div>
+                <label className="block text-gray-700 mb-2">Your Name</label>
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  placeholder="Enter your full name"
+                  required
+                  disabled={isAuthenticated}
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-2">Email Address</label>
+                <input
+                  type="email"
+                  value={userEmail}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  placeholder="Enter your email"
+                  required
+                  disabled={isAuthenticated}
+                />
+              </div>
+
+              {/* Existing date and travelers inputs */}
               <div>
                 <label className="block text-gray-700 mb-2">Start Date</label>
                 <DatePicker
                   selected={startDate}
-                  onChange={(date) => {
-                    setStartDate(date);
-                    setSelectedWeatherDate(formatDateForWeather(date));
-                  }}
+                  onChange={(date) => setStartDate(date)}
                   selectsStart
                   startDate={startDate}
                   endDate={endDate}
@@ -457,7 +566,7 @@ const PackageDetails = () => {
             <div className="border-t border-b border-gray-200 py-4 mb-6">
               <div className="flex justify-between items-center mb-2">
                 <span>Base price:</span>
-                <span>${packageData.pricePerPerson} × {travelers}</span>
+                <span>${packageData?.pricePerPerson} × {travelers}</span>
               </div>
               <div className="flex justify-between items-center mb-2">
                 <span>Duration:</span>
@@ -511,7 +620,7 @@ const PackageDetails = () => {
                 <div className="h-48 relative">
                   {pkg.images && pkg.images.length > 0 ? (
                     <img 
-                      src={pkg.images[0]} 
+                      src={getImageUrl(pkg.images[0])} 
                       alt={pkg.packageName} 
                       className="w-full h-full object-cover"
                     />
