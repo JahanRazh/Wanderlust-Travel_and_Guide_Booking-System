@@ -1,45 +1,82 @@
 import React, { useState } from 'react';
 import './ChatBot.css';
-import chata from "../assets/images/home/Chata.jpg"; // Ensure this path is correct
+import chata from "../assets/images/home/Chata.jpg";
+import axios from 'axios';
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const toggleChat = () => setIsOpen(!isOpen);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMessage = { sender: 'user', text: input };
-    const botMessage = { sender: 'bot', text: getBotResponse(input) };
-
-    setMessages([...messages, userMessage, botMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
+    setIsLoading(true);
+
+    try {
+      const botResponse = await getBotResponse(input);
+      setMessages(prev => [...prev, { sender: 'bot', text: botResponse }]);
+    } catch (error) {
+      setMessages(prev => [...prev, { 
+        sender: 'bot', 
+        text: "I'm sorry, I couldn't process your request. Please try again." 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const getBotResponse = (message) => {
+  const getBotResponse = async (message) => {
     const msg = message.toLowerCase();
-    if (msg.includes('weather') && msg.includes('kandy')) {
-      return 'Kandy typically has temperatures around 25–30°C with high humidity.';
-    } else if (msg.includes('places') && msg.includes('galle')) {
+    
+    // Check if the message is about weather
+    if (msg.includes('weather')) {
+      // Extract city name from the message
+      const cityMatch = message.match(/weather (?:in|at|for) ([A-Z][a-zA-Z\s-]+)/i);
+      if (cityMatch) {
+        const city = cityMatch[1];
+        const today = new Date().toISOString().split('T')[0];
+        
+        try {
+          const response = await axios.post('http://localhost:3000/predict', {
+            city: city,
+            date: today
+          });
+          
+          const { temperature, rainfall, conditions } = response.data;
+          return `Here's the weather forecast for ${city} today:\n\n🌡️ Temperature: ${temperature}\n🌧️ Rainfall: ${rainfall}\n🌤️ Conditions: ${conditions}`;
+        } catch (error) {
+          return `I'm sorry, I couldn't get the weather information for ${city}. Please make sure the city name is correct and try again.`;
+        }
+      }
+      return "Please specify a city name. For example: 'What's the weather in Colombo?'";
+    }
+    
+    // Handle other queries
+    if (msg.includes('places') && msg.includes('galle')) {
       return 'In Galle, you can visit the Galle Fort, Jungle Beach, and Unawatuna.';
+    } else if (msg.includes('help')) {
+      return "I can help you with:\n1. Weather forecasts (e.g., 'What's the weather in Colombo?')\n2. Tourist spots (e.g., 'What places to visit in Galle?')\n3. General travel information";
     } else {
-      return 'I can provide information about Sri Lankan weather and tourist spots. Try asking about "weather in Ella" or "places in Nuwara Eliya".';
+      return "I can provide information about Sri Lankan weather and tourist spots. Try asking about 'weather in Colombo' or 'places in Galle'.";
     }
   };
 
   return (
     <div>
-     <button className="chat-circle" onClick={toggleChat}>
-  <img 
-    src={chata} 
-    alt="ChatBot"
-    className="h-10 w-10 object-contain"
-  />
-</button>
-
+      <button className="chat-circle" onClick={toggleChat}>
+        <img 
+          src={chata} 
+          alt="ChatBot"
+          className="h-10 w-10 object-contain"
+        />
+      </button>
 
       {isOpen && (
         <div className="chat-window">
@@ -53,6 +90,15 @@ const ChatBot = () => {
                 {msg.text}
               </div>
             ))}
+            {isLoading && (
+              <div className="chat-message bot">
+                <div className="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            )}
           </div>
           <div className="chat-input">
             <input
@@ -61,8 +107,11 @@ const ChatBot = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Ask about weather or places"
+              disabled={isLoading}
             />
-            <button onClick={handleSend}>Send</button>
+            <button onClick={handleSend} disabled={isLoading}>
+              Send
+            </button>
           </div>
         </div>
       )}

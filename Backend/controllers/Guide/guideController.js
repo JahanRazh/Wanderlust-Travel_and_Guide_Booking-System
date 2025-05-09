@@ -9,6 +9,18 @@ exports.getGuides = async (req, res) => {
   }
 };
 
+exports.getGuideById = async (req, res) => {
+  try {
+    const guide = await Guide.findById(req.params.id);
+    if (!guide) {
+      return res.status(404).json({ message: "Guide not found" });
+    }
+    res.status(200).json(guide);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching guide", error });
+  }
+};
+
 exports.createGuide = async (req, res) => {
   try {
     const { fullname, age, dateOfBirth, gender, contactNumber, email, address, about, workExperience } = req.body;

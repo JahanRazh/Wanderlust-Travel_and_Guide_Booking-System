@@ -32,9 +32,48 @@ const CreateGuide = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // If age is being changed, calculate and set the date of birth
+    if (name === 'age') {
+      const age = parseInt(value);
+      if (!isNaN(age) && age >= 18 && age <= 100) {
+        const today = new Date();
+        const birthYear = today.getFullYear() - age;
+        const birthDate = new Date(birthYear, today.getMonth(), today.getDate());
+        const formattedDate = birthDate.toISOString().split('T')[0];
+        
+        setFormData(prev => ({
+          ...prev,
+          age: value,
+          dateOfBirth: formattedDate
+        }));
+        return;
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  // Add a new handler for date of birth changes
+  const handleDateChange = (e) => {
+    const { value } = e.target;
+    const birthDate = new Date(value);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    
+    // Adjust age if birthday hasn't occurred this year
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      dateOfBirth: value,
+      age: age.toString()
     }));
   };
 
@@ -98,189 +137,201 @@ const CreateGuide = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Create Guide Profile</h1>
-      
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
-      {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
-      
-      <form onSubmit={handleSubmit} className="max-w-lg">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Full Name */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="fullname">
-              Full Name *
-            </label>
-            <input
-              type="text"
-              id="fullname"
-              name="fullname"
-              value={formData.fullname}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Create Guide Profile</h1>
+            
+            {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">{error}</div>}
+            {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">{success}</div>}
+            
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Full Name */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="fullname">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="fullname"
+                    name="fullname"
+                    value={formData.fullname}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-          {/* Age */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="age">
-              Age *
-            </label>
-            <input
-              type="number"
-              id="age"
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
-              min="18"
-              max="100"
-              required
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
+                {/* Age */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="age">
+                    Age *
+                  </label>
+                  <input
+                    type="number"
+                    id="age"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleChange}
+                    min="18"
+                    max="100"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-          {/* Date of Birth */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="dateOfBirth">
-              Date of Birth *
-            </label>
-            <input
-              type="date"
-              id="dateOfBirth"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
+                {/* Date of Birth */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="dateOfBirth">
+                    Date of Birth *
+                  </label>
+                  <input
+                    type="date"
+                    id="dateOfBirth"
+                    name="dateOfBirth"
+                    value={formData.dateOfBirth}
+                    onChange={handleDateChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-          {/* Gender */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="gender">
-              Gender *
-            </label>
-            <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded"
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+                {/* Gender */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="gender">
+                    Gender *
+                  </label>
+                  <select
+                    id="gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
 
-          {/* Contact Number */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="contactNumber">
-              Contact Number *
-            </label>
-            <input
-              type="tel"
-              id="contactNumber"
-              name="contactNumber"
-              value={formData.contactNumber}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
+                {/* Contact Number */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="contactNumber">
+                    Contact Number *
+                  </label>
+                  <input
+                    type="tel"
+                    id="contactNumber"
+                    name="contactNumber"
+                    value={formData.contactNumber}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-          {/* Email */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="email">
-              Email *
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
+                {/* Email */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="email">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-          {/* Address */}
-          <div className="mb-4 md:col-span-2">
-            <label className="block text-gray-700 mb-2" htmlFor="address">
-              Address *
-            </label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
+                {/* Address */}
+                <div className="mb-4 md:col-span-2">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="address">
+                    Address *
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-          {/* About */}
-          <div className="mb-4 md:col-span-2">
-            <label className="block text-gray-700 mb-2" htmlFor="about">
-              About *
-            </label>
-            <textarea
-              id="about"
-              name="about"
-              value={formData.about}
-              onChange={handleChange}
-              required
-              rows="4"
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
+                {/* About */}
+                <div className="mb-4 md:col-span-2">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="about">
+                    About *
+                  </label>
+                  <textarea
+                    id="about"
+                    name="about"
+                    value={formData.about}
+                    onChange={handleChange}
+                    required
+                    rows="4"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-          {/* Work Experience */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="workExperience">
-              Work Experience (years) *
-            </label>
-            <input
-              type="number"
-              id="workExperience"
-              name="workExperience"
-              value={formData.workExperience}
-              onChange={handleChange}
-              min="0"
-              required
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
+                {/* Work Experience */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="workExperience">
+                    Work Experience (years) *
+                  </label>
+                  <input
+                    type="number"
+                    id="workExperience"
+                    name="workExperience"
+                    value={formData.workExperience}
+                    onChange={handleChange}
+                    min="0"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-          {/* Profile Picture */}
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="profilePic">
-              Profile Picture
-            </label>
-            <input
-              type="file"
-              id="profilePic"
-              name="profilePic"
-              onChange={handleFileChange}
-              accept="image/*"
-              className="w-full px-3 py-2 border rounded"
-            />
+                {/* Profile Picture */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="profilePic">
+                    Profile Picture
+                  </label>
+                  <input
+                    type="file"
+                    id="profilePic"
+                    name="profilePic"
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-center mt-8">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`px-8 py-3 rounded-lg text-white font-medium text-lg transition-colors duration-200 ${
+                    isSubmitting 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-amber-500 hover:bg-amber-600 shadow-md hover:shadow-lg'
+                  }`}
+                >
+                  {isSubmitting ? 'Creating...' : 'Create Profile'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`px-4 py-2 rounded text-white ${isSubmitting ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
-        >
-          {isSubmitting ? 'Creating...' : 'Create Profile'}
-        </button>
-      </form>
+      </div>
     </div>
   );
 };
