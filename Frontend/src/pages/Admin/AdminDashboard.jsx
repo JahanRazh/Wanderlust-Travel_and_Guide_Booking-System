@@ -54,16 +54,18 @@ const Dashboard = () => {
   // Fetch counts from backend
   const fetchCounts = async () => {
     try {
-      const [packagesResponse, hotelsResponse, usersResponse] =
+      const [packagesResponse, hotelsResponse, guidesResponse, usersResponse] =
         await Promise.all([
           axios.get("http://localhost:3000/packages/count"),
           axios.get("http://localhost:3000/hotels/count"),
+          axios.get("http://localhost:3000/guides/count"),
           axios.get('http://localhost:3000/users/count')
         ]);
 
       setCounts({
         packages: packagesResponse.data.count,
         hotels: hotelsResponse.data.count,
+        guides: guidesResponse.data.count,
         users: usersResponse.data.count
       });
     } catch (error) {
