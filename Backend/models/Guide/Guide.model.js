@@ -1,9 +1,11 @@
-import mongoose from "mongoose";
+// const mongoose = require("mongoose");
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const GuideSchema = new mongoose.Schema({
+const guideSchema = new Schema({
   fullname: { type: String, required: true },
-  age: { type: Number, required: true, unique: true },
-  dateOfBirth: { type: Number, required: true },
+  age: { type: Number, required: true },
+  dateOfBirth: { type: Date, required: true },
   gender: { type: String, required: true },
   contactNumber: { type: Number, required: true },
   email: { type: String, required: true },
@@ -13,5 +15,5 @@ const GuideSchema = new mongoose.Schema({
   profilePic: { type: String },
 });
 
-const Guide = mongoose.model("Guide", GuideSchema);
-export default Guide;
+module.exports  = mongoose.model("Guide", guideSchema);
+// const mongoose = require("mongoose");
