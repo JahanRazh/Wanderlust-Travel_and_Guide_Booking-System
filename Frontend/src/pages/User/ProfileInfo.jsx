@@ -103,7 +103,7 @@ const ProfileInfo = ({ userInfo, onLogout }) => {
                 role="menuitem"
               >
                 <CalendarIcon className="h-5 w-5 mr-2 text-gray-500" />
-                My Bookings
+                CatchUps
               </button>
             </div>
             <div className="py-1">

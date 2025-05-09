@@ -388,9 +388,13 @@ const AdminPackageList = () => {
                       {viewingPackage.photos.map((photo, index) => (
                         <div key={index} className="relative h-48 rounded-lg overflow-hidden bg-gray-100">
                           <img
-                            src={photo.url || '/placeholder.jpg'}
+                            src={photo.url || `${BACKEND_URL}${photo}`}
                             alt={`Package photo ${index + 1}`}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/placeholder.jpg';
+                            }}
                           />
                         </div>
                       ))}
@@ -560,9 +564,13 @@ const AdminPackageList = () => {
                           <div key={index} className="relative group">
                             <div className="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden">
                               <img
-                                src={img.url || img}
+                                src={typeof img === 'string' ? img : img.url}
                                 alt={`Preview ${index}`}
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = '/placeholder.jpg';
+                                }}
                               />
                             </div>
                             <button
