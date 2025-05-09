@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const CreateGuide = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const existingData = location.state || {};
 
   const [formData, setFormData] = useState({
     fullname: "",
@@ -43,11 +42,8 @@ const CreateGuide = () => {
     workExperience: false,
   });
 
-  useEffect(() => {
-    if (existingData.fullname) {
-      setFormData(existingData);
-    }
-  }, [existingData]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   const validateField = (name, value) => {
     let error = "";
@@ -116,7 +112,6 @@ const CreateGuide = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     
-    // Validate field if it's been touched
     if (touched[name]) {
       const error = validateField(name, value);
       setErrors({ ...errors, [name]: error });
@@ -127,18 +122,17 @@ const CreateGuide = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate file type and size
     if (!file.type.match("image.*")) {
       alert("Please select an image file");
       return;
     }
-    
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData({ ...formData, profilePic: reader.result });
-    };
-    reader.readAsDataURL(file);
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      alert("File size should be less than 5MB");
+      return;
+    }
+
+    setFormData({ ...formData, profilePic: file });
   };
 
   const validateForm = () => {
@@ -157,24 +151,72 @@ const CreateGuide = () => {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError("");
     
-    // Mark all fields as touched to show errors
     const allTouched = {};
     Object.keys(touched).forEach(key => {
       allTouched[key] = true;
     });
     setTouched(allTouched);
 
-    if (validateForm()) {
-      localStorage.setItem("guideProfile", JSON.stringify(formData));
-      alert(
-        existingData.fullname 
-          ? "Profile updated successfully!" 
-          : "Profile created successfully!"
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formDataToSend = new FormData();
+      
+      // Format the data before sending
+      const formattedData = {
+        ...formData,
+        age: parseInt(formData.age),
+        contactNumber: parseInt(formData.contactNumber),
+        workExperience: parseInt(formData.workExperience),
+        dateOfBirth: new Date(formData.dateOfBirth).toISOString()
+      };
+
+      // Append all fields to FormData
+      Object.keys(formattedData).forEach(key => {
+        if (key === 'profilePic' && formattedData[key] instanceof File) {
+          formDataToSend.append(key, formattedData[key]);
+        } else {
+          formDataToSend.append(key, formattedData[key]);
+        }
+      });
+
+      const response = await axios.post(
+        `http://localhost:3000/createguide`,
+        formDataToSend,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
       );
-      navigate("/guideprofile");
+      
+      if (response.data.message) {
+        alert(response.data.message);
+        navigate("/guideprofile");
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        setApiError(error.response.data.message || "An error occurred while creating the profile. Please try again.");
+      } else if (error.request) {
+        // The request was made but no response was received
+        setApiError("No response from server. Please check your internet connection.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        setApiError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -197,13 +239,19 @@ const CreateGuide = () => {
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-gray-900">Guide Profile</h2>
+          <h2 className="text-3xl font-extrabold text-gray-900">Create Guide Profile</h2>
           <p className="mt-2 text-sm text-gray-600">
-            {existingData.fullname ? "Update your profile information" : "Create your guide profile"}
+            Fill in your details to create your guide profile
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+          {apiError && (
+            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <span className="block sm:inline">{apiError}</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {/* Full Name */}
             <div>
@@ -422,7 +470,7 @@ const CreateGuide = () => {
             <div className="mt-1 flex items-center">
               {formData.profilePic ? (
                 <img
-                  src={formData.profilePic}
+                  src={formData.profilePic instanceof File ? URL.createObjectURL(formData.profilePic) : formData.profilePic}
                   alt="Profile preview"
                   className="h-16 w-16 rounded-full object-cover"
                 />
@@ -459,17 +507,28 @@ const CreateGuide = () => {
               type="button"
               onClick={() => navigate(-1)}
               className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-3"
+              disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={!isFormValid()}
+              disabled={!isFormValid() || isSubmitting}
               className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
-                isFormValid() ? "bg-indigo-600 hover:bg-indigo-700" : "bg-indigo-400 cursor-not-allowed"
+                isFormValid() && !isSubmitting ? "bg-indigo-600 hover:bg-indigo-700" : "bg-indigo-400 cursor-not-allowed"
               } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
             >
-              {existingData.fullname ? "Update Profile" : "Create Profile"}
+              {isSubmitting ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating Profile...
+                </span>
+              ) : (
+                "Create Profile"
+              )}
             </button>
           </div>
         </form>
