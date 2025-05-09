@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash, FaPrint, FaSearch } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaPrint, FaSearch, FaEye, FaPlus } from 'react-icons/fa';
 
 const AllGuides = () => {
   const navigate = useNavigate();
@@ -127,6 +127,10 @@ const AllGuides = () => {
     printWindow.print();
   };
 
+  const handleView = (guideId) => {
+    navigate(`/guideprofile/${guideId}`);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -138,7 +142,16 @@ const AllGuides = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-6">Manage Guides</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Manage Guides</h1>
+          <button
+            onClick={() => navigate('/createguide')}
+            className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700 flex items-center"
+          >
+            <FaPlus className="mr-2" />
+            Add New Guide
+          </button>
+        </div>
         
         {/* Search and Filters */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -253,8 +266,15 @@ const AllGuides = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <button
+                        onClick={() => handleView(guide._id)}
+                        className="text-amber-600 hover:text-amber-800"
+                        title="View"
+                      >
+                        <FaEye />
+                      </button>
+                      <button
                         onClick={() => handleEdit(guide._id)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-amber-600 hover:text-amber-800"
                         title="Edit"
                       >
                         <FaEdit />
@@ -268,7 +288,7 @@ const AllGuides = () => {
                       </button>
                       <button
                         onClick={() => handlePrint(guide)}
-                        className="text-green-600 hover:text-green-900"
+                        className="text-amber-600 hover:text-amber-800"
                         title="Print"
                       >
                         <FaPrint />

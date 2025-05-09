@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const GuideProfile = () => {
   const navigate = useNavigate();
+  const { guideId } = useParams();
   const [guide, setGuide] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -25,14 +26,16 @@ const GuideProfile = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchGuideProfile();
-  }, []);
+    if (guideId) {
+      fetchGuideProfile();
+    }
+  }, [guideId]);
 
   const fetchGuideProfile = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/getguide');
-      if (response.data && response.data.length > 0) {
-        const guideData = response.data[0];
+      const response = await axios.get(`http://localhost:3000/guide/${guideId}`);
+      if (response.data) {
+        const guideData = response.data;
         setGuide(guideData);
         setFormData({
           fullname: guideData.fullname,
@@ -101,7 +104,7 @@ const GuideProfile = () => {
       }
 
       const response = await axios.put(
-        `http://localhost:3000/guideprofile/${guide._id}`,
+        `http://localhost:3000/guideprofile/${guideId}`,
         data,
         {
           headers: {
@@ -137,7 +140,7 @@ const GuideProfile = () => {
           {!isEditing && (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 bg-amber-600 text-white rounded hover:bg-amber-700"
             >
               Edit Profile
             </button>
@@ -306,7 +309,7 @@ const GuideProfile = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-4 py-2 rounded text-white ${isSubmitting ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-600'}`}
+              className={`px-4 py-2 rounded text-white ${isSubmitting ? 'bg-gray-400' : 'bg-amber-600 hover:bg-amber-700'}`}
             >
               {isSubmitting ? 'Saving...' : 'Save Changes'}
             </button>
@@ -316,7 +319,7 @@ const GuideProfile = () => {
                 setIsEditing(false);
                 setError('');
                 setSuccess('');
-                fetchGuideProfile(); // Reset form data
+                fetchGuideProfile();
               }}
               className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
             >
