@@ -16,6 +16,8 @@ import {
 
 const AdminPackageList = () => {
   const [packages, setPackages] = useState([]);
+  const [hotels, setHotels] = useState([]);
+  const [guides, setGuides] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingPackage, setEditingPackage] = useState(null);
   const [viewingPackage, setViewingPackage] = useState(null);
@@ -38,6 +40,8 @@ const AdminPackageList = () => {
 
   useEffect(() => {
     fetchPackages();
+    fetchHotels();
+    fetchGuides();
   }, []);
 
   const fetchPackages = async () => {
@@ -50,6 +54,34 @@ const AdminPackageList = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchHotels = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/hotels');
+      setHotels(response.data);
+    } catch (error) {
+      console.error("Error fetching hotels:", error);
+    }
+  };
+
+  const fetchGuides = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/getguide');
+      setGuides(response.data);
+    } catch (error) {
+      console.error("Error fetching guides:", error);
+    }
+  };
+
+  const getHotelName = (hotelId) => {
+    const hotel = hotels.find(h => h._id === hotelId);
+    return hotel ? hotel.name : 'Unknown Hotel';
+  };
+
+  const getGuideName = (guideId) => {
+    const guide = guides.find(g => g._id === guideId);
+    return guide ? guide.fullname : 'Unknown Guide';
   };
 
   const handleDelete = async (id) => {
@@ -284,10 +316,10 @@ const AdminPackageList = () => {
                           <div className="text-sm text-gray-900">{pkg.area}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{pkg.hotel}</div>
+                          <div className="text-sm text-gray-900">{getHotelName(pkg.hotel)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{pkg.guide}</div>
+                          <div className="text-sm text-gray-900">{getGuideName(pkg.guide)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -354,7 +386,7 @@ const AdminPackageList = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
+                      <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
                         No packages found. Try adjusting your search or add a new package.
                       </td>
                     </tr>
@@ -388,9 +420,13 @@ const AdminPackageList = () => {
                       {viewingPackage.photos.map((photo, index) => (
                         <div key={index} className="relative h-48 rounded-lg overflow-hidden bg-gray-100">
                           <img
-                            src={photo.url || '/placeholder.jpg'}
+                            src={photo.url || `${BACKEND_URL}${photo}`}
                             alt={`Package photo ${index + 1}`}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/placeholder.jpg';
+                            }}
                           />
                         </div>
                       ))}
@@ -416,13 +452,13 @@ const AdminPackageList = () => {
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-gray-500">Hotel</h4>
-                        <p className="mt-1 text-gray-900">{viewingPackage.hotel}</p>
+                        <p className="mt-1 text-gray-900">{getHotelName(viewingPackage.hotel)}</p>
                       </div>
                     </div>
                     <div className="space-y-4">
                       <div>
                         <h4 className="text-sm font-medium text-gray-500">Guide</h4>
-                        <p className="mt-1 text-gray-900">{viewingPackage.guide}</p>
+                        <p className="mt-1 text-gray-900">{getGuideName(viewingPackage.guide)}</p>
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-gray-500">Climate Zone</h4>
@@ -498,7 +534,7 @@ const AdminPackageList = () => {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
+                    <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Area</label>
                       <input
                         type="text"
@@ -509,21 +545,33 @@ const AdminPackageList = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Hotel</label>
-                      <input
-                        type="text"
+                      <select
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                         value={formData.hotel}
                         onChange={(e) => setFormData({ ...formData, hotel: e.target.value })}
-                      />
+                      >
+                        <option value="">Select a Hotel</option>
+                        {hotels.map((hotel) => (
+                          <option key={hotel._id} value={hotel._id}>
+                            {hotel.name} - {hotel.location}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Guide</label>
-                      <input
-                        type="text"
+                      <select
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
                         value={formData.guide}
                         onChange={(e) => setFormData({ ...formData, guide: e.target.value })}
-                      />
+                      >
+                        <option value="">Select a Guide</option>
+                        {guides.map((guide) => (
+                          <option key={guide._id} value={guide._id}>
+                            {guide.fullname} - {guide.workExperience} years experience
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                   
@@ -560,9 +608,13 @@ const AdminPackageList = () => {
                           <div key={index} className="relative group">
                             <div className="aspect-w-1 aspect-h-1 bg-gray-100 rounded-lg overflow-hidden">
                               <img
-                                src={img.url || img}
+                                src={typeof img === 'string' ? img : img.url}
                                 alt={`Preview ${index}`}
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = '/placeholder.jpg';
+                                }}
                               />
                             </div>
                             <button

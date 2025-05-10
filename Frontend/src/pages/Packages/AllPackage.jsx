@@ -4,6 +4,11 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
+const BACKEND_URL = "http://localhost:3000"; // or from env
+
+const getImageUrl = (imgPath) => 
+  imgPath.startsWith('http') ? imgPath : `${BACKEND_URL}${imgPath}`;
+
 // Weather Prediction Component
 const WeatherPredictionFilter = ({ onWeatherUpdate, areas, setSelectedWeatherArea }) => {
   const [date, setDate] = useState('');
@@ -133,7 +138,7 @@ const WeatherPredictionFilter = ({ onWeatherUpdate, areas, setSelectedWeatherAre
 };
 
 // Individual Package Card Component - Now with Weather Badge
-const PackageCard = ({ packageData, weatherData }) => {
+const PackageCard = ({ packageData, weatherData, hotels, guides }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const hasWeatherData = weatherData && weatherData[packageData.area];
 
@@ -169,6 +174,40 @@ const PackageCard = ({ packageData, weatherData }) => {
     }
   };
 
+  const getHotelName = (hotelId) => {
+    const hotel = hotels.find(h => h._id === hotelId);
+    return hotel ? hotel.name : 'Unknown Hotel';
+  };
+
+  const getGuideName = (guideId) => {
+    const guide = guides.find(g => g._id === guideId);
+    return guide ? guide.fullname : 'Unknown Guide';
+  };
+
+  const handleBooking = async () => {
+    try {
+      const bookingData = {
+        userId: currentUser._id, // Get this from your auth context
+        packageId: packageData._id,
+        startDate,
+        endDate,
+        totalBudget: calculateTotalPrice(),
+        numberOfPeople: travelers
+      };
+
+      const response = await axios.post('http://localhost:3000/bookings', bookingData);
+      
+      if (response.status === 201) {
+        alert('Booking successful!');
+        // Optionally navigate to a booking confirmation page
+        // navigate(`/bookings/${response.data._id}`);
+      }
+    } catch (error) {
+      console.error('Booking failed:', error);
+      alert('Failed to create booking. Please try again.');
+    }
+  };
+
   return (
     <motion.div
       className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:scale-105"
@@ -182,7 +221,7 @@ const PackageCard = ({ packageData, weatherData }) => {
         {packageData.images?.length > 0 ? (
           <>
             <img
-              src={packageData.images[currentImageIndex]}
+              src={getImageUrl(packageData.images[currentImageIndex])}
               alt={packageData.packageName}
               className="w-full h-64 object-cover transition duration-300 ease-in-out"
             />
@@ -240,14 +279,14 @@ const PackageCard = ({ packageData, weatherData }) => {
             <svg className="h-5 w-5 mr-2 text-gray-500" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <span>{packageData.hotel}</span>
+            <span>{getHotelName(packageData.hotel)}</span>
           </div>
 
           <div className="flex items-center">
             <svg className="h-5 w-5 mr-2 text-gray-500" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
-            <span>Guide: {packageData.guide}</span>
+            <span>Guide: {getGuideName(packageData.guide)}</span>
           </div>
 
           <div className="flex items-center">
@@ -458,6 +497,8 @@ const FilterSection = ({ filters, setFilters, uniqueClimates, uniqueAreas, weath
 // All Packages Component
 const AllPackages = () => {
   const [packages, setPackages] = useState([]);
+  const [hotels, setHotels] = useState([]);
+  const [guides, setGuides] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filteredPackages, setFilteredPackages] = useState([]);
@@ -473,29 +514,36 @@ const AllPackages = () => {
   });
   const [showFilters, setShowFilters] = useState(false);
 
-  // Fetch packages
+  // Fetch packages, hotels, and guides
   useEffect(() => {
-    const fetchPackages = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/packages');
-        setPackages(response.data);
-        setFilteredPackages(response.data);
+        const [packagesRes, hotelsRes, guidesRes] = await Promise.all([
+          axios.get('http://localhost:3000/packages'),
+          axios.get('http://localhost:3000/hotels'),
+          axios.get('http://localhost:3000/getguide')
+        ]);
+
+        setPackages(packagesRes.data);
+        setFilteredPackages(packagesRes.data);
+        setHotels(hotelsRes.data);
+        setGuides(guidesRes.data);
         
         // Extract unique climates and areas
-        const climates = [...new Set(response.data.map(pkg => pkg.climate))];
-        const areas = [...new Set(response.data.map(pkg => pkg.area))];
+        const climates = [...new Set(packagesRes.data.map(pkg => pkg.climate))];
+        const areas = [...new Set(packagesRes.data.map(pkg => pkg.area))];
         
         setUniqueClimates(climates);
         setUniqueAreas(areas);
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch packages');
+        setError('Failed to fetch data');
         setLoading(false);
-        console.error('Error fetching packages:', err);
+        console.error('Error fetching data:', err);
       }
     };
 
-    fetchPackages();
+    fetchData();
   }, []);
 
   // Apply filters
@@ -600,6 +648,8 @@ const AllPackages = () => {
                     key={pkg._id} 
                     packageData={pkg} 
                     weatherData={weatherData}
+                    hotels={hotels}
+                    guides={guides}
                   />
                 ))}
               </div>

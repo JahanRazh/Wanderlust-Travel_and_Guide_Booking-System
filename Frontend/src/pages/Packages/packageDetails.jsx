@@ -4,11 +4,19 @@ import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
+const BACKEND_URL = "http://localhost:3000"; // or from env
+
+const getImageUrl = (imgPath) => 
+  imgPath.startsWith('http') ? imgPath : `${BACKEND_URL}${imgPath}`;
+
+
 const PackageDetails = () => {
   const { packageId } = useParams();
   const navigate = useNavigate();
   
   const [packageData, setPackageData] = useState(null);
+  const [hotels, setHotels] = useState([]);
+  const [guides, setGuides] = useState([]);
   const [similarPackages, setSimilarPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,6 +25,8 @@ const PackageDetails = () => {
   const [endDate, setEndDate] = useState(new Date(new Date().setDate(new Date().getDate() + 7)));
   const [travelers, setTravelers] = useState(1);
   const [addedToWishlist, setAddedToWishlist] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState(null);
   
   // Weather forecast states
   const [weatherResult, setWeatherResult] = useState(null);
@@ -24,24 +34,88 @@ const PackageDetails = () => {
   const [isWeatherLoading, setIsWeatherLoading] = useState(false);
   const [selectedWeatherDate, setSelectedWeatherDate] = useState('');
   
+  // User information states
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  
+  // Check authentication status and get user data when component mounts
   useEffect(() => {
-    const fetchPackageDetails = async () => {
-      try {
-        const response = await axios.get(`http://localhost:3000/packages/${packageId}`);
-        setPackageData(response.data);
-        setLoading(false);
-        
-        // After getting package data, fetch similar packages
-        fetchSimilarPackages(response.data);
-      } catch (err) {
-        setError('Failed to fetch package details');
-        setLoading(false);
-        console.error('Error fetching package details:', err);
+    const updateUserDetails = (userData) => {
+      if (userData) {
+        setUserName(userData.fullName || '');
+        setUserEmail(userData.email || '');
+        setIsAuthenticated(true);
+        setLoggedInUser(userData);
       }
     };
 
-    fetchPackageDetails();
+    // Initial load of user data
+    const token = localStorage.getItem('token');
+    if (token) {
+      const userData = JSON.parse(localStorage.getItem('user'));
+      updateUserDetails(userData);
+    }
+
+    // Listen for changes in localStorage
+    const handleStorageChange = (e) => {
+      if (e.key === 'user') {
+        const updatedUserData = JSON.parse(e.newValue);
+        updateUserDetails(updatedUserData);
+      }
+    };
+
+    // Listen for custom event for profile updates
+    const handleProfileUpdate = (e) => {
+      const updatedUserData = e.detail;
+      updateUserDetails(updatedUserData);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [packageRes, hotelsRes, guidesRes] = await Promise.all([
+          axios.get(`http://localhost:3000/packages/${packageId}`),
+          axios.get('http://localhost:3000/hotels'),
+          axios.get('http://localhost:3000/getguide')
+        ]);
+
+        setPackageData(packageRes.data);
+        setHotels(hotelsRes.data);
+        setGuides(guidesRes.data);
+        setLoading(false);
+        
+        // After getting package data, fetch similar packages
+        fetchSimilarPackages(packageRes.data);
+      } catch (err) {
+        setError('Failed to fetch data');
+        setLoading(false);
+        console.error('Error fetching data:', err);
+      }
+    };
+
+    fetchData();
+    // Scroll to top when component mounts or packageId changes
+    window.scrollTo(0, 0);
   }, [packageId]);
+
+  const getHotelName = (hotelId) => {
+    const hotel = hotels.find(h => h._id === hotelId);
+    return hotel ? hotel.name : 'Unknown Hotel';
+  };
+
+  const getGuideName = (guideId) => {
+    const guide = guides.find(g => g._id === guideId);
+    return guide ? guide.fullname : 'Unknown Guide';
+  };
 
   // Function to fetch similar packages
   const fetchSimilarPackages = async (currentPackage) => {
@@ -88,18 +162,49 @@ const PackageDetails = () => {
   };
 
   // Function to handle booking
-  const handleBooking = () => {
-    // In a real application, this would navigate to checkout or booking confirmation
-    console.log('Booking:', {
-      packageId,
-      startDate,
-      endDate,
-      travelers,
-      totalPrice: calculateTotalPrice()
-    });
-    
-    // For now, show an alert
-    alert('Your booking has been confirmed!');
+  const handleBooking = async () => {
+    try {
+      // Validate user information
+      if (!userName || !userEmail) {
+        alert('Please fill in all your information to proceed with booking');
+        return;
+      }
+
+      // Get user data from localStorage
+      const userData = JSON.parse(localStorage.getItem('user'));
+      
+      const bookingData = {
+        userName,
+        userEmail,
+        userPhone: userData?.phoneNumber || '', // Make phone optional
+        packageId,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        totalBudget: calculateTotalPrice(),
+        numberOfPeople: travelers
+      };
+
+      console.log('Sending booking data:', bookingData);
+
+      const response = await axios.post(`${BACKEND_URL}/bookings`, bookingData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.status === 201) {
+        alert('Booking successful! We will contact you shortly with more details.');
+        // Reset form
+        setUserName('');
+        setUserEmail('');
+        setTravelers(1);
+        setStartDate(new Date());
+        setEndDate(new Date(new Date().setDate(new Date().getDate() + 7)));
+      }
+    } catch (error) {
+      console.error('Booking failed:', error);
+      alert(error.response?.data?.message || 'Failed to create booking. Please try again.');
+    }
   };
 
   // Navigate to another package
@@ -212,7 +317,7 @@ const PackageDetails = () => {
             {packageData.images && packageData.images.length > 0 ? (
               <>
                 <img 
-                  src={packageData.images[currentImageIndex]} 
+                  src={getImageUrl(packageData.images[currentImageIndex])} 
                   alt={packageData.packageName} 
                   className="w-full h-full object-cover"
                 />
@@ -275,7 +380,7 @@ const PackageDetails = () => {
                 <div>
                   <h2 className="text-xl font-semibold text-gray-800 mb-2">Details</h2>
                   <ul className="space-y-2">
-                  <li className="flex items-center">
+                    <li className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                       </svg>
@@ -285,13 +390,13 @@ const PackageDetails = () => {
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                       </svg>
-                      <span><strong>Hotel:</strong> {packageData.hotel}</span>
+                      <span><strong>Hotel:</strong> {getHotelName(packageData.hotel)}</span>
                     </li>
                     <li className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      <span><strong>Guide:</strong> {packageData.guide}</span>
+                      <span><strong>Guide:</strong> {getGuideName(packageData.guide)}</span>
                     </li>
                     <li className="flex items-center">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -399,14 +504,39 @@ const PackageDetails = () => {
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Book This Package</h2>
             
             <div className="space-y-4 mb-6">
+              {/* User Information */}
+              <div>
+                <label className="block text-gray-700 mb-2">Your Name</label>
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  placeholder="Enter your full name"
+                  required
+                  disabled={isAuthenticated}
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-2">Email Address</label>
+                <input
+                  type="email"
+                  value={userEmail}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  placeholder="Enter your email"
+                  required
+                  disabled={isAuthenticated}
+                />
+              </div>
+
+              {/* Existing date and travelers inputs */}
               <div>
                 <label className="block text-gray-700 mb-2">Start Date</label>
                 <DatePicker
                   selected={startDate}
-                  onChange={(date) => {
-                    setStartDate(date);
-                    setSelectedWeatherDate(formatDateForWeather(date));
-                  }}
+                  onChange={(date) => setStartDate(date)}
                   selectsStart
                   startDate={startDate}
                   endDate={endDate}
@@ -457,7 +587,7 @@ const PackageDetails = () => {
             <div className="border-t border-b border-gray-200 py-4 mb-6">
               <div className="flex justify-between items-center mb-2">
                 <span>Base price:</span>
-                <span>${packageData.pricePerPerson} × {travelers}</span>
+                <span>${packageData?.pricePerPerson} × {travelers}</span>
               </div>
               <div className="flex justify-between items-center mb-2">
                 <span>Duration:</span>
@@ -511,7 +641,7 @@ const PackageDetails = () => {
                 <div className="h-48 relative">
                   {pkg.images && pkg.images.length > 0 ? (
                     <img 
-                      src={pkg.images[0]} 
+                      src={getImageUrl(pkg.images[0])} 
                       alt={pkg.packageName} 
                       className="w-full h-full object-cover"
                     />
@@ -535,7 +665,7 @@ const PackageDetails = () => {
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
-                    <span>{pkg.hotel}</span>
+                    <span>{getHotelName(pkg.hotel)}</span>
                   </div>
                 </div>
               </div>

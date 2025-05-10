@@ -38,6 +38,7 @@ const Login = () => {
       if (response.data && response.data.accessToken) {
         console.log("Login successful, token:", response.data.accessToken);
         localStorage.setItem("token", response.data.accessToken);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
 
         // Extract role from the response
         const role = response.data.user.role;

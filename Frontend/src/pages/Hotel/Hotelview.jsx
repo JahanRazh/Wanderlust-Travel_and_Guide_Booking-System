@@ -2,143 +2,126 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../../styles/AllPackages.module.css';// Define your custom CSS
 import Footer from '../../components/footer';
+import axios from 'axios';
 
 const Hotelview = () => {
   const [hotels, setHotels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch travel packages from your backend or mock data
-    // Here, I'm using static data for the example
-    setHotels([
-  //    {
-  //   id: 1,
-  //   type: 'Adventure',
-  //   title: 'Jungle Safari Expedition',
-  //   price: '$499',
-  //   image: 'https://example.com/jungle-safari.jpg',
-  //   description: 'Explore the wild and witness exotic wildlife up close.',
-  // },
-  // {
-  //   id: 2,
-  //   type: 'Beach',
-  //   title: 'Maldives Beach Escape',
-  //   price: '$799',
-  //   image: 'https://example.com/maldives-beach.jpg',
-  //   description: 'Relax in crystal-clear waters and enjoy luxurious resorts.',
-  // },
-  // {
-  //   id: 3,
-  //   type: 'Cultural',
-  //   title: 'Historical Wonders Tour',
-  //   price: '$399',
-  //   image: 'https://example.com/historical-tour.jpg',
-  //   description: 'Experience ancient cultures and visit historic landmarks.',
-  // },
-  // {
-  //   id: 4,
-  //   type: 'Luxury',
-  //   title: '5-Star City Retreat',
-  //   price: '$999',
-  //   image: 'https://example.com/luxury-hotel.jpg',
-  //   description: 'Indulge in premium luxury with world-class hospitality.',
-  // },
-  // {
-  //   id: 5,
-  //   type: 'Honeymoon',
-  //   title: 'Romantic Island Getaway',
-  //   price: '$899',
-  //   image: 'https://example.com/honeymoon-island.jpg',
-  //   description: 'Enjoy a romantic escape with breathtaking ocean views.',
-  // },
-  // {
-  //   id: 6,
-  //   type: 'Wildlife',
-  //   title: 'Amazon Rainforest Adventure',
-  //   price: '$599',
-  //   image: 'https://example.com/amazon-rainforest.jpg',
-  //   description: 'Experience the rich biodiversity of the Amazon jungle.',
-  // }
+    const fetchHotels = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/hotels');
+        console.log('Fetched hotels:', response.data); // Debug log
+        setHotels(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching hotels:', err);
+        setError('Failed to fetch hotels. Please try again later.');
+        setLoading(false);
+      }
+    };
 
-  {
-    id: 1,
-    type: 'Adventure',
-    title: 'Jungle Safari ',
-    price: '$499',
-    image: 'https://cdn.pixabay.com/photo/2014/09/01/11/51/hotel-432721_1280.jpg',
-    description: 'Explore the wild and witness exotic wildlife up close.',
-  },
-  {
-    id: 2,
-    type: 'Beach',
-    title: 'Maldives Beach Escape',
-    price: '$799',
-    image: 'https://www.traveldealsfinder.com/wp-content/uploads/Ganga-Beach-Resort-Rishikesh.jpg',
-    description: 'Relax in crystal-clear waters and enjoy luxurious resorts.',
-  },
-  {
-    id: 3,
-    type: 'Cultural',
-    title: 'Historical Wonders Tour',
-    price: '$399',
-    image: 'https://www.trvme.com/img/accommodations/shimla-greens-im1-1.jpg',
-    description: 'Experience ancient cultures and visit historic landmarks.',
-  },
-  {
-    id: 4,
-    type: 'Luxury',
-    title: '5-Star City Retreat',
-    price: '$999',
-    image: 'https://alawyersvoyage.com/wp-content/uploads/2021/10/Himachal-resort-featured-image.jpg',
-    description: 'Indulge in premium luxury with world-class hospitality.',
-  },
-  {
-    id: 5,
-    type: 'Honeymoon',
-    title: 'Romantic Island Getaway',
-    price: '$899',
-    image: 'https://cdn.briefly.co.za/images/1120/1e6f0209118fe6c0.jpeg?v=1',
-    description: 'Enjoy a romantic escape with breathtaking ocean views.',
-  },
-  {
-    id: 6,
-    type: 'Wildlife',
-    title: 'Amazon Rainforest Adventure',
-    price: '$599',
-    image: 'https://th.bing.com/th/id/R.a5eeb769a1d0b74e503cfc7e43dceca4?rik=OKv204QirIJ2Mw&riu=http%3a%2f%2fwww.visithimalaya.in%2fwp-content%2fuploads%2f2019%2f02%2fanant-maya-resort-manali-2.jpg&ehk=3sfeNeaAjpcxK9itvGyR2qo0QG%2fiEeP6J%2fHYVZGwlZs%3d&risl=&pid=ImgRaw&r=0',
-    description: 'Experience the rich biodiversity of the Amazon jungle.',
+    fetchHotels();
+  }, []);
+
+  const getHotelImage = (hotel) => {
+    // Try to get the main photo first
+    if (hotel.mainPhoto && hotel.mainPhoto.url) {
+      return hotel.mainPhoto.url;
+    }
+    // Then try to get the first photo from the photos array
+    if (hotel.photos && hotel.photos.length > 0 && hotel.photos[0].url) {
+      return hotel.photos[0].url;
+    }
+    // Return placeholder if no photos are available
+    return 'https://via.placeholder.com/300x200?text=Hotel+Image';
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
 
-    ]);
-  }, []);
+  if (error) {
+    return (
+      <div className="text-center text-red-500 py-8">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <>
-    <div className="center px-8 py-8">
-      <h1 className="text-3xl font-bold text-center mb-10">Our Hotels</h1>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 py-[-20]">
-        {hotels.map((htl) => (
-          <div key={htl.id} className={styles.hotelcard}>
-            <img
-              src={htl.image}
-              alt={htl.title}
-              className="w-full h-55 object-cover rounded-t-lg"
-            />
-            <div className="p-4">
-              <h2 className="text-xl font-semibold mb-2">{htl.title}</h2>
-              <p className="text-gray-600 mb-2">{htl.description}</p>
-              <p className="text-lg font-bold text-green-600">{htl.price}</p>
-              <Link to={`/hoteldetails/${htl.id}`} className="text-blue-500 hover:underline" >View Details</Link>
+      <div className="center px-8 py-8">
+        <h1 className="text-3xl font-bold text-center mb-10">Our Hotels</h1>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 py-[-20]">
+          {hotels.map((hotel) => (
+            <div 
+              key={hotel._id} 
+              className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  src={getHotelImage(hotel)}
+                  alt={hotel.name}
+                  className="w-full h-full object-cover rounded-t-lg transition-transform duration-300 hover:scale-110"
+                  onError={(e) => {
+                    console.error('Image load error for hotel:', hotel.name);
+                    e.target.onerror = null;
+                    e.target.src = 'https://via.placeholder.com/300x200?text=Hotel+Image';
+                  }}
+                />
+              </div>
+              <div className="p-6">
+                <h2 className="text-xl font-semibold mb-2 text-gray-800">{hotel.name}</h2>
+                <p className="text-gray-600 mb-2 line-clamp-2">{hotel.description}</p>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600 flex items-center">
+                    <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {hotel.location}
+                  </p>
+                  <p className="text-sm text-gray-600 flex items-center">
+                    <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    {hotel.type}
+                  </p>
+                  <p className="text-sm text-gray-600 flex items-center">
+                    <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    {hotel.no_of_rooms} Rooms
+                  </p>
+                  <p className="text-sm text-gray-600 flex items-center">
+                    <svg className="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    ${hotel.price}/night
+                  </p>
+                </div>
+                <Link 
+                  to={`/hoteldetails/${hotel._id}`} 
+                  className="inline-block mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors w-full text-center"
+                >
+                  View Details
+                </Link>
+              </div>
             </div>
-          </div>
-          
-        ))}
-      </div>
+          ))}
+        </div>
       </div>
       <Footer/>
-      </>
+    </>
   );
 };
-
 
 export default Hotelview;
