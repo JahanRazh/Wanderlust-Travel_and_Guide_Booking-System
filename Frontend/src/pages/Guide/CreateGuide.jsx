@@ -65,10 +65,10 @@ const CreateGuide = () => {
     const age = today.getFullYear() - birthDate.getFullYear();
     
     // Adjust age if birthday hasn't occurred this year
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-      age--;
-    }
+    // const monthDiff = today.getMonth() - birthDate.getMonth();
+    // if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    //   age--;
+    // }
     
     setFormData(prev => ({
       ...prev,

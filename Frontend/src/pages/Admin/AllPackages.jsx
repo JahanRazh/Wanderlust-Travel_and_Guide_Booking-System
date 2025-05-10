@@ -142,19 +142,19 @@ const AdminPackageList = () => {
         }
       });
       
-      // Add existing photos
+      // Add existing photos that should be kept
       if (formData.photos && formData.photos.length > 0) {
-        updatedFormData.append('existingPhotos', JSON.stringify(formData.photos));
+        updatedFormData.append('keepExistingImages', 'true');
       }
       
       // Add new photos
       if (selectedFiles.length > 0) {
         selectedFiles.forEach(file => {
-          updatedFormData.append('photos', file);
+          updatedFormData.append('images', file);
         });
       }
       
-      await axios.put(
+      const response = await axios.put(
         `http://localhost:3000/packages/${editingPackage}`, 
         updatedFormData,
         {
@@ -164,11 +164,14 @@ const AdminPackageList = () => {
         }
       );
       
-      setEditingPackage(null);
-      setSelectedFiles([]);
-      fetchPackages();
+      if (response.data) {
+        setEditingPackage(null);
+        setSelectedFiles([]);
+        fetchPackages();
+      }
     } catch (error) {
       console.error("Error updating package:", error);
+      alert("Failed to update package. Please try again.");
     }
   };
 
