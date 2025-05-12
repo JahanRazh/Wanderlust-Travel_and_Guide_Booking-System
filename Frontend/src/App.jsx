@@ -30,7 +30,7 @@ import MyBookings from './pages/User/MyBookings';
 import NotFound from './components/NotFound';
 import CreateGuide from './pages/Guide/CreateGuide';
 import GuideProfile from './pages/Guide/GuideProfile';
-
+import AllGuides from './pages/Guide/AllGuides';
 import ChatBot from './components/ChatBot';
 import Weatherprediction from './pages/WeatherForecast/Weatherprediction';
 import AllGuides from './pages/Guide/AllGuides';
@@ -87,8 +87,8 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/createguide" element={<CreateGuide />} />
-            <Route path="/guideprofile" element={<GuideProfile />} />
-            <Route path="/admin/guides" element={<AllGuides />} />
+            <Route path="/guideprofile/:guideId" element={<GuideProfile />} />
+            <Route path="/allguides" element={<AllGuides />} />
             <Route path="/weather" element={<Weatherprediction />} />
 
            

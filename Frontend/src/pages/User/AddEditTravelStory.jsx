@@ -387,7 +387,7 @@ const AddEditTravelStory = ({
         {/* Visited Locations Field */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Visited Locations *
+            Visited Locations and tags *
           </label>
           <TagInput 
             tags={formData.visitedLocations} 

@@ -1,487 +1,336 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const CreateGuide = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const existingData = location.state || {};
-
   const [formData, setFormData] = useState({
-    fullname: "",
-    age: "",
-    dateOfBirth: "",
-    gender: "",
-    contactNumber: "",
-    email: "",
-    address: "",
-    about: "",
-    workExperience: "",
-    profilePic: "",
+    fullname: '',
+    age: '',
+    dateOfBirth: '',
+    gender: '',
+    contactNumber: '',
+    email: '',
+    address: '',
+    about: '',
+    workExperience: '',
+    profilePic: null
   });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [errors, setErrors] = useState({
-    fullname: "",
-    age: "",
-    dateOfBirth: "",
-    gender: "",
-    contactNumber: "",
-    email: "",
-    address: "",
-    about: "",
-    workExperience: "",
-  });
-
-  const [touched, setTouched] = useState({
-    fullname: false,
-    age: false,
-    dateOfBirth: false,
-    gender: false,
-    contactNumber: false,
-    email: false,
-    address: false,
-    about: false,
-    workExperience: false,
-  });
-
-  useEffect(() => {
-    if (existingData.fullname) {
-      setFormData(existingData);
-    }
-  }, [existingData]);
-
-  const validateField = (name, value) => {
-    let error = "";
-    
-    switch (name) {
-      case "fullname":
-        if (!value.trim()) error = "Full name is required";
-        else if (value.length < 3) error = "Name must be at least 3 characters";
-        break;
-      case "age":
-        if (!value) error = "Age is required";
-        else if (isNaN(value)) error = "Age must be a number";
-        else if (value < 18) error = "Must be at least 18 years old";
-        else if (value > 100) error = "Age must be realistic";
-        break;
-      case "dateOfBirth":
-        if (!value) error = "Date of birth is required";
-        else {
-          const dob = new Date(value);
-          const today = new Date();
-          const age = today.getFullYear() - dob.getFullYear();
-          if (age < 18) error = "Must be at least 18 years old";
-        }
-        break;
-      case "gender":
-        if (!value) error = "Gender is required";
-        break;
-      case "contactNumber":
-        if (!value) error = "Contact number is required";
-        else if (!/^\d{10}$/.test(value)) error = "Must be 10 digits";
-        break;
-      case "email":
-        if (!value) error = "Email is required";
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) 
-          error = "Invalid email format";
-        break;
-      case "address":
-        if (!value.trim()) error = "Address is required";
-        else if (value.length < 10) error = "Address too short";
-        break;
-      case "about":
-        if (!value.trim()) error = "About is required";
-        else if (value.length < 20) error = "Please write at least 20 characters";
-        break;
-      case "workExperience":
-        if (!value) error = "Experience is required";
-        else if (isNaN(value)) error = "Must be a number";
-        else if (value < 0) error = "Cannot be negative";
-        else if (value > 50) error = "Experience seems unrealistic";
-        break;
-      default:
-        break;
-    }
-    
-    return error;
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
   };
 
-  const handleBlur = (e) => {
-    const { name } = e.target;
-    setTouched({ ...touched, [name]: true });
-    const error = validateField(name, formData[name]);
-    setErrors({ ...errors, [name]: error });
+  const validatePhone = (phone) => {
+    const re = /^[0-9]{10,15}$/;
+    return re.test(phone);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
     
-    // Validate field if it's been touched
-    if (touched[name]) {
-      const error = validateField(name, value);
-      setErrors({ ...errors, [name]: error });
+    // If age is being changed, calculate and set the date of birth
+    if (name === 'age') {
+      const age = parseInt(value);
+      if (!isNaN(age) && age >= 18 && age <= 100) {
+        const today = new Date();
+        const birthYear = today.getFullYear() - age;
+        const birthDate = new Date(birthYear, today.getMonth(), today.getDate());
+        const formattedDate = birthDate.toISOString().split('T')[0];
+        
+        setFormData(prev => ({
+          ...prev,
+          age: value,
+          dateOfBirth: formattedDate
+        }));
+        return;
+      }
     }
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Add a new handler for date of birth changes
+  const handleDateChange = (e) => {
+    const { value } = e.target;
+    const birthDate = new Date(value);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    
+    // Adjust age if birthday hasn't occurred this year
+    // const monthDiff = today.getMonth() - birthDate.getMonth();
+    // if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    //   age--;
+    // }
+    
+    setFormData(prev => ({
+      ...prev,
+      dateOfBirth: value,
+      age: age.toString()
+    }));
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-
-    // Validate file type and size
-    if (!file.type.match("image.*")) {
-      alert("Please select an image file");
+    if (file && file.size > 2 * 1024 * 1024) {
+      setError('File size must be less than 2MB');
       return;
     }
-    
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setFormData({ ...formData, profilePic: reader.result });
-    };
-    reader.readAsDataURL(file);
+    setFormData(prev => ({
+      ...prev,
+      profilePic: file
+    }));
+    setError('');
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    let isValid = true;
-
-    Object.keys(formData).forEach((key) => {
-      if (key !== "profilePic") {
-        const error = validateField(key, formData[key]);
-        newErrors[key] = error;
-        if (error) isValid = false;
-      }
-    });
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+    setSuccess('');
 
-    const existingGuides = JSON.parse(localStorage.getItem("guideProfiles")) || [];
-
-    // Check if editing (via email match), then update
-    const updatedGuides = existingGuides.filter(g => g.email !== formData.email);
-    updatedGuides.push(formData);
-
-    localStorage.setItem("guideProfiles", JSON.stringify(updatedGuides));
-
-    
-    // Mark all fields as touched to show errors
-    const allTouched = {};
-    Object.keys(touched).forEach(key => {
-      allTouched[key] = true;
-    });
-    setTouched(allTouched);
-
-    if (validateForm()) {
-      localStorage.setItem("guideProfile", JSON.stringify(formData));
-      alert(
-        existingData.fullname 
-          ? "Profile updated successfully!" 
-          : "Profile created successfully!"
-      );
-      navigate("/guideprofile");
+    // Validation
+    if (!validateEmail(formData.email)) {
+      setError('Please enter a valid email address');
+      setIsSubmitting(false);
+      return;
     }
-  };
 
-  const isFormValid = () => {
-    return (
-      formData.fullname &&
-      formData.age &&
-      formData.dateOfBirth &&
-      formData.gender &&
-      formData.contactNumber &&
-      formData.email &&
-      formData.address &&
-      formData.workExperience &&
-      formData.about &&
-      Object.values(errors).every(error => !error)
-    );
+    if (!validatePhone(formData.contactNumber)) {
+      setError('Please enter a valid phone number (10-15 digits)');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const data = new FormData();
+      for (const key in formData) {
+        if (formData[key] !== null) {
+          data.append(key, formData[key]);
+        }
+      }
+
+      const response = await axios.post('http://localhost:3000/createguide', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.data.message === 'Profile created successfully!') {
+        setSuccess('Guide profile created successfully!');
+        // Navigate to the guide profile page
+        navigate('/guideprofile');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Error creating guide profile');
+      console.error('Error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold text-gray-900">Guide Profile</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            {existingData.fullname ? "Update your profile information" : "Create your guide profile"}
-          </p>
-        </div>
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Create Guide Profile</h1>
+            
+            {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">{error}</div>}
+            {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">{success}</div>}
+            
+            <form onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Full Name */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="fullname">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="fullname"
+                    name="fullname"
+                    value={formData.fullname}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {/* Full Name */}
-            <div>
-              <label htmlFor="fullname" className="block text-sm font-medium text-gray-700">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                id="fullname"
-                name="fullname"
-                value={formData.fullname}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                className={`mt-1 block w-full border ${
-                  errors.fullname && touched.fullname ? "border-red-500" : "border-gray-300"
-                } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-                required
-              />
-              {errors.fullname && touched.fullname && (
-                <p className="mt-1 text-sm text-red-600">{errors.fullname}</p>
-              )}
-            </div>
+                {/* Age */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="age">
+                    Age *
+                  </label>
+                  <input
+                    type="number"
+                    id="age"
+                    name="age"
+                    value={formData.age}
+                    onChange={handleChange}
+                    min="18"
+                    max="100"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-            {/* Age */}
-            <div>
-              <label htmlFor="age" className="block text-sm font-medium text-gray-700">
-                Age *
-              </label>
-              <input
-                type="number"
-                id="age"
-                name="age"
-                value={formData.age}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                min="18"
-                max="100"
-                className={`mt-1 block w-full border ${
-                  errors.age && touched.age ? "border-red-500" : "border-gray-300"
-                } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-                required
-              />
-              {errors.age && touched.age && (
-                <p className="mt-1 text-sm text-red-600">{errors.age}</p>
-              )}
-            </div>
+                {/* Date of Birth */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="dateOfBirth">
+                    Date of Birth *
+                  </label>
+                  <input
+                    type="date"
+                    id="dateOfBirth"
+                    name="dateOfBirth"
+                    value={formData.dateOfBirth}
+                    onChange={handleDateChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
 
-            {/* Date of Birth */}
-            <div>
-              <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700">
-                Date of Birth *
-              </label>
-              <input
-                type="date"
-                id="dateOfBirth"
-                name="dateOfBirth"
-                value={formData.dateOfBirth}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                className={`mt-1 block w-full border ${
-                  errors.dateOfBirth && touched.dateOfBirth ? "border-red-500" : "border-gray-300"
-                } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-                required
-              />
-              {errors.dateOfBirth && touched.dateOfBirth && (
-                <p className="mt-1 text-sm text-red-600">{errors.dateOfBirth}</p>
-              )}
-            </div>
-
-            {/* Gender */}
-            <div>
-              <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
-                Gender *
-              </label>
-              <select
-                id="gender"
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                className={`mt-1 block w-full border ${
-                  errors.gender && touched.gender ? "border-red-500" : "border-gray-300"
-                } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-                required
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-              {errors.gender && touched.gender && (
-                <p className="mt-1 text-sm text-red-600">{errors.gender}</p>
-              )}
-            </div>
-
-            {/* Contact Number */}
-            <div>
-              <label htmlFor="contactNumber" className="block text-sm font-medium text-gray-700">
-                Contact Number *
-              </label>
-              <input
-                type="tel"
-                id="contactNumber"
-                name="contactNumber"
-                value={formData.contactNumber}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                maxLength="10"
-                pattern="[0-9]{10}"
-                className={`mt-1 block w-full border ${
-                  errors.contactNumber && touched.contactNumber ? "border-red-500" : "border-gray-300"
-                } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-                required
-              />
-              {errors.contactNumber && touched.contactNumber && (
-                <p className="mt-1 text-sm text-red-600">{errors.contactNumber}</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email *
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                className={`mt-1 block w-full border ${
-                  errors.email && touched.email ? "border-red-500" : "border-gray-300"
-                } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-                required
-              />
-              {errors.email && touched.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Address */}
-          <div>
-            <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-              Address *
-            </label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`mt-1 block w-full border ${
-                errors.address && touched.address ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-              required
-            />
-            {errors.address && touched.address && (
-              <p className="mt-1 text-sm text-red-600">{errors.address}</p>
-            )}
-          </div>
-
-          {/* About */}
-          <div>
-            <label htmlFor="about" className="block text-sm font-medium text-gray-700">
-              About Yourself *
-            </label>
-            <textarea
-              id="about"
-              name="about"
-              rows={3}
-              value={formData.about}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`mt-1 block w-full border ${
-                errors.about && touched.about ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-              required
-            />
-            {errors.about && touched.about && (
-              <p className="mt-1 text-sm text-red-600">{errors.about}</p>
-            )}
-          </div>
-
-          {/* Work Experience */}
-          <div>
-            <label htmlFor="workExperience" className="block text-sm font-medium text-gray-700">
-              Work Experience (Years) *
-            </label>
-            <input
-              type="number"
-              id="workExperience"
-              name="workExperience"
-              value={formData.workExperience}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              min="0"
-              max="50"
-              className={`mt-1 block w-full border ${
-                errors.workExperience && touched.workExperience ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500`}
-              required
-            />
-            {errors.workExperience && touched.workExperience && (
-              <p className="mt-1 text-sm text-red-600">{errors.workExperience}</p>
-            )}
-          </div>
-
-          {/* Profile Picture */}
-          <div>
-            <label htmlFor="profilePic" className="block text-sm font-medium text-gray-700">
-              Profile Picture
-            </label>
-            <div className="mt-1 flex items-center">
-              {formData.profilePic ? (
-                <img
-                  src={formData.profilePic}
-                  alt="Profile preview"
-                  className="h-16 w-16 rounded-full object-cover"
-                />
-              ) : (
-                <span className="inline-block h-12 w-12 rounded-full overflow-hidden bg-gray-100">
-                  <svg
-                    className="h-full w-full text-gray-300"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
+                {/* Gender */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="gender">
+                    Gender *
+                  </label>
+                  <select
+                    id="gender"
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   >
-                    <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </span>
-              )}
-              <label
-                htmlFor="file-upload"
-                className="ml-5 bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
-              >
-                <span>Upload</span>
-                <input
-                  id="file-upload"
-                  name="file-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="sr-only"
-                />
-              </label>
-            </div>
-          </div>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
 
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 mr-3"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!isFormValid()}
-              className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${
-                isFormValid() ? "bg-indigo-600 hover:bg-indigo-700" : "bg-indigo-400 cursor-not-allowed"
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
-            >
-              {existingData.fullname ? "Update Profile" : "Create Profile"}
-            </button>
+                {/* Contact Number */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="contactNumber">
+                    Contact Number *
+                  </label>
+                  <input
+                    type="tel"
+                    id="contactNumber"
+                    name="contactNumber"
+                    value={formData.contactNumber}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Email */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="email">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Address */}
+                <div className="mb-4 md:col-span-2">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="address">
+                    Address *
+                  </label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* About */}
+                <div className="mb-4 md:col-span-2">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="about">
+                    About *
+                  </label>
+                  <textarea
+                    id="about"
+                    name="about"
+                    value={formData.about}
+                    onChange={handleChange}
+                    required
+                    rows="4"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Work Experience */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="workExperience">
+                    Work Experience (years) *
+                  </label>
+                  <input
+                    type="number"
+                    id="workExperience"
+                    name="workExperience"
+                    value={formData.workExperience}
+                    onChange={handleChange}
+                    min="0"
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Profile Picture */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 font-medium mb-2" htmlFor="profilePic">
+                    Profile Picture
+                  </label>
+                  <input
+                    type="file"
+                    id="profilePic"
+                    name="profilePic"
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-center mt-8">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`px-8 py-3 rounded-lg text-white font-medium text-lg transition-colors duration-200 ${
+                    isSubmitting 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-amber-500 hover:bg-amber-600 shadow-md hover:shadow-lg'
+                  }`}
+                >
+                  {isSubmitting ? 'Creating...' : 'Create Profile'}
+                </button>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
