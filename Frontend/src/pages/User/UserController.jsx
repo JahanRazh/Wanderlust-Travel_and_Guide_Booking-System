@@ -30,17 +30,68 @@ const UserController = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const navigate = useNavigate();
 
+  // Add new state for real-time updates
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
+
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
     return { headers: { Authorization: `Bearer ${token}` } };
   };
 
+  // Function to update user status
+  const updateUserStatus = (userId, status, lastLogin) => {
+    setUsers(prevUsers => 
+      prevUsers.map(user => 
+        user._id === userId 
+          ? { ...user, status, lastLogin } 
+          : user
+      )
+    );
+  };
+
+  // Function to fetch user status updates
+  const fetchUserStatusUpdates = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/get-users?page=${currentPage}&limit=10`, getAuthHeaders());
+      const updatedUsers = response.data.users;
+      
+      // Update only the status and lastLogin fields
+      setUsers(prevUsers => 
+        prevUsers.map(prevUser => {
+          const updatedUser = updatedUsers.find(u => u._id === prevUser._id);
+          if (updatedUser) {
+            return {
+              ...prevUser,
+              status: updatedUser.status,
+              lastLogin: updatedUser.lastLogin,
+              lastLogout: updatedUser.lastLogout
+            };
+          }
+          return prevUser;
+        })
+      );
+    } catch (err) {
+      console.error("Error fetching user status updates:", err);
+    }
+  };
+
+  // Set up polling for status updates
+  useEffect(() => {
+    const pollInterval = setInterval(() => {
+      fetchUserStatusUpdates();
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [currentPage]);
+
+  // Update fetchUserProfiles to include status information
   const fetchUserProfiles = async (page = 1) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/get-users?page=${page}&limit=10`, getAuthHeaders());
       setUsers(response.data.users);
       setTotalPages(response.data.totalPages);
       setCurrentPage(page);
+      setLastUpdate(Date.now());
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred while fetching user profiles.");
       toast.error("Failed to fetch user profiles");
