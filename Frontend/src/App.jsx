@@ -31,7 +31,6 @@ import NotFound from './components/NotFound';
 import CreateGuide from './pages/Guide/CreateGuide';
 import GuideProfile from './pages/Guide/GuideProfile';
 import AllGuides from './pages/Guide/AllGuides';
-import GuideForm from './pages/Guide/GuideForm';
 import ChatBot from './components/ChatBot';
 import Weatherprediction from './pages/WeatherForecast/Weatherprediction';
 
@@ -86,7 +85,6 @@ const App = () => {
             <Route path="/createguide" element={<CreateGuide />} />
             <Route path="/guideprofile/:guideId" element={<GuideProfile />} />
             <Route path="/allguides" element={<AllGuides />} />
-            <Route path="/guide/create" element={<GuideForm />} />
             <Route path="/weather" element={<Weatherprediction />} />
 
            
