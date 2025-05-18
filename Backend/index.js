@@ -37,6 +37,12 @@ app.use(cors({ origin: "*" }));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // Use routes
 app.use("/", authRoutes); // Authentication routes
 app.use("/", userRoutes);  // User routes
