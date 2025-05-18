@@ -11,48 +11,74 @@ const ResetPassword = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [touched, setTouched] = useState({ password: false, confirmPassword: false });
   const navigate = useNavigate();
   const { token } = useParams();
 
-  useEffect(() => {
-    console.log("Token from URL:", token);
-  }, [token]);
+  const validatePassword = (password) => {
+    const errors = [];
+    
+    if (!password) {
+      return "Password is required";
+    }
+    
+    if (password.length < 8) {
+      errors.push("At least 8 characters");
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push("One uppercase letter");
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push("One lowercase letter");
+    }
+    if (!/[0-9]/.test(password)) {
+      errors.push("One number");
+    }
+    if (!/[!@#$%^&*]/.test(password)) {
+      errors.push("One special character (!@#$%^&*)");
+    }
+    
+    return errors.length > 0 ? errors.join(", ") : null;
+  };
+
+  const validateConfirmPassword = (password, confirmPassword) => {
+    if (!confirmPassword) return "Please confirm your password";
+    if (password !== confirmPassword) return "Passwords do not match";
+    return null;
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    if (touched.password) {
+      setError(validatePassword(e.target.value));
+    }
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+    if (touched.confirmPassword) {
+      setError(validateConfirmPassword(password, e.target.value));
+    }
+  };
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    if (field === 'password') {
+      setError(validatePassword(password));
+    } else if (field === 'confirmPassword') {
+      setError(validateConfirmPassword(password, confirmPassword));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setTouched({ password: true, confirmPassword: true });
 
-    if (!password || !confirmPassword) {
-      setError("Please enter both password fields");
-      return;
-    }
+    const passwordError = validatePassword(password);
+    const confirmPasswordError = validateConfirmPassword(password, confirmPassword);
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long");
-      return;
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      setError("Password must contain at least one uppercase letter");
-      return;
-    }
-
-    if (!/[a-z]/.test(password)) {
-      setError("Password must contain at least one lowercase letter");
-      return;
-    }
-
-    if (!/[0-9]/.test(password)) {
-      setError("Password must contain at least one number");
-      return;
-    }
-
-    if (!/[!@#$%^&*]/.test(password)) {
-      setError("Password must contain at least one special character (!@#$%^&*)");
+    if (passwordError || confirmPasswordError) {
+      setError(passwordError || confirmPasswordError);
       return;
     }
 
@@ -68,11 +94,9 @@ const ResetPassword = () => {
 
       if (response.data && !response.data.error) {
         setSuccess("Password reset successful");
-
         if (response.data.accessToken) {
           localStorage.setItem("token", response.data.accessToken);
         }
-
         setTimeout(() => {
           navigate("/home");
         }, 2000);
@@ -107,8 +131,11 @@ const ResetPassword = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onChange={handlePasswordChange}
+                onBlur={() => handleBlur('password')}
+                className={`block w-full pl-10 pr-10 py-3 border ${
+                  error && touched.password ? 'border-red-500' : 'border-gray-300'
+                } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                 placeholder="New Password"
                 required
               />
@@ -132,23 +159,77 @@ const ResetPassword = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                onChange={handleConfirmPasswordChange}
+                onBlur={() => handleBlur('confirmPassword')}
+                className={`block w-full pl-10 pr-10 py-3 border ${
+                  error && touched.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
                 placeholder="Confirm New Password"
                 required
               />
             </div>
+
+            {error && (touched.password || touched.confirmPassword) && (
+              <p className="text-red-500 text-sm mt-1 flex items-center">
+                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {error}
+              </p>
+            )}
+
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</p>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li className={`flex items-center ${password.length >= 8 ? 'text-green-600' : 'text-gray-500'}`}>
+                  <svg className={`w-4 h-4 mr-2 ${password.length >= 8 ? 'text-green-500' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  At least 8 characters
+                </li>
+                <li className={`flex items-center ${/[A-Z]/.test(password) ? 'text-green-600' : 'text-gray-500'}`}>
+                  <svg className={`w-4 h-4 mr-2 ${/[A-Z]/.test(password) ? 'text-green-500' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  One uppercase letter
+                </li>
+                <li className={`flex items-center ${/[a-z]/.test(password) ? 'text-green-600' : 'text-gray-500'}`}>
+                  <svg className={`w-4 h-4 mr-2 ${/[a-z]/.test(password) ? 'text-green-500' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  One lowercase letter
+                </li>
+                <li className={`flex items-center ${/[0-9]/.test(password) ? 'text-green-600' : 'text-gray-500'}`}>
+                  <svg className={`w-4 h-4 mr-2 ${/[0-9]/.test(password) ? 'text-green-500' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  One number
+                </li>
+                <li className={`flex items-center ${/[!@#$%^&*]/.test(password) ? 'text-green-600' : 'text-gray-500'}`}>
+                  <svg className={`w-4 h-4 mr-2 ${/[!@#$%^&*]/.test(password) ? 'text-green-500' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  One special character (!@#$%^&*)
+                </li>
+              </ul>
+            </div>
           </div>
 
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          {success && <p className="text-green-500 text-sm">{success}</p>}
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              {success}
+            </div>
+          )}
 
           <div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || (touched.password && error)}
               className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white 
-                ${loading 
+                ${loading || (touched.password && error)
                   ? "bg-blue-400 cursor-not-allowed" 
                   : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
                 } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200`}
