@@ -44,10 +44,21 @@ const MainNavbar = () => {
         };
     }, [navigate, isLoggedIn]);
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        setIsLoggedIn(false);
-        navigate("/login");
+    const handleLogout = async () => {
+        try {
+            await axiosInstance.post("/logout");
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            setIsLoggedIn(false);
+            navigate("/login");
+        } catch (error) {
+            console.error("Error during logout:", error);
+            // Still remove local storage and redirect even if the API call fails
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            setIsLoggedIn(false);
+            navigate("/login");
+        }
     };
 
     const isActive = (path) => {

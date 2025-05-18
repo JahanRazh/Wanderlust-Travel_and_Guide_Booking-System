@@ -330,6 +330,12 @@ const UserController = () => {
               <th className="p-4 text-left cursor-pointer" onClick={() => handleSort('role')}>
                 Role {getSortIcon('role')}
               </th>
+              <th className="p-4 text-left cursor-pointer" onClick={() => handleSort('status')}>
+                Status {getSortIcon('status')}
+              </th>
+              <th className="p-4 text-left cursor-pointer" onClick={() => handleSort('lastLogin')}>
+                Last Login {getSortIcon('lastLogin')}
+              </th>
               <th className="p-4 text-left">Actions</th>
             </tr>
           </thead>
@@ -342,7 +348,11 @@ const UserController = () => {
                       <img 
                         src={`${API_BASE_URL}/${user.profileImage}`} 
                         alt="Profile" 
-                        className="w-10 h-10 rounded-full mr-3"
+                        className="w-10 h-10 rounded-full mr-3 object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName || 'User')}&background=random`;
+                        }}
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
@@ -363,6 +373,16 @@ const UserController = () => {
                   }`}>
                     {user.role || "N/A"}
                   </span>
+                </td>
+                <td className="p-4">
+                  <span className={`px-2 py-1 rounded-full text-xs ${
+                    user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
+                    {user.status || "inactive"}
+                  </span>
+                </td>
+                <td className="p-4">
+                  {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "Never"}
                 </td>
                 <td className="p-4">
                   <div className="flex space-x-2">
