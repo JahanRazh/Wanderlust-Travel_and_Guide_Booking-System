@@ -1,9 +1,9 @@
-// Create a new file: ForgotPassword.jsx
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { validateEmail } from "../../utils/helper";
 import axiosInstance from "../../utils/axiosInstance";
+import { FaEnvelope } from "react-icons/fa";
+import LOGO from "../../assets/images/logo/WANDERLUST.LOGO.png";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -45,47 +45,67 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="h-screen bg-cyan-50 overflow-hidden relative">
-      <div className="login-ui-box right-10 -top-40" />
-      <div className="login-ui-box" />
-      <div className="login-ui-box bg-cyan-200 -bottom-40 right-1/2" />
-      <div className="container h-screen flex justify-center items-center px-20 mx-auto">
-        <div className="w-full max-w-md p-10 bg-white rounded-lg shadow-lg z-50">
-          <form onSubmit={handleSubmit}>
-            <h4 className="text-2xl font-semibold mb-7">Reset Password</h4>
-            <p className="text-gray-600 mb-6">
-              Enter your email address and we'll send you a link to reset your password.
-            </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
+        <div className="text-center">
+          <img src={LOGO} alt="Wanderlust Logo" className="h-20 mx-auto mb-4" />
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Reset Password</h2>
+          <p className="text-gray-600">Enter your email to receive a reset link</p>
+        </div>
 
-            <label htmlFor="email" className="sr-only">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={({ target }) => setEmail(target.value)}
-              className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            />
-            
-            {error && <p className="text-red-500 text-xs pb-1">{error}</p>}
-            {success && <p className="text-green-500 text-xs pb-1">{success}</p>}
-            
-            <button type="submit" className="btn-primary w-full mt-4" disabled={loading}>
-              {loading ? "Sending..." : "Send Reset Link"}
-            </button>
-
-            <div className="text-center mt-6">
-              <button
-                type="button"
-                className="text-cyan-600 hover:underline"
-                onClick={() => navigate("/login")}
-              >
-                Back to Login
-              </button>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FaEnvelope className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={({ target }) => setEmail(target.value)}
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter your email address"
+                required
+              />
             </div>
-          </form>
+          </div>
+
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {success && <p className="text-green-500 text-sm">{success}</p>}
+
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white 
+                ${loading 
+                  ? "bg-blue-400 cursor-not-allowed" 
+                  : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200`}
+            >
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="w-5 h-5 border-t-2 border-white rounded-full animate-spin mr-2"></div>
+                  Sending...
+                </div>
+              ) : (
+                "Send Reset Link"
+              )}
+            </button>
+          </div>
+        </form>
+
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            Remember your password?{" "}
+            <button
+              onClick={() => navigate("/login")}
+              className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200"
+            >
+              Back to Login
+            </button>
+          </p>
         </div>
       </div>
     </div>
