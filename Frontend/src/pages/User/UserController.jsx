@@ -153,7 +153,7 @@ const UserController = () => {
   };
 
   const handleExportCSV = () => {
-    const headers = ['Full Name', 'Email', 'Gender', 'Phone', 'Address', 'NIC', 'Role'];
+    const headers = ['Full Name', 'Email', 'Gender', 'Phone', 'Address', 'NIC', 'Role', 'Status', 'Last Login'];
     const csvData = filteredUsers.map(user => [
       user.fullName || 'N/A',
       user.email || 'N/A',
@@ -161,7 +161,9 @@ const UserController = () => {
       user.phoneNumber || 'N/A',
       user.address || 'N/A',
       user.nic || 'N/A',
-      user.role || 'N/A'
+      user.role || 'N/A',
+      user.status || 'N/A',
+      user.lastLogin || 'N/A'
     ]);
 
     const csvContent = [
@@ -363,6 +365,8 @@ const UserController = () => {
               <th className="p-4 text-left">Address</th>
               <th className="p-4 text-left">NIC</th>
               <th className="p-4 text-left">Role</th>
+              <th className="p-4 text-left">Status</th>
+              <th className="p-4 text-left">Last Login</th>
             </tr>
           </thead>
           <tbody>
@@ -375,6 +379,8 @@ const UserController = () => {
                 <td className="p-4">{user.address || "N/A"}</td>
                 <td className="p-4">{user.nic || "N/A"}</td>
                 <td className="p-4">{user.role || "N/A"}</td>
+                <td className="p-4">{user.status || "N/A"}</td>
+                <td className="p-4">{user.lastLogin || "N/A"}</td>
               </tr>
             ))}
           </tbody>
