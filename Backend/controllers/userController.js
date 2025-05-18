@@ -53,8 +53,8 @@ const getUserById = async (req, res) => {
 // Get all users
 const getUsers = async (req, res) => {
   try {
-    // Fetch all users from the database
-    const users = await User.find({});
+    // Fetch all users from the database with status and lastLogin information
+    const users = await User.find({}).select('fullName email gender phoneNumber role status lastLogin lastLogout profileImage');
 
     // Return the list of users in the response
     return res.json({
@@ -107,8 +107,8 @@ const updateProfile = async (req, res) => {
         deleteFile(oldImagePath);
       }
 
-      // Save the new profile image path
-      updateData.profileImage = req.file.path;
+      // Save the new profile image path relative to uploads directory
+      updateData.profileImage = `uploads/${req.file.filename}`;
     }
 
     // Update the user profile
@@ -123,6 +123,7 @@ const updateProfile = async (req, res) => {
     return res.status(500).json({ error: true, message: "Internal Server Error" });
   }
 };
+
 // Delete a user
 const deleteUser = async (req, res) => {
   try {

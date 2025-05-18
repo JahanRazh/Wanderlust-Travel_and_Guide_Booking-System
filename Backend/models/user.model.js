@@ -23,7 +23,11 @@ const userSchema = new Schema({
     resetPasswordExpires: { type: Date, default: null },
     // Field to store the date the user account was created
     createdOn: { type: Date, default: Date.now },
-    role: { type: String, default: "user" }
+    role: { type: String, default: "user" },
+    // New fields for activity tracking
+    lastLogin: { type: Date, default: null },
+    lastLogout: { type: Date, default: null },
+    status: { type: String, enum: ['active', 'inactive'], default: 'inactive' }
 });
 
 module.exports = mongoose.model("User", userSchema);
