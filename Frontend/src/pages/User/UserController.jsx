@@ -5,7 +5,7 @@ import { BASE_URL } from "../../utils/constants";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import LOGO from '../../assets/images/logo/WANDERLUST.LOGO.png';
-import { FaSearch, FaFilter, FaPrint, FaDownload, FaSort, FaSortUp, FaSortDown } from 'react-icons/fa';
+import { FaSearch, FaFilter, FaPrint, FaDownload, FaSort, FaSortUp, FaSortDown, FaTimes, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaIdCard, FaUserTag, FaClock } from 'react-icons/fa';
 
 const API_BASE_URL = BASE_URL;
 
@@ -26,6 +26,8 @@ const UserController = () => {
     direction: 'asc'
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const navigate = useNavigate();
 
   const getAuthHeaders = () => {
@@ -52,7 +54,6 @@ const UserController = () => {
   }, [currentPage]);
 
   const handleDelete = async (userId) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await axios.delete(`${API_BASE_URL}/user/${userId}`, getAuthHeaders());
       setUsers(users.filter(user => user._id !== userId));
@@ -124,6 +125,16 @@ const UserController = () => {
     link.click();
   };
 
+  const handleViewProfile = (user) => {
+    setSelectedUser(user);
+    setShowProfileModal(true);
+  };
+
+  const closeProfileModal = () => {
+    setShowProfileModal(false);
+    setSelectedUser(null);
+  };
+
   // Enhanced filtering and sorting
   const filteredUsers = users
     .filter((user) => {
@@ -138,9 +149,9 @@ const UserController = () => {
         user.role?.toLowerCase().includes(query);
 
       const matchesFilters = 
-        (!filters.role || user.role === filters.role) &&
-        (!filters.gender || user.gender === filters.gender) &&
-        (!filters.status || user.status === filters.status);
+        (!filters.role || user.role?.toLowerCase() === filters.role.toLowerCase()) &&
+        (!filters.gender || user.gender?.toLowerCase() === filters.gender.toLowerCase()) &&
+        (!filters.status || user.status?.toLowerCase() === filters.status.toLowerCase());
 
       return matchesSearch && matchesFilters;
     })
@@ -148,13 +159,23 @@ const UserController = () => {
       if (!a[sortConfig.key]) return 1;
       if (!b[sortConfig.key]) return -1;
       
-      const aValue = a[sortConfig.key].toString().toLowerCase();
-      const bValue = b[sortConfig.key].toString().toLowerCase();
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // Handle date sorting
+      if (sortConfig.key === 'lastLogin' || sortConfig.key === 'lastLogout') {
+        aValue = aValue ? new Date(aValue).getTime() : 0;
+        bValue = bValue ? new Date(bValue).getTime() : 0;
+      } else {
+        // Handle string sorting
+        aValue = aValue.toString().toLowerCase();
+        bValue = bValue.toString().toLowerCase();
+      }
       
       if (sortConfig.direction === 'asc') {
-        return aValue.localeCompare(bValue);
+        return aValue > bValue ? 1 : -1;
       }
-      return bValue.localeCompare(aValue);
+      return aValue < bValue ? 1 : -1;
     });
 
   const getSortIcon = (key) => {
@@ -246,9 +267,9 @@ const UserController = () => {
               className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Genders</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
             </select>
 
             <select
@@ -260,7 +281,6 @@ const UserController = () => {
               <option value="">All Status</option>
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
-              <option value="pending">Pending</option>
             </select>
           </div>
           
@@ -387,6 +407,12 @@ const UserController = () => {
                 <td className="p-4">
                   <div className="flex space-x-2">
                     <button
+                      onClick={() => handleViewProfile(user)}
+                      className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+                    >
+                      View
+                    </button>
+                    <button
                       onClick={() => handleEdit(user._id)}
                       className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                     >
@@ -432,7 +458,180 @@ const UserController = () => {
         </div>
       </div>
 
-      <ToastContainer position="bottom-right" />
+      {/* Profile View Modal */}
+      {showProfileModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto transform transition-all">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-xl">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-gray-800">User Profile</h2>
+                <button
+                  onClick={closeProfileModal}
+                  className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                >
+                  <FaTimes size={24} />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Profile Image Section */}
+                <div className="flex flex-col items-center bg-gray-50 p-6 rounded-xl">
+                  {selectedUser.profileImage ? (
+                    <img
+                      src={`${API_BASE_URL}/${selectedUser.profileImage}`}
+                      alt="Profile"
+                      className="w-40 h-40 rounded-full object-cover mb-4 shadow-lg border-4 border-white"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedUser.fullName || 'User')}&background=random`;
+                      }}
+                    />
+                  ) : (
+                    <div className="w-40 h-40 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 shadow-lg border-4 border-white">
+                      <span className="text-5xl text-white font-semibold">
+                        {selectedUser.fullName?.charAt(0) || '?'}
+                      </span>
+                    </div>
+                  )}
+                  <h3 className="text-2xl font-semibold text-gray-800 mb-2">{selectedUser.fullName}</h3>
+                  <span className={`px-4 py-2 rounded-full text-sm font-medium ${
+                    selectedUser.role === 'admin' ? 'bg-purple-100 text-purple-800' :
+                    selectedUser.role === 'guide' ? 'bg-blue-100 text-blue-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {selectedUser.role}
+                  </span>
+                </div>
+
+                {/* User Details Section */}
+                <div className="space-y-6">
+                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4">Personal Information</h4>
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
+                          <FaEnvelope className="text-blue-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Email</p>
+                          <p className="font-medium text-gray-800">{selectedUser.email}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                          <FaPhone className="text-green-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Phone</p>
+                          <p className="font-medium text-gray-800">{selectedUser.phoneNumber || 'Not provided'}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center">
+                          <FaUser className="text-purple-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Gender</p>
+                          <p className="font-medium text-gray-800">{selectedUser.gender || 'Not provided'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <h4 className="text-lg font-semibold text-gray-800 mb-4">Additional Information</h4>
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
+                          <FaMapMarkerAlt className="text-orange-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Address</p>
+                          <p className="font-medium text-gray-800">{selectedUser.address || 'Not provided'}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center">
+                          <FaIdCard className="text-red-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">NIC</p>
+                          <p className="font-medium text-gray-800">{selectedUser.nic || 'Not provided'}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center">
+                          <FaUserTag className="text-yellow-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Status</p>
+                          <p className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                            selectedUser.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {selectedUser.status || 'inactive'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
+                          <FaClock className="text-indigo-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Last Login</p>
+                          <p className="font-medium text-gray-800">
+                            {selectedUser.lastLogin ? new Date(selectedUser.lastLogin).toLocaleString() : 'Never'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="mt-8 flex justify-end space-x-4">
+                <button
+                  onClick={() => handleEdit(selectedUser._id)}
+                  className="px-6 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
+                >
+                  Edit Profile
+                </button>
+                <button
+                  onClick={() => {
+                    handleDelete(selectedUser._id);
+                    closeProfileModal();
+                  }}
+                  className="px-6 py-2.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium shadow-sm hover:shadow-md"
+                >
+                  Delete User
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   );
 };
