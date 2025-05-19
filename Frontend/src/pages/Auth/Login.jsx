@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PasswordInput from "../../components/Input/PasswordInput";
-import { validateEmail } from "../../utils/helper";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import LOGO from "../../assets/images/logo/WANDERLUST.LOGO.png";
 import axiosInstance from "../../utils/axiosInstance";
+import { validateEmail } from "../../utils/helper";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -27,34 +29,30 @@ const Login = () => {
     setError("");
     setLoading(true);
 
-    // Login API Call
     try {
       const response = await axiosInstance.post("/login", {
         email: email,
         password: password,
       });
 
-      // Handle success login response
       if (response.data && response.data.accessToken) {
         console.log("Login successful, token:", response.data.accessToken);
         localStorage.setItem("token", response.data.accessToken);
         localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        // Extract role from the response
         const role = response.data.user.role;
 
-        // Check if the user is an admin if(email === "admin@wanderlust.com" && password === "Admin")
         if (role === "admin") {
           console.log("Admin detected, navigating to /admindashboard");
-          navigate("/admindashboard"); // Use absolute path
+          navigate("/admindashboard");
         } else {
           console.log("Regular user, navigating to /home");
-          navigate("/home"); // Navigate to home page for regular users
+          navigate("/home");
         }
       }
     } catch (error) {
       console.error("Login error:", error);
-      if (error.response && error.response.data && error.response.data.message) {
+      if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else {
         setError("Something went wrong. Please try again later.");
@@ -71,7 +69,7 @@ const Login = () => {
       <div className="login-ui-box bg-cyan-200 -bottom-40 right-1/2" />
       <div className="container h-screen flex justify-center items-center px-20 mx-auto">
         {/* Left Side: Background Image and Text */}
-        <div className="w-2/4 h-[90vh] flex items-end bg-login-bg-img bg-cover bg-center rounded-lg shadow-lg p-10 z-50 relative">
+        <div className="w-1/2 h-[90vh] flex items-end bg-login-bg-img bg-cover bg-center rounded-lg shadow-lg p-10 z-50 relative">
           <div className="absolute top-10 left-10 text-white">
             <h4 className="text-4xl font-bold mb-4">
               Capture Your <br />
@@ -86,33 +84,69 @@ const Login = () => {
         </div>
 
         {/* Right Side: Login Form */}
-        <div className="w-2/4 p-10 bg-white rounded-lg shadow-lg z-50">
-          <form onSubmit={handleLogin}>
-            <h4 className="text-2xl font-semibold mb-7">Login</h4>
+        <div className="w-1/2 p-10 bg-white rounded-lg shadow-lg z-50">
+          <div className="text-center mb-6">
+            <img src={LOGO} alt="Wanderlust Logo" className="h-16 mx-auto mb-4" />
+            <h4 className="text-2xl font-semibold">Welcome Back</h4>
+            <p className="text-gray-600">Sign in to your account</p>
+          </div>
 
-            <label htmlFor="email" className="sr-only">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={({ target }) => {
-                setEmail(target.value);
-              }}
-              className="w-full p-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
-            />
-            <br />
-            <PasswordInput
-              value={password}
-              onChange={({ target }) => {
-                setPassword(target.value);
-              }}
-            />
-            
-            {/* Add Forgot Password Link */}
-            <div className="flex justify-end mt-1 mb-4">
+          <form onSubmit={handleLogin}>
+            <div className="mb-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaEnvelope className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Email address"
+                  value={email}
+                  onChange={({ target }) => setEmail(target.value)}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FaLock className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={({ target }) => setPassword(target.value)}
+                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                  {showPassword ? (
+                    <FaEyeSlash className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  ) : (
+                    <FaEye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  Remember me
+                </label>
+              </div>
+
               <button
                 type="button"
                 className="text-sm text-cyan-600 hover:underline"
@@ -121,21 +155,43 @@ const Login = () => {
                 Forgot Password?
               </button>
             </div>
-            
-            {error && <p className="text-red-500 text-xs pb-1">{error}</p>}
-            <button type="submit" className="btn-primary" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
-            </button>
 
-            <p className="text sm text-gray-500 text-center my-4">Or</p>
+            {error && (
+              <p className="text-red-500 text-sm mb-4 flex items-center">
+                <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                {error}
+              </p>
+            )}
 
             <button
-              type="button"
-              className="btn-light btn-primary"
-              onClick={() => navigate("/signup")}
+              type="submit"
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-2 px-4 rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition-all duration-200"
+              disabled={loading}
             >
-              CREATE ACCOUNT
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-4 h-4 border-t-2 border-white rounded-full animate-spin mr-2"></div>
+                  Signing in...
+                </div>
+              ) : (
+                "Sign in"
+              )}
             </button>
+
+            <div className="text-center mt-4">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  className="text-cyan-600 hover:underline"
+                  onClick={() => navigate("/signup")}
+                >
+                  Sign up
+                </button>
+              </p>
+            </div>
           </form>
         </div>
       </div>
