@@ -429,18 +429,16 @@ const AdminPackageList = () => {
 
         {/* View Package Modal */}
         {viewingPackage && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/30 to-pink-500/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white/95 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-white/20">
               <div className="p-6">
                 <div className="flex justify-between items-start">
                   <h3 className="text-2xl font-bold text-gray-900">{viewingPackage.packageName}</h3>
                   <button
                     onClick={() => setViewingPackage(null)}
-                    className="text-gray-400 hover:text-gray-500"
+                    className="text-gray-400 hover:text-gray-500 transition-colors"
                   >
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <XMarkIcon className="h-6 w-6" />
                   </button>
                 </div>
                 
@@ -523,18 +521,16 @@ const AdminPackageList = () => {
 
         {/* Edit Package Modal */}
         {editingPackage && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/30 to-pink-500/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white/95 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-white/20">
               <div className="p-6">
                 <div className="flex justify-between items-start">
                   <h3 className="text-2xl font-bold text-gray-900">Edit Package</h3>
                   <button
                     onClick={() => setEditingPackage(null)}
-                    className="text-gray-400 hover:text-gray-500"
+                    className="text-gray-400 hover:text-gray-500 transition-colors"
                   >
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <XMarkIcon className="h-6 w-6" />
                   </button>
                 </div>
                 
