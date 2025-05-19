@@ -48,7 +48,7 @@ const Guideview = () => {
       <div className="flex flex-col md:flex-row justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-4 md:mb-0">Our Professional Guides</h1>
         <Link
-          to="/createguide"
+          to="/guideform"
           className="bg-amber-600 text-white px-6 py-3 rounded-md hover:bg-amber-700 transition-colors duration-300 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-1"
         >
           Join as a Guide
