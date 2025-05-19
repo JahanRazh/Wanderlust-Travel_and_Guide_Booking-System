@@ -34,6 +34,7 @@ import AllGuides from './pages/Guide/AllGuides';
 import GuideForm from './pages/Guide/GuideForm';
 import ChatBot from './components/ChatBot';
 import Weatherprediction from './pages/WeatherForecast/Weatherprediction';
+import GuideApplications from './pages/Admin/GuideApplications';
 
 const App = () => {
   const [userId, setUserId] = useState(localStorage.getItem('userId') || null);
@@ -91,6 +92,7 @@ const App = () => {
 
            
             <Route path="/chatbot" element={<ChatBot />} />
+            <Route path="/admin/guide-applications" element={<GuideApplications />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
