@@ -4,16 +4,20 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { PackageIcon, Hotel, Users, Compass, Calendar, Printer } from "lucide-react";
 import DateTime from "../../components/datetime";
+import { FaCheck, FaTimes, FaEye } from 'react-icons/fa';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [bookedPackages, setBookedPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [guideApplications, setGuideApplications] = useState([]);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchBookedPackages();
+    fetchGuideApplications();
   }, []);
 
   // State to store counts
@@ -177,6 +181,61 @@ const Dashboard = () => {
     </div>
   );
 
+  // Update the fetchGuideApplications function
+  const fetchGuideApplications = async () => {
+    try {
+      console.log('Fetching guide applications...');
+      const response = await axios.get('http://localhost:3000/guide/applications');
+      console.log('Guide applications response:', response.data);
+      
+      if (response.data && Array.isArray(response.data)) {
+        setGuideApplications(response.data);
+        setError(null);
+      } else {
+        console.error('Invalid data format received:', response.data);
+        setError('No guide application data available');
+      }
+    } catch (error) {
+      console.error('Error fetching guide applications:', error);
+      if (error.response) {
+        setError(`Error: ${error.response.data.message || 'Server error occurred'}`);
+      } else if (error.request) {
+        setError('No response from server. Please check your connection.');
+      } else {
+        setError('Failed to fetch guide applications. Please try again later.');
+      }
+    }
+  };
+
+  // Add new function to handle guide application approval
+  const handleApproveGuide = async (id) => {
+    try {
+      await axios.put(`http://localhost:3000/guide/applications/${id}/approve`);
+      fetchGuideApplications(); // Refresh the list
+      alert('Guide application approved successfully!');
+    } catch (err) {
+      console.error('Error approving guide application:', err);
+    }
+  };
+
+  // Add new function to handle guide application rejection
+  const handleRejectGuide = async (id) => {
+    if (window.confirm('Are you sure you want to reject this application?')) {
+      try {
+        await axios.put(`http://localhost:3000/guide/applications/${id}/reject`);
+        fetchGuideApplications(); // Refresh the list
+        alert('Guide application rejected successfully!');
+      } catch (err) {
+        console.error('Error rejecting guide application:', err);
+      }
+    }
+  };
+
+  // Add new function to handle viewing guide application details
+  const handleViewGuide = (application) => {
+    setSelectedApplication(application);
+  };
+
   return (
     <div className="min-h-screen bg-gray-200 p-8">
       <div className="mb-6">
@@ -309,7 +368,7 @@ const Dashboard = () => {
       </div>
 
       {/* Booked Packages List Section */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-semibold text-gray-800">Recent Bookings</h2>
           <div className="flex space-x-4">
@@ -415,6 +474,226 @@ const Dashboard = () => {
           </div>
         )}
       </div>
+
+      {/* Guide Applications Section */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold text-gray-800">Guide Applications</h2>
+          <div className="flex space-x-4">
+            <button
+              onClick={fetchGuideApplications}
+              className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <div className="text-red-600 mb-4">{error}</div>
+            <button
+              onClick={fetchGuideApplications}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : guideApplications.length === 0 ? (
+          <div className="text-center text-gray-500 py-4">
+            No guide applications found
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guide Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {guideApplications.map((application) => (
+                  <tr key={application._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="h-10 w-10 flex-shrink-0">
+                          {application.profilePic ? (
+                            <img
+                              className="h-10 w-10 rounded-full object-cover"
+                              src={`http://localhost:3000${application.profilePic}`}
+                              alt={application.fullname}
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                              <span className="text-gray-500 text-sm">
+                                {application.fullname.charAt(0)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {application.fullname}
+                          </div>
+                          <div className="text-sm text-gray-500">{application.email}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{application.contactNumber}</div>
+                      <div className="text-sm text-gray-500">{application.address}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{application.workExperience} years</div>
+                      <div className="text-sm text-gray-500">{application.age} years old</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        application.isApproved ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {application.isApproved ? 'Approved' : 'Pending'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleViewGuide(application)}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="View Details"
+                        >
+                          <FaEye />
+                        </button>
+                        {!application.isApproved && (
+                          <>
+                            <button
+                              onClick={() => handleApproveGuide(application._id)}
+                              className="text-green-600 hover:text-green-900"
+                              title="Approve"
+                            >
+                              <FaCheck />
+                            </button>
+                            <button
+                              onClick={() => handleRejectGuide(application._id)}
+                              className="text-red-600 hover:text-red-900"
+                              title="Reject"
+                            >
+                              <FaTimes />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* View Application Modal */}
+      {selectedApplication && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6">
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-2xl font-bold">Guide Application Details</h2>
+              <button
+                onClick={() => setSelectedApplication(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center space-x-4">
+                {selectedApplication.profilePic && (
+                  <img
+                    src={`http://localhost:3000${selectedApplication.profilePic}`}
+                    alt={selectedApplication.fullname}
+                    className="w-24 h-24 rounded-full object-cover"
+                  />
+                )}
+                <div>
+                  <h3 className="text-xl font-semibold">{selectedApplication.fullname}</h3>
+                  <p className="text-gray-600">{selectedApplication.email}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Age</p>
+                  <p>{selectedApplication.age}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Gender</p>
+                  <p>{selectedApplication.gender}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Contact Number</p>
+                  <p>{selectedApplication.contactNumber}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Work Experience</p>
+                  <p>{selectedApplication.workExperience} years</p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500">Address</p>
+                <p>{selectedApplication.address}</p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-500">About</p>
+                <p>{selectedApplication.about}</p>
+              </div>
+
+              {selectedApplication.certificate && (
+                <div>
+                  <p className="text-sm text-gray-500">Certificate</p>
+                  <a
+                    href={`http://localhost:3000${selectedApplication.certificate}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    View Certificate
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {!selectedApplication.isApproved && (
+              <div className="mt-6 flex justify-end space-x-4">
+                <button
+                  onClick={() => handleRejectGuide(selectedApplication._id)}
+                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                >
+                  Reject
+                </button>
+                <button
+                  onClick={() => handleApproveGuide(selectedApplication._id)}
+                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Approve
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
