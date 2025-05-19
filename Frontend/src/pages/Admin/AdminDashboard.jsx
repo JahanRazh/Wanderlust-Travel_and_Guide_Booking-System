@@ -5,6 +5,32 @@ import axios from "axios";
 import { PackageIcon, Hotel, Users, Compass, Calendar, Printer } from "lucide-react";
 import DateTime from "../../components/datetime";
 import { FaCheck, FaTimes, FaEye } from 'react-icons/fa';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -13,6 +39,13 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const [guideApplications, setGuideApplications] = useState([]);
   const [selectedApplication, setSelectedApplication] = useState(null);
+  const [chartData, setChartData] = useState({
+    monthlyIncome: [],
+    bookingStatus: {},
+    packageBookings: [],
+  });
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [confirmedPackages, setConfirmedPackages] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -36,6 +69,7 @@ const Dashboard = () => {
       
       if (response.data && Array.isArray(response.data)) {
         setBookedPackages(response.data);
+        processChartData(response.data);
         setError(null); // Clear any previous errors
       } else {
         console.error("Invalid data format received:", response.data);
@@ -236,37 +270,167 @@ const Dashboard = () => {
     setSelectedApplication(application);
   };
 
+  // Add new function to process data for charts
+  const processChartData = (bookings) => {
+    // Process monthly income
+    const monthlyIncome = {};
+    const currentDate = new Date();
+    let totalConfirmedIncome = 0;
+    let confirmedCount = 0;
+    
+    bookings.forEach(booking => {
+      const bookingDate = new Date(booking.startDate);
+      const monthYear = `${bookingDate.getMonth() + 1}/${bookingDate.getFullYear()}`;
+      
+      if (booking.status === 'confirmed') {
+        monthlyIncome[monthYear] = (monthlyIncome[monthYear] || 0) + booking.totalBudget;
+        totalConfirmedIncome += booking.totalBudget;
+        confirmedCount++;
+      }
+    });
+
+    setTotalIncome(totalConfirmedIncome);
+    setConfirmedPackages(confirmedCount);
+
+    // Process booking status
+    const bookingStatus = {
+      confirmed: 0,
+      pending: 0,
+      cancelled: 0,
+      expired: 0
+    };
+
+    bookings.forEach(booking => {
+      const endDate = new Date(booking.endDate);
+      if (endDate < currentDate && booking.status === 'confirmed') {
+        bookingStatus.expired++;
+      } else {
+        bookingStatus[booking.status]++;
+      }
+    });
+
+    // Process package bookings
+    const packageBookings = {};
+    bookings.forEach(booking => {
+      if (booking.packageName) {
+        packageBookings[booking.packageName] = (packageBookings[booking.packageName] || 0) + 1;
+      }
+    });
+
+    setChartData({
+      monthlyIncome: Object.entries(monthlyIncome).map(([month, income]) => ({
+        month,
+        income
+      })),
+      bookingStatus,
+      packageBookings: Object.entries(packageBookings).map(([name, count]) => ({
+        name,
+        count
+      }))
+    });
+  };
+
+  // Chart configurations
+  const incomeChartData = {
+    labels: chartData.monthlyIncome.map(item => item.month),
+    datasets: [
+      {
+        label: 'Monthly Income',
+        data: chartData.monthlyIncome.map(item => item.income),
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1,
+        fill: false,
+      },
+    ],
+  };
+
+  const statusChartData = {
+    labels: ['Confirmed', 'Pending', 'Cancelled', 'Expired'],
+    datasets: [
+      {
+        data: [
+          chartData.bookingStatus.confirmed,
+          chartData.bookingStatus.pending,
+          chartData.bookingStatus.cancelled,
+          chartData.bookingStatus.expired,
+        ],
+        backgroundColor: [
+          'rgb(34, 197, 94)',
+          'rgb(234, 179, 8)',
+          'rgb(239, 68, 68)',
+          'rgb(156, 163, 175)',
+        ],
+      },
+    ],
+  };
+
+  const packageChartData = {
+    labels: chartData.packageBookings.map(item => item.name),
+    datasets: [
+      {
+        label: 'Number of Bookings',
+        data: chartData.packageBookings.map(item => item.count),
+        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+        borderColor: 'rgb(59, 130, 246)',
+        borderWidth: 1,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-gray-200 p-8">
       <div className="mb-6">
         <DateTime />
       </div>
 
-      {/* Count Cards Section */}
+      {/* Income and Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Total Income Card */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Income</p>
+              <p className="text-2xl font-bold text-green-600">${totalIncome.toLocaleString()}</p>
+            </div>
+            <div className="bg-green-100 p-3 rounded-full">
+              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <p className="mt-2 text-sm text-gray-500">From {confirmedPackages} confirmed packages</p>
+        </div>
+
+        {/* Confirmed Packages Card */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Confirmed Packages</p>
+              <p className="text-2xl font-bold text-blue-600">{confirmedPackages}</p>
+            </div>
+            <div className="bg-blue-100 p-3 rounded-full">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+          </div>
+          <p className="mt-2 text-sm text-gray-500">Active bookings</p>
+        </div>
+
+        {/* Total Packages Card */}
         <CountCard
           icon={PackageIcon}
           title="Total Packages"
           count={counts.packages}
           onClick={() => navigate("/admin/packages")}
         />
-        <CountCard
-          icon={Hotel}
-          title="Total Hotels"
-          count={counts.hotels}
-          onClick={() => navigate("/admin/hotels")}
-        />
+
+        {/* Total Guides Card */}
         <CountCard
           icon={Compass}
           title="Total Guides"
           count={counts.guides}
           onClick={() => navigate("/allguides")}
-        />
-        <CountCard
-          icon={Users}
-          title="Total Users"
-          count={counts.users}
-          onClick={() => navigate("/admin/usercontroller")}
         />
       </div>
 
@@ -600,6 +764,35 @@ const Dashboard = () => {
             </table>
           </div>
         )}
+      </div>
+
+      {/* Package Bookings Chart - Moved to bottom */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Package Bookings Overview</h2>
+        <Bar
+          data={packageChartData}
+          options={{
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+              title: {
+                display: true,
+                text: 'Number of Bookings per Package',
+              },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Number of Bookings',
+                },
+              },
+            },
+          }}
+        />
       </div>
 
       {/* View Application Modal */}
