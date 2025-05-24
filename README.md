@@ -36,3 +36,8 @@ The system consists of the following core modules:
 1. Clone the repository:
    ```bash
    git clone https://github.com/JahanRazh/Wanderlust-Travel_and_Guide_Booking-System
+
+
+
+   admin@wanderlust.com
+   Admin
