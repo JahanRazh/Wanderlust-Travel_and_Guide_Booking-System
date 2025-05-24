@@ -17,6 +17,7 @@ const packageRoute = require("./routes/Admin/packageRoute");
 const hotelRoute = require("./routes/Admin/hotelRoute");
 const bookingRoute = require("./routes/Admin/bookingRoute");
 const guideRoute = require("./routes/Guide/guideRoutes");
+const newGuideRoute = require("./routes/Guide/newguideRoutes");
 const uploadDir = path.join(__dirname, 'uploads/packages4to');
 
 if (!fs.existsSync(uploadDir)) {
@@ -51,7 +52,8 @@ app.use("/", packageRoute); // Package routes
 app.use("/", hotelRoute); // Hotel routes
 app.use("/", weatherRoutes); // Weather routes
 app.use("/", bookingRoute); // Booking routes
-app.use("/", guideRoute); // Guide routes
+app.use("/", guideRoute);
+app.use("/guide", newGuideRoute);  // Changed from "/" to "/guide"
 
 
 // Start the server
