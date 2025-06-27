@@ -65,6 +65,12 @@ const login = async (req, res) => {
     if (!validPassword) {
       return res.status(400).json({ error: true, message: "Invalid password" });
     }
+
+    // Update last login time and status
+    user.lastLogin = new Date();
+    user.status = 'active';
+    await user.save();
+
     // Generate a JWT access token for the authenticated user
     const accessToken = jwt.sign(
       { userId: user._id },
@@ -74,7 +80,13 @@ const login = async (req, res) => {
     // Return a success response with the user details and access token
     return res.status(200).json({
       error: false,
-      user: { fullName: user.fullName, email: user.email, role: user.role },//by role identify the user or admin
+      user: { 
+        fullName: user.fullName, 
+        email: user.email, 
+        role: user.role,
+        status: user.status,
+        lastLogin: user.lastLogin 
+      },
       accessToken,
       message: "Login successful",
     });
@@ -239,9 +251,36 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// Logout user
+const logout = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: true, message: "User not found" });
+    }
+
+    // Update last logout time and status
+    user.lastLogout = new Date();
+    user.status = 'inactive';
+    await user.save();
+
+    return res.status(200).json({
+      error: false,
+      message: "Logout successful"
+    });
+  } catch (err) {
+    console.error("Error during logout:", err.message);
+    return res.status(500).json({ error: true, message: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   register,
   login,
+  logout,
   forgotPassword,
   resetPassword,
 };

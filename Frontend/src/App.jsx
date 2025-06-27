@@ -31,8 +31,10 @@ import NotFound from './components/NotFound';
 import CreateGuide from './pages/Guide/CreateGuide';
 import GuideProfile from './pages/Guide/GuideProfile';
 import AllGuides from './pages/Guide/AllGuides';
+import GuideForm from './pages/Guide/GuideForm';
 import ChatBot from './components/ChatBot';
 import Weatherprediction from './pages/WeatherForecast/Weatherprediction';
+import GuideApplications from './pages/Admin/GuideApplications';
 import AllGuides from './pages/Guide/AllGuides';
 
 
@@ -89,10 +91,12 @@ const App = () => {
             <Route path="/createguide" element={<CreateGuide />} />
             <Route path="/guideprofile/:guideId" element={<GuideProfile />} />
             <Route path="/allguides" element={<AllGuides />} />
+            <Route path="/guideform" element={<GuideForm />} />
             <Route path="/weather" element={<Weatherprediction />} />
 
            
             <Route path="/chatbot" element={<ChatBot />} />
+            <Route path="/admin/guide-applications" element={<GuideApplications />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

@@ -126,7 +126,7 @@ const CreateGuide = () => {
       if (response.data.message === 'Profile created successfully!') {
         setSuccess('Guide profile created successfully!');
         // Navigate to the guide profile page
-        navigate('/guideprofile');
+        navigate('/allguides');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Error creating guide profile');
